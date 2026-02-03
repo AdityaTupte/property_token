@@ -21,11 +21,13 @@ pub struct PropertySystemAccount{
 
     pub creator: Pubkey,                // Genesis initializer (NOT governance)
 
+    pub bump : u8,
+
 }
 
 impl PropertySystemAccount{
 
-pub const SIZE : usize = 32 + 32 + 32 + 32 + 8 + 2 + 8 + 32 ;
+pub const SIZE : usize = 32 + 32 + 32 + 32 + 8 + 2 + 8 + 32 + 1 ;
 
 
 

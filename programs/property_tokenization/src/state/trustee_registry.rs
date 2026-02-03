@@ -5,15 +5,15 @@ pub const MAX_TRUSTEES: usize = 5 ;
 
 pub struct TrusteeRegistry{
 
-    pub property_system_accout : Pubkey,
+pub property_system_accout: Pubkey,      // Property system this trustee registry belongs to
 
-    pub trustees: [Pubkey; MAX_TRUSTEES],
+pub trustees: [Pubkey; MAX_TRUSTEES],    // Fixed list of trustee public keys
 
-    pub total_trustees: u8,
-    
-    pub threshold: u8,
-    
-    pub bump: u8,
+pub total_trustees: u8,                  // Number of active trustees in the list
+
+pub threshold: u8,                       // Minimum approvals required for a valid decision
+
+pub bump: u8,                            // PDA bump seed for address derivation
 
 }
 

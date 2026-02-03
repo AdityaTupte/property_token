@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
-use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint, TokenAccount, TokenInterface}};
-use crate::state::{ArbitratorRegistry, PropertySystemCounter, PropertySystemAccount, TreasuryPda, TrusteeRegistry};
+use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint,MintToChecked,mint_to_checked, TokenAccount, TokenInterface}};
+use crate::state::{ArbitratorRegistry, PropertySystemAccount, PropertySystemCounter, TreasuryPda, TrusteeRegistry};
 
 #[derive(Accounts)]
 #[instruction(decimal:u8)]
@@ -10,6 +10,11 @@ pub struct PropertySystemAcc<'info>{
     #[account(mut)]
     pub creator: Signer<'info>,
 
+    #[account(
+        mut,
+        seeds = [b"property_system_count"],
+        bump
+    )]
     pub property_system_count : Account<'info,PropertySystemCounter>,
 
     #[account(
@@ -34,7 +39,7 @@ pub struct PropertySystemAcc<'info>{
         space = 8 + TreasuryPda::SIZE,
     )]
 
-    pub treasury_acc : Account<'info,TreasuryPda>,
+    pub treasury_pda : Account<'info,TreasuryPda>,
 
     #[account(
         init,
@@ -66,6 +71,8 @@ pub struct PropertySystemAcc<'info>{
     )]
     pub governance_mint: InterfaceAccount<'info, Mint>,
 
+    // later add metadata program
+
     #[account(
         init,
         payer = creator,
@@ -74,8 +81,8 @@ pub struct PropertySystemAcc<'info>{
         associated_token::token_program = token_program,
     )]
 
-    pub creator_ata : InterfaceAccount<'info, TokenAccount>,
 
+    pub creator_ata : InterfaceAccount<'info, TokenAccount>,
 
     pub token_program: Interface<'info, TokenInterface>,
 
@@ -83,10 +90,88 @@ pub struct PropertySystemAcc<'info>{
     
     pub system_program: Program<'info, System>,
 
+}
 
+pub fn create_property_system_account(ctx:Context<PropertySystemAcc>,decimal:u8,amount:u64)->Result<()>{
 
+    let property_system_count = &mut ctx.accounts.property_system_count;
 
+    let property_system_acc = &mut ctx.accounts.property_system_acc;
 
+    let treasury_pda = &mut ctx.accounts.treasury_pda;
 
+    let trustee_registry = &mut ctx.accounts.trustee_registry;
+
+    let arbitrator_registry = &mut ctx.accounts.arbitrator_registry;
+
+    let governance_mint = &mut ctx.accounts.governance_mint;
+
+    let creator_ata = &mut ctx.accounts.creator_ata;
+
+    
+    let signer_seeds: &[&[&[u8]]] = &[&[
+        b"property-system-account".as_ref(),
+        &(property_system_count.total_property_system + 1).to_le_bytes(),
+        &[ctx.bumps.property_system_acc]]];
+    
+    let cpi_ctx = CpiContext::new_with_signer(
+        ctx.accounts.token_program.to_account_info(),
+        MintToChecked{
+            mint:governance_mint.to_account_info(),
+            to:creator_ata.to_account_info(),   
+            authority:property_system_acc.to_account_info()
+        },
+        &signer_seeds,
+    );
+    
+    mint_to_checked(cpi_ctx,amount,decimal)?;
+
+    let current_time = Clock::get()?.unix_timestamp;
+
+    property_system_count.total_property_system  += 1;
+
+    property_system_acc.governance_mint = governance_mint.key();
+
+    property_system_acc.treasury = treasury_pda.key();
+
+    property_system_acc.trustee_registry = trustee_registry.key();
+
+    property_system_acc.arbitrator_registry = arbitrator_registry.key();
+
+    property_system_acc.total_properties = 0;
+
+    property_system_acc.max_page = 0;
+
+    property_system_acc.created_at = current_time;
+
+    property_system_acc.creator = ctx.accounts.creator.key();
+
+    property_system_acc.bump = ctx.bumps.property_system_acc;
+
+    //treasury_pda
+
+    treasury_pda.property_system_accout = property_system_acc.key();
+
+    // treasury_pda.revenue_acc = ;
+
+    // treasury_pda.reinvenstement_acc = ;
+
+    // treasury_pda.safety_acc =  ;
+
+    treasury_pda.bump = ctx.bumps.treasury_pda;
+
+    // trusteeregistry
+
+    trustee_registry.property_system_accout = property_system_acc.key();
+
+    trustee_registry.bump = ctx.bumps.trustee_registry;
+
+    //arbitrator_registry
+
+    arbitrator_registry.property_system_accout = property_system_acc.key();
+
+    arbitrator_registry.bump = ctx.bumps.arbitrator_registry;
+
+    Ok(())
 
 }

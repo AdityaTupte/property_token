@@ -5,15 +5,16 @@ pub const MAX_ARBITRATOR: usize = 5 ;
 
 pub struct ArbitratorRegistry{
 
-    pub property_system_accout : Pubkey,
+pub property_system_accout: Pubkey,        // Property system this arbitrator registry belongs to
 
-    pub arbitrator: [Pubkey; MAX_ARBITRATOR],
+pub arbitrator: [Pubkey; MAX_ARBITRATOR],  // Fixed list of arbitrator public keys
 
-    pub total_arbitrator: u8,
-    
-    pub threshold: u8,
-    
-    pub bump: u8,
+pub total_arbitrator: u8,                  // Number of active arbitrators
+
+pub threshold: u8,                         // Minimum approvals required for arbitration decisions
+
+pub bump: u8,                              // PDA bump seed for address derivation
+
 
 }
 
