@@ -11,7 +11,7 @@ pub trustees: [Pubkey; MAX_TRUSTEES],    // Fixed list of trustee public keys
 
 pub total_trustees: u8,                  // Number of active trustees in the list
 
-pub threshold: u8,                       // Minimum approvals required for a valid decision
+pub vote_threshold: u8,                       // Minimum approvals required for a valid decision
 
 pub bump: u8,                            // PDA bump seed for address derivation
 
