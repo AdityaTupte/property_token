@@ -6,6 +6,7 @@ pub mod arbitrator_registry;
 pub mod reinvestment_pda;
 pub mod safety_pda;
 pub mod dividend_pda;
+pub mod threshold;
 
 pub use property_system_account::*;
 pub use treasury::*;
@@ -15,3 +16,4 @@ pub use arbitrator_registry::*;
 pub use reinvestment_pda::*;
 pub use safety_pda::*;
 pub use dividend_pda::*;
+pub use threshold::*;

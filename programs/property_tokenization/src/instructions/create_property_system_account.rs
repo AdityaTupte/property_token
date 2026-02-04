@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint,MintToChecked,mint_to_checked, TokenAccount, TokenInterface}};
-use crate::state::{ArbitratorRegistry, DividendPda, PropertySystemAccount, PropertySystemCounter, ReinvestmentPda, SafetyPda, TreasuryPda, TrusteeRegistry,};
+use crate::state::{ArbitratorRegistry, DividendPda, PropertySystemAccount, PropertySystemCounter, ReinvestmentPda, SafetyPda, Threshold, TreasuryPda, TrusteeRegistry, threshold};
 
 const HARDCODED_PUBKEY: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
 #[derive(Accounts)]
@@ -22,7 +22,7 @@ pub struct PropertySystemAcc<'info>{
         init,
         payer = creator,
         seeds = [ 
-            b"property-system-account".as_ref(),
+            b"property_system_account".as_ref(),
             &(property_system_count.total_property_system + 1).to_le_bytes()],
         bump,
         space = 8 + PropertySystemAccount::SIZE
@@ -36,6 +36,19 @@ pub struct PropertySystemAcc<'info>{
     )]
 
     pub stable_coin_mint : InterfaceAccount<'info, Mint>,
+
+    #[account(
+        init,
+        payer = creator,
+        seeds = [
+            b"threshold",
+            property_system_acc.key().as_ref()
+        ],
+        bump,
+        space = 8 + Threshold::SIZE,
+    )]
+
+    pub threshold : Account<'info,Threshold>,
 
     #[account(
         init,
@@ -206,7 +219,17 @@ pub struct PropertySystemAcc<'info>{
 
 }
 
-pub fn create_property_system_account(ctx:Context<PropertySystemAcc>,decimal:u8,amount:u64)->Result<()>{
+pub fn create_property_system_account(
+        ctx:Context<PropertySystemAcc>,
+        decimal:u8,amount:u64,
+        safety_threshold:u8,
+        trustee_salary_threshold:u8,
+        arbitrator_salary_threshold:u8,
+        dividend_threshold:u8,
+        reinvestment_threshold:u8
+    )->Result<()>{
+
+    require_eq!(safety_threshold + trustee_salary_threshold + arbitrator_salary_threshold + dividend_threshold + reinvestment_threshold , 100 );
 
     let property_system_count = &mut ctx.accounts.property_system_count;
 
@@ -227,6 +250,8 @@ pub fn create_property_system_account(ctx:Context<PropertySystemAcc>,decimal:u8,
     let safety_pda= &mut ctx.accounts.safety_pda;
 
     let dividend_pda = &mut ctx.accounts.dividend_pda;
+
+    let threshold=&mut ctx.accounts.threshold;
     
     let signer_seeds: &[&[&[u8]]] = &[&[
         b"property-system-account".as_ref(),
@@ -266,6 +291,18 @@ pub fn create_property_system_account(ctx:Context<PropertySystemAcc>,decimal:u8,
     property_system_acc.creator = ctx.accounts.creator.key();
 
     property_system_acc.bump = ctx.bumps.property_system_acc;
+
+    //threshold
+
+    threshold.trustee_salary_threshold = trustee_salary_threshold;
+
+    threshold.arbitrator_salary_threshold = arbitrator_salary_threshold;
+
+    threshold.dividend_threshold = dividend_threshold;
+
+    threshold.reinvestment_threshold = reinvestment_threshold;
+
+    threshold.safety_threshold = safety_threshold;
 
     //treasury_pda
 
@@ -311,8 +348,6 @@ pub fn create_property_system_account(ctx:Context<PropertySystemAcc>,decimal:u8,
 
     arbitrator_registry.bump = ctx.bumps.arbitrator_registry;
 
-
-    // add the revenue pda etc create threshold etc
 
     Ok(())
 
