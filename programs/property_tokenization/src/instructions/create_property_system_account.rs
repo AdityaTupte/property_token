@@ -1,6 +1,8 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint,MintToChecked,mint_to_checked, TokenAccount, TokenInterface}};
-use crate::state::{ArbitratorRegistry, DividendPda, PropertySystemAccount, PropertySystemCounter, ReinvestmentPda, SafetyPda, Threshold, TreasuryPda, TrusteeRegistry, threshold};
+use crate::state::{ArbitratorRegistry, DividendPda, PropertySystemAccount, PropertySystemCounter, ReinvestmentPda, SafetyPda, Threshold, TreasuryPda, TrusteeRegistry,};
+use crate::events::*;
+use crate::errors::ErrorCode;
 
 const HARDCODED_PUBKEY: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
 #[derive(Accounts)]
@@ -13,8 +15,7 @@ pub struct PropertySystemAcc<'info>{
 
     #[account(
         mut,
-        seeds = [b"property_system_count"],
-        bump
+        address = HARDCODED_PUBKEY  @ ErrorCode::PropertyCounterInvalid
     )]
     pub property_system_count : Account<'info,PropertySystemCounter>,
 
@@ -31,8 +32,7 @@ pub struct PropertySystemAcc<'info>{
     pub property_system_acc : Account<'info,PropertySystemAccount>,
 
     #[account(
-        address = HARDCODED_PUBKEY,
-        
+        address = HARDCODED_PUBKEY  @ ErrorCode::StableMintInvalid  
     )]
 
     pub stable_coin_mint : InterfaceAccount<'info, Mint>,
@@ -219,7 +219,7 @@ pub struct PropertySystemAcc<'info>{
 
 }
 
-pub fn create_property_system_account(
+pub fn create(
         ctx:Context<PropertySystemAcc>,
         decimal:u8,amount:u64,
         safety_threshold:u8,
@@ -229,7 +229,7 @@ pub fn create_property_system_account(
         reinvestment_threshold:u8
     )->Result<()>{
 
-    require_eq!(safety_threshold + trustee_salary_threshold + arbitrator_salary_threshold + dividend_threshold + reinvestment_threshold , 100 );
+    require_eq!(safety_threshold + trustee_salary_threshold + arbitrator_salary_threshold + dividend_threshold + reinvestment_threshold , 100, ErrorCode::ThresholdInvalid );
 
     let property_system_count = &mut ctx.accounts.property_system_count;
 
@@ -268,7 +268,7 @@ pub fn create_property_system_account(
         &signer_seeds,
     );
     
-    mint_to_checked(cpi_ctx,amount,decimal)?;
+    mint_to_checked(cpi_ctx,amount,decimal).map_err(|_| ErrorCode::MintFailed)?;
 
     let current_time = Clock::get()?.unix_timestamp;
 
@@ -347,6 +347,27 @@ pub fn create_property_system_account(
     arbitrator_registry.property_system_accout = property_system_acc.key();
 
     arbitrator_registry.bump = ctx.bumps.arbitrator_registry;
+
+
+    emit!(  PropertySystemCreated {
+    property_system: property_system_acc.key(),
+    creator: ctx.accounts.creator.key(),
+    governance_mint: governance_mint.key(),
+
+    treasury: treasury_pda.key(),
+    reinvestment: reinvestment_pda.key(),
+    safety: safety_pda.key(),
+    dividend: dividend_pda.key(),
+
+    safety_threshold,
+    trustee_salary_threshold,
+    arbitrator_salary_threshold,
+    dividend_threshold,
+    reinvestment_threshold,
+
+    created_at: current_time,
+
+    });
 
 
     Ok(())
