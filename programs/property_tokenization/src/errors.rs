@@ -35,4 +35,7 @@ pub enum ErrorCode{
 
     #[msg("the give authority has some duplicate authority")]
     DuplicateAuthority,
+
+    #[msg("the proposal is not approved yet by the authorities")]
+    ProposalNotApproved,
 }

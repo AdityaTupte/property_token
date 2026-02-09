@@ -254,7 +254,7 @@ pub fn create(
     let threshold=&mut ctx.accounts.threshold;
     
     let signer_seeds: &[&[&[u8]]] = &[&[
-        b"property-system-account".as_ref(),
+        b"property_system_account".as_ref(),
         &(property_system_count.total_property_system + 1).to_le_bytes(),
         &[ctx.bumps.property_system_acc]]];
     

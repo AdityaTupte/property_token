@@ -49,7 +49,7 @@ pub fn create_country_proposal(
 
         proposalcountry.country_id = country_id;
 
-        proposalcountry.country_name = country_name;
+        proposalcountry.country_name = country_name.to_uppercase();
         
         proposalcountry.authority = authority;
 

@@ -10,7 +10,7 @@ pub struct ApproveCountryId<'info>{
 
    #[account(
     mut,
-    constraint = !proposal.executed @ ErrorCode::AlreadyApproved
+    constraint = !proposal.approved @ ErrorCode::AlreadyApproved
    )]
     pub proposal : Account<'info,ProposalCountryPda>,
 
@@ -44,7 +44,7 @@ pub fn approve_country(
     proposal.approvals.push(signer.key());
 
     if proposal.approvals.len() >= authority.threshold as usize {
-        proposal.executed = true;
+        proposal.approved = true;
     }
 
     Ok(())
