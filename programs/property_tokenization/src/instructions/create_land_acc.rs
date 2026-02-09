@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 use crate::state::{LandAccount, LandAccountMetadata, State};
 use crate::events::*;
 
-    // ✅ CORRECT
+
 const LAND_SEED: &[u8] = b"land_account";
 
 #[derive(Accounts)]

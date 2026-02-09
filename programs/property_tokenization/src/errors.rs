@@ -15,4 +15,24 @@ pub enum ErrorCode{
     #[msg("the threshold sum is not equal 100 ")]
     ThresholdInvalid,
 
+    #[msg(" authorioty pubkey must be 10")]
+    ApproveAuthorityInvalid,
+
+    #[msg("the thresold must between 0 to  10")]
+    ApproveAuthorityThresholdInvalid,
+
+    #[msg("the signer is nopt authorized to sign the trasaction")]
+    NotAuthorized,
+
+    #[msg("the proposal already approved ")]
+    AlreadyApproved,
+
+    #[msg("the given  suthotiry already approved proposal  ")]
+    AuthorityApproved,
+    
+    #[msg("country name must be something")]
+    CountryNameInvalid,
+
+    #[msg("the give authority has some duplicate authority")]
+    DuplicateAuthority,
 }
