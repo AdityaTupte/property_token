@@ -13,7 +13,7 @@ pub mod land_account_metada;
 pub mod countrypda;
 pub mod proposal_country_pda;
 pub mod approve_country_authority;
-
+pub mod state_proposal;
 
 pub use property_system_account::*;
 pub use treasury::*;
@@ -30,3 +30,4 @@ pub use land_account_metada::*;
 pub use countrypda::*;
 pub use proposal_country_pda::*;
 pub use approve_country_authority::*;
+pub use state_proposal::*;

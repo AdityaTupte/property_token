@@ -9,7 +9,7 @@ pub struct ExecuteCountryPda<'info>{
     #[account(
         mut,
         constraint = proposal.approved @ ErrorCode::ProposalNotApproved,
-        constraint = proposal.approvals.contains(&signer.key()),
+        constraint = proposal.approvals.contains(&signer.key())  @ ErrorCode::NotAuthorized,
         close = signer
     )]
     pub proposal : Account<'info,ProposalCountryPda>,
@@ -49,10 +49,7 @@ pub fn execute_country_propsal(
 
     country.authority = proposal.authority.clone();
 
-    ////threashold additoon fpor country approval 
-
-    
-
+    country.threshold = proposal.country_pda_threshold;
 
     Ok(())
 

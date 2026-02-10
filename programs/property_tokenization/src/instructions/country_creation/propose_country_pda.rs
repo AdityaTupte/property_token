@@ -35,16 +35,19 @@ pub fn create_country_proposal(
     country_id: u16,
     country_name: String,
     authority: Vec<Pubkey>,
+    country_pda_threshold: u8,
 ) -> Result<()>{
 
         require_eq!(10,authority.len(), ErrorCode::ApproveAuthorityInvalid);
 
         require!(country_name.len() > 0 && country_name.len() <= 32,ErrorCode::CountryNameInvalid);
 
+        require!( country_pda_threshold > 1 && country_pda_threshold <= 10 , ErrorCode::CountryPdaThresholdInvalid);
+       
         let unique: BTreeSet<Pubkey> = authority.iter().cloned().collect();
 
         require!( unique.len() == authority.len(),ErrorCode::DuplicateAuthority);
-
+        
         let proposalcountry  = &mut ctx.accounts.country_acc;
 
         proposalcountry.country_id = country_id;
@@ -52,6 +55,12 @@ pub fn create_country_proposal(
         proposalcountry.country_name = country_name.to_uppercase();
         
         proposalcountry.authority = authority;
+
+        proposalcountry.country_pda_threshold = country_pda_threshold;
+        
+        proposalcountry.approved = false;
+
+        proposalcountry.executed = false;
 
         proposalcountry.bump = ctx.bumps.country_acc;
 

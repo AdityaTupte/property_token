@@ -25,6 +25,7 @@ pub struct ApproveCountryId<'info>{
     #[account(
         mut,
         constraint = authority.authority.contains(&signer.key()) @ ErrorCode::NotAuthorized,
+        
     )]
 
     pub signer: Signer<'info>,

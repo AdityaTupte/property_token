@@ -49,7 +49,67 @@ pub mod peoperty_tokenization {
         create_land_acc::create_land_acc(ctx, land_id, legal_doc_hash)?;
         Ok(())
 
+}   
+    pub fn create_approve_country_authority(
+        ctx:Context<CreateApproveCountryAuthority>,
+        threshold : u8,
+        authority: Vec<Pubkey>,
+    )->Result<()>{
 
+        create_approve_country_authority::create_approve_country_authority(ctx, threshold, authority)?;
+        Ok(())
+
+    }
+
+    pub fn create_country_proposal(
+        ctx:Context<ProposeCountry>,
+        country_id: u16,
+        country_name: String,
+        authority: Vec<Pubkey>,
+        country_pda_threshold: u8,
+    ) -> Result<()>{
+        propose_country_pda::create_country_proposal(ctx, country_id, country_name, authority, country_pda_threshold)?;
+
+    Ok(())
 }
 
+    pub fn approve_country(
+        ctx:Context<ApproveCountryId>,
+    )->Result<()>{
+
+        approve_country_pda::approve_country(ctx)?;
+
+    Ok(())
+}
+
+    pub fn execute_country_propsal(
+        ctx:Context<ExecuteCountryPda>,
+    )->Result<()>{
+
+        execute_country_pda::execute_country_propsal(ctx)?;
+
+        Ok(())
+
+    }
+
+    pub fn create_state_proposal(
+    ctx:Context<StateProposal>,
+    state_id : u16,
+    state_name: String,
+    state_authorities : Vec<Pubkey>,
+    state_authority_threshold: u8,
+)->Result<()>{
+
+    state_proposal::create_state_proposal(ctx, state_id, state_name, state_authorities, state_authority_threshold)?;
+
+    Ok(())
+}
+
+    pub fn aprrove_state_proposal(ctx:Context<ApproveState>)->Result<()>{
+
+        approve_state_proposal::approve(ctx)?;
+        
+        Ok(())
+
+    }
 }

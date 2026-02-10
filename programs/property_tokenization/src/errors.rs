@@ -30,12 +30,27 @@ pub enum ErrorCode{
     #[msg("the given  suthotiry already approved proposal  ")]
     AuthorityApproved,
     
-    #[msg("country name must be something")]
+    #[msg("country name must be between 0 to 32 as uszie")]
     CountryNameInvalid,
 
-    #[msg("the give authority has some duplicate authority")]
+    #[msg("state name must be between 0 to 32 as uszie")]
+    StateNameInvalid,
+
+    #[msg("the give authorities vector has some duplicate authority")]
     DuplicateAuthority,
 
     #[msg("the proposal is not approved yet by the authorities")]
     ProposalNotApproved,
+
+    #[msg("the threshold must be between 1  to  10")]
+    CountryPdaThresholdInvalid,
+
+    #[msg("the state authority must be  10")]
+    StateAuthorityInvalid,
+    
+    #[msg("the threshold must be in between 1 to 10")]
+    StateThresholdInvalid,
+
+    #[msg("the country is invalid please check the country ")]
+    InvalidCountry,
 }

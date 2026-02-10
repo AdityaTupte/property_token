@@ -12,6 +12,8 @@ pub struct Country{
     pub country_id: u16,
 
     pub country_name: String,
+
+    pub threshold : u8,
     
     pub authority: Vec<Pubkey>,          
 
@@ -20,5 +22,5 @@ pub struct Country{
 }
 
 impl Country {
-     pub const SIZE: usize  = 2 + (4  + MAX_COUNTRY_NAME) + (4 + (32 * MAX_COUNTRY_AUTHORITY)) + 1 + 1 ;
+     pub const SIZE: usize  = 2 + (4  + MAX_COUNTRY_NAME) + 1  + (4 + (32 * MAX_COUNTRY_AUTHORITY)) + 1 + 1 ;
 }

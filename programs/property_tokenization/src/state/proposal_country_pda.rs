@@ -13,6 +13,8 @@ pub struct ProposalCountryPda{
 
     pub country_name: String,
 
+    pub country_pda_threshold : u8,
+
     pub authority: Vec<Pubkey>, 
     
     pub approvals: Vec<Pubkey>,
