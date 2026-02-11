@@ -9,7 +9,9 @@ pub struct State{
 
     pub state_name: String,
 
-    pub country_id : u64,
+    pub country_id : u16,
+
+    pub country_pubkey : Pubkey,
 
     pub authorities : Vec<Pubkey>,
 
@@ -25,7 +27,8 @@ impl State {
 
         8 +
         4 + MAX_STATE_NAME +
-        8 +
+        2 +
+        32 +
         4  + (32 * MAX_STATE_ACUTHORITY) +
         1 + 
         1 ;

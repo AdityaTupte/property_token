@@ -76,6 +76,8 @@ pub fn create_state_proposal(
 
     proposal.country_id = country.country_id;
 
+    proposal.country_pubkey = country.key();
+
     proposal.bump = ctx.bumps.state_proposal;
 
     Ok(())

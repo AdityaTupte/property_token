@@ -18,6 +18,8 @@ pub struct  StateProposalPda{
 
     pub country_id: u16,
 
+    pub country_pubkey : Pubkey,
+
     pub approval:Vec<Pubkey>,
 
     pub approved: bool,
@@ -35,7 +37,8 @@ impl StateProposalPda {
                     MAX_STATE_NAME + 
                     4 + (MAX_STATE_AUTHORITIES * 32 ) + 
                     1 + 
-                    2 + 
+                    2 +
+                    32 + 
                     4 + (32 * MAX_APPROVAL) +
                     1 +
                     1 +

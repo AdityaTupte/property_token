@@ -5,9 +5,11 @@ use anchor_lang::prelude::*;
 
 pub struct LandAccount{
 
-    pub land_id: u16,
-    pub state_id: u64,
-    pub country_id : u64,
+    pub land_id: u64,
+    pub state_id: u16,
+    pub state_pubkey : Pubkey,
+    pub country_id : u16,
+    pub country_pubkey : Pubkey,
     pub issued_at : i64,
     pub issued_by: Pubkey,
     pub metadata: Pubkey,   
@@ -16,6 +18,6 @@ pub struct LandAccount{
 
 
 impl LandAccount {
-    pub const SIZE: usize = 4 + 8 + 8 + 8 + 32 + 32 + 1   ;
+    pub const SIZE: usize = 8 + 2 + 32 + 2 + 32 + 8 + 32 + 32 + 1   ;
     
 }

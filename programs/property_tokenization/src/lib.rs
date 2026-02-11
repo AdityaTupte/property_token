@@ -112,4 +112,12 @@ pub mod peoperty_tokenization {
         Ok(())
 
     }
+
+    pub fn execute_state_proposal(ctx:Context<ExecuteStatePda>)->Result<()>{
+
+        execute_state_proposal::execute_state_proposal(ctx)?;
+        
+        Ok(())
+    }
+
 }
