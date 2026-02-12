@@ -53,4 +53,7 @@ pub enum ErrorCode{
 
     #[msg("the country is invalid please check the country ")]
     InvalidCountry,
+
+    #[msg("the land is invalid please check the land ")]
+    InvalidLand,
 }

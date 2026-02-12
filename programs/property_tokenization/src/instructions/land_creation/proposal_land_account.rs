@@ -6,11 +6,18 @@ const STATE_SEEDS : &[u8] = b"state";
 
 const PROPOSAL_SEEDS: &[u8] = b"proposal";
 
+const  COUNTRY_SEED : &[u8] = b"country";
 #[derive(Accounts)]
 #[instruction(land_id:u64)]
 pub struct CreateLandProposal<'info>{
 
-    #[account()]
+    #[account(
+        seeds = [
+            COUNTRY_SEED,
+            &country.country_id.to_le_bytes(),
+        ],
+        bump = country.bump
+    )]
     pub country : Account<'info,Country>,
 
     #[account(
@@ -72,7 +79,7 @@ pub fn create_proposal(
 
         proposal.legal_doc_hash = legal_doc_hash;
 
-        proposal.issused_by = ctx.accounts.signer.key();
+        proposal.issued_by = ctx.accounts.signer.key();
 
         proposal.bump = ctx.bumps.proposal;
 

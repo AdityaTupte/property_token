@@ -17,7 +17,7 @@ pub struct LandProposal{
 
     pub legal_doc_hash: [u8; 32],
 
-    pub issused_by : Pubkey,
+    pub issued_by : Pubkey,
 
     pub approval : Vec<Pubkey>,
 
