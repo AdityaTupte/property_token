@@ -5,7 +5,7 @@ pub const MAX_ARBITRATOR: usize = 5 ;
 
 pub struct ArbitratorRegistry{
 
-pub property_system_accout: Pubkey,        // Property system this arbitrator registry belongs to
+pub property_system_account: Pubkey,        // Property system this arbitrator registry belongs to
 
 pub arbitrator: [Pubkey; MAX_ARBITRATOR],  // Fixed list of arbitrator public keys
 

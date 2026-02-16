@@ -56,4 +56,29 @@ pub enum ErrorCode{
 
     #[msg("the land is invalid please check the land ")]
     InvalidLand,
+
+    #[msg("the trusteeRegistry is Invalid")]
+    InvalidTrusteeRegsitry,
+
+    #[msg("the the land does not belong to source property_system")]
+    InvalidLandForSource,
+
+    #[msg("create new page the exisiting page is full")]
+    PageFull,
+
+    #[msg("the property system is invalid")]
+    PropertySystemInvalid,
+
+    #[msg("the source and destination propoerty system are same")]
+    SamePropertySystem,
+
+    #[msg("the arbitrar registry  not valid for the given property system")]
+    ARBITRARREGISTRYINVALID,
+
+    #[msg("the property system is not valid for given arbitrar registry")]
+    PropertySystemInvalidForRegistry,
+
+
+
+
 }

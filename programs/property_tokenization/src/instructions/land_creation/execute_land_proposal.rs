@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::state::{Country, LandAccount, LandAccountMetadata, LandProposal, State};
+use crate::state::{Country, LandAccount, LandAccountMetadata, LandPage, LandProposal, PropertySystemAccount, State};
 
 use crate::errors::ErrorCode::{self};
 
@@ -10,13 +10,30 @@ const STATE_SEEDS : &[u8] = b"state";
 
 const  COUNTRY_SEED : &[u8] = b"country";
 
-const LAND_SEED : &[u8] = b"land";
-
-const LAND_METADATA_SEEDS : &[u8] = b"metadata";
+use crate::constant::*;
 
 #[derive(Accounts)]
 
 pub struct ExecuteLandProposal<'info>{
+
+    #[account(
+        mut,
+    )]
+    pub property_system_account : Account<'info,PropertySystemAccount>,
+
+
+    #[account(
+        mut,
+        seeds = [
+            LAND_PAGE_SEEDS,
+            &landpage.page.to_le_bytes(),
+            property_system_account.key().as_ref()
+        ],
+        bump = landpage.bump,
+        constraint = landpage.property_system == property_system_account.key() @ ErrorCode::PropertySystemInvalid
+    )]
+
+    pub landpage : Account<'info,LandPage>,
 
     #[account(
         seeds=[
@@ -93,7 +110,6 @@ pub struct ExecuteLandProposal<'info>{
 
 }
 
-
 pub fn execute(
     ctx:Context<ExecuteLandProposal>
 )->Result<()>{
@@ -104,13 +120,24 @@ pub fn execute(
 
     let metadata = &mut ctx.accounts.land_metadata;
 
+    let land_page  = &mut ctx.accounts.landpage;
+
     let state = & ctx.accounts.state;
 
     let country = &mut ctx.accounts.country;
 
     let current_time = Clock::get()?.unix_timestamp;
+    
+    require!(!land_page.land.len() < 100 , ErrorCode::PageFull);
+
+    land_page.land.push(land_acc.key());
+
     land_acc.land_id = proposal.land_id;
 
+    land_acc.property_system = ctx.accounts.property_system_account.key();
+
+    land_acc.page_number = land_page.page;
+ 
     land_acc.state_id = state.state_id;
 
     land_acc.state_pubkey = state.key();

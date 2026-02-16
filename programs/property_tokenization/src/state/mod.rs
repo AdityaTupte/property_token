@@ -15,7 +15,12 @@ pub mod proposal_country_pda;
 pub mod approve_country_authority;
 pub mod state_proposal;
 pub mod land_proposal;
+pub mod land_page_account;
+//////////////////
+pub mod proposal;
 
+pub use proposal::*;
+///////////////////////
 pub use property_system_account::*;
 pub use treasury::*;
 pub use property_system_count::*;
@@ -33,3 +38,4 @@ pub use proposal_country_pda::*;
 pub use approve_country_authority::*;
 pub use state_proposal::*;
 pub use land_proposal::*;
+pub use land_page_account::*;

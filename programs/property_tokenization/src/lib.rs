@@ -4,7 +4,7 @@ pub mod instructions;
 pub mod state;
 pub mod events;
 pub mod errors;
-
+pub mod constant;
 use crate::instructions::*;
 
 declare_id!("8PRrAQa9Y4ZVxcdNXP4Q8CiQzAyiWoyJT64t7FUmrN4L");
@@ -16,6 +16,7 @@ pub mod peoperty_tokenization {
 
     pub fn create_property_system_account(
         ctx:Context<PropertySystemAcc>,
+        system_id:u64,
         decimal:u8,
         amount:u64,
         safety_threshold:u8,
@@ -27,6 +28,7 @@ pub mod peoperty_tokenization {
         
         create_property_system_account::create(
             ctx,
+            system_id,
             decimal,
             amount, 
             safety_threshold, 
@@ -150,7 +152,7 @@ pub mod peoperty_tokenization {
         ctx:Context<ExecuteLandProposal>
     )->Result<()>{
 
-        execure_land_proposal::execute(ctx)?;
+        execute_land_proposal::execute(ctx)?;
 
         Ok(())
 

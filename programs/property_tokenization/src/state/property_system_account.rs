@@ -4,7 +4,8 @@ use anchor_lang::prelude::*;
 
 pub struct PropertySystemAccount{
 
-    
+    pub property_system_id : u64,
+
     pub governance_mint: Pubkey,        // Governance SPL mint (voting power)
 
     pub treasury: Pubkey,               // PDA vault for rent / fees / liquidation
@@ -27,7 +28,7 @@ pub struct PropertySystemAccount{
 
 impl PropertySystemAccount{
 
-pub const SIZE : usize = 32 + 32 + 32 + 32 + 8 + 2 + 8 + 32 + 1 ;
+pub const SIZE : usize = 8 + 32 + 32 + 32 + 32 + 8 + 2 + 8 + 32 + 1 ;
 
 
 

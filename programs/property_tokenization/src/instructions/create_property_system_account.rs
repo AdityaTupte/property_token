@@ -3,10 +3,11 @@ use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint,MintT
 use crate::state::{ArbitratorRegistry, DividendPda, PropertySystemAccount, PropertySystemCounter, ReinvestmentPda, SafetyPda, Threshold, TreasuryPda, TrusteeRegistry,};
 use crate::events::*;
 use crate::errors::ErrorCode;
+use crate::constant::*;
 
 const HARDCODED_PUBKEY: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
 #[derive(Accounts)]
-#[instruction(decimal:u8)]
+#[instruction(decimal:u8 ,system_id : u64 )]
 pub struct PropertySystemAcc<'info>{
 
 
@@ -23,8 +24,9 @@ pub struct PropertySystemAcc<'info>{
         init,
         payer = creator,
         seeds = [ 
-            b"property_system_account".as_ref(),
-            &(property_system_count.total_property_system + 1).to_le_bytes()],
+            PROPERTY_SYSTEM_SEEDS,
+            &system_id.to_le_bytes(),
+        ],
         bump,
         space = 8 + PropertySystemAccount::SIZE
     )]
@@ -208,7 +210,6 @@ pub struct PropertySystemAcc<'info>{
         associated_token::token_program = token_program,
     )]
 
-
     pub creator_ata : InterfaceAccount<'info, TokenAccount>,
 
     pub token_program: Interface<'info, TokenInterface>,
@@ -221,12 +222,12 @@ pub struct PropertySystemAcc<'info>{
 
 pub fn create(
         ctx:Context<PropertySystemAcc>,
-        decimal:u8,amount:u64,
+        system_id : u64,decimal:u8,amount:u64,
         safety_threshold:u8,
         trustee_salary_threshold:u8,
         arbitrator_salary_threshold:u8,
         dividend_threshold:u8,
-        reinvestment_threshold:u8
+        reinvestment_threshold:u8,
     )->Result<()>{
 
     require_eq!(safety_threshold + trustee_salary_threshold + arbitrator_salary_threshold + dividend_threshold + reinvestment_threshold , 100, ErrorCode::ThresholdInvalid );
@@ -272,7 +273,7 @@ pub fn create(
 
     let current_time = Clock::get()?.unix_timestamp;
 
-    property_system_count.total_property_system  += 1;
+    property_system_acc.property_system_id = system_id;
 
     property_system_acc.governance_mint = governance_mint.key();
 
@@ -344,7 +345,7 @@ pub fn create(
 
     //arbitrator_registry
 
-    arbitrator_registry.property_system_accout = property_system_acc.key();
+    arbitrator_registry.property_system_account = property_system_acc.key();
 
     arbitrator_registry.bump = ctx.bumps.arbitrator_registry;
 
