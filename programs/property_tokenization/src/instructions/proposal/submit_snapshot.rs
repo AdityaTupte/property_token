@@ -57,6 +57,8 @@ pub fn submit_snapshot(
 
     proposal.snapshot_submitted = true;
 
+    proposal.proposal_status = ProposalStatus::Active as u8;
+
     
     Ok(())
 

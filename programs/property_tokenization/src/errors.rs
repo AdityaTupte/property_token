@@ -105,5 +105,10 @@ pub enum ErrorCode{
     #[msg("Proposal Already Passed")]
     ProposalAlreadyPassed,
 
+    #[msg("the proposal's voting is live or the prposal is passed ")]
+    DeletingProposalInvalid,
+
+    
+
 
 }

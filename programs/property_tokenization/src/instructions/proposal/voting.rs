@@ -1,7 +1,7 @@
 use anchor_lang::{ prelude::*};
 use anchor_spl::associated_token::spl_associated_token_account::solana_program::keccak;
 
-use crate::{constant::{TRANSFERPROPOSAL, VOTERRECIEPT}, errors::ErrorCode, functions::verify_proof, state::{PropertySystemAccount, TransferLandDetail, VoterReciept}};
+use crate::{constant::{ProposalStatus, TRANSFERPROPOSAL, VOTERRECIEPT}, errors::ErrorCode, functions::verify_proof, state::{PropertySystemAccount, TransferLandDetail, VoterReciept}};
 
 #[derive(Accounts)]
 pub struct Voting<'info>{
@@ -18,8 +18,8 @@ pub struct Voting<'info>{
         ],
         bump = proposal.bump,
          constraint = proposal.snapshot_submitted @ ErrorCode::SnapshotNotSubmitted,
-         constraint = proposal.proposal_status !=  1 @ ErrorCode::ProposalAlreadyPassed,
-         constraint = proposal.proposal_status == 0 @ ErrorCode::ProposalNotActive
+         constraint = proposal.proposal_status !=  ProposalStatus::Passed as u8 @ ErrorCode::ProposalAlreadyPassed,
+         constraint = proposal.proposal_status == ProposalStatus::Active as u8 @ ErrorCode::ProposalNotActive
     )]
 
     pub proposal : Account<'info,TransferLandDetail>,
@@ -62,8 +62,7 @@ pub struct Voting<'info>{
     let current_time = Clock::get()?.unix_timestamp;
     
     require!(current_time >= proposal.start_time  && current_time <= proposal.end_time , ErrorCode::VotingPeriodExpired);
-    
-   
+
 
     require!(voting_power <= proposal.total_voting_power, ErrorCode::VotingPowerInvalid);
 
@@ -103,7 +102,7 @@ pub struct Voting<'info>{
 
     if proposal.votes_for >= proposal.vote_required{
 
-        proposal.proposal_status =   1         //0 = Active   1 = Passed   2 = Executed
+        proposal.proposal_status =   ProposalStatus::Passed as u8       
 
     } 
 
