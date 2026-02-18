@@ -26,11 +26,21 @@ pub struct TransferLandDetail{
 
     pub arbitrar_approved : bool,
 
-    pub votes: u64,
+    pub total_voting_power: u64,
 
+    pub votes_for: u64,
+   
+    pub votes_against: u64,
+
+    pub vote_required: u64,
+   
     pub start_time: i64,
     
     pub end_time: i64,
+    
+    pub proposal_status : u8,
+
+    pub snapshot_submitted : bool,
 
     pub bump : u8,
   
@@ -38,7 +48,6 @@ pub struct TransferLandDetail{
 
 impl TransferLandDetail {
     pub const SIZE :usize = 
-
                     8 +
                     32 + 
                     8 +
@@ -52,6 +61,11 @@ impl TransferLandDetail {
                     8 +
                     8 +
                     8 +
+                    8 +
+                    8 +
+                    8 +
+                    1 +
+                    1 +
                     1 ;
 }
 

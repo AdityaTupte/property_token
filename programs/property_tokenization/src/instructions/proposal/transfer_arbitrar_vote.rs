@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
 
+use crate::events::SnapshotRequested;
 use crate::state::{ArbitratorRegistry, PropertySystemAccount};
 use crate::{state::TransferLandDetail};
 use crate::constant::*;
@@ -52,7 +53,30 @@ pub struct ArbitrarApproval<'info>{
 pub fn transfer_arbitrar_vote(ctx:Context<ArbitrarApproval>)->Result<()>{
     
 
-    
-    
+    let proposal = &mut  ctx.accounts.proposal;
+
+    let signer = & ctx.accounts.signer;
+
+    let property_sysytem = & ctx.accounts.source_property_system;
+
+    require!(!proposal.arbitrar_approval.contains(&signer.key()), ErrorCode::AuthorityApproved);
+
+    proposal.arbitrar_approval.push(signer.key());
+
+    if proposal.arbitrar_approval.len() >= 3 {
+
+        proposal.arbitrar_approved = true;
+
+        let slot = Clock::get()?.slot;
+        
+        emit!(SnapshotRequested{
+            proposal_id : proposal.proposal_id,
+            mint : property_sysytem.governance_mint,
+            slot : slot,
+
+        })
+        
+    }
+
     Ok(())
 }

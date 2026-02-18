@@ -78,7 +78,32 @@ pub enum ErrorCode{
     #[msg("the property system is not valid for given arbitrar registry")]
     PropertySystemInvalidForRegistry,
 
+    #[msg("the snaphot is already submitted")]
+    SnapshotAlreadySubmitted,
 
+    #[msg("math overflow")]
+    MathOverflow,
+
+    #[msg("the snaphot is not submitted to the proposal")]
+    SnapshotNotSubmitted,
+
+    #[msg("the property system is not valid to proposal")]
+    InvalidProposal,
+
+    #[msg("the given proof is not valid ")]
+    InvalidMerkleProof,
+
+    #[msg("the voting period it not start yet or expired")]
+    VotingPeriodExpired,
+
+    #[msg("the voting power exceed the total votes")]
+    VotingPowerInvalid,
+
+    #[msg("the proposal is not active ")]
+    ProposalNotActive,
+
+    #[msg("Proposal Already Passed")]
+    ProposalAlreadyPassed,
 
 
 }

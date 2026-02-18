@@ -5,6 +5,7 @@ pub mod state;
 pub mod events;
 pub mod errors;
 pub mod constant;
+pub mod functions;
 use crate::instructions::*;
 
 declare_id!("8PRrAQa9Y4ZVxcdNXP4Q8CiQzAyiWoyJT64t7FUmrN4L");
