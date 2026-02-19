@@ -38,6 +38,8 @@ pub struct TransferLandDetail{
     
     pub end_time: i64,
     
+    pub transfer_window:i64,
+    
     pub proposal_status : u8,
 
     pub snapshot_submitted : bool,
@@ -58,6 +60,7 @@ impl TransferLandDetail {
                     32 +
                     4 + (32 * MAX_ARBITRATOR) +
                     1 +
+                    8 +
                     8 +
                     8 +
                     8 +

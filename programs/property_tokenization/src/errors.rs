@@ -108,7 +108,25 @@ pub enum ErrorCode{
     #[msg("the proposal's voting is live or the prposal is passed ")]
     DeletingProposalInvalid,
 
-    
+    #[msg("the proposal not passed yet")]
+    ProposalNotPassed,
 
+    #[msg("the given treasury is invalid")]
+    InvalidTreasury,
+
+    #[msg("the transfer window is closed")]
+    TransferWindowClose,
+
+    #[msg("insufficent balance")]
+    InsufficentBalance,
+
+    #[msg("can't find land account")]
+    LandAccountNotFound,
+
+    #[msg("the land_page does not have any space create new page or give another page")]
+    NotEnoughSpace,
+
+    #[msg("the given land page in invalid")]
+    LandPageInvalid,
 
 }

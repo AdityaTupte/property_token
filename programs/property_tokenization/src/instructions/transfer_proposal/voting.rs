@@ -59,6 +59,7 @@ pub struct Voting<'info>{
     
     let signer = &ctx.accounts.signer;
 
+    let property_system = &ctx.accounts.property_system;
     let current_time = Clock::get()?.unix_timestamp;
     
     require!(current_time >= proposal.start_time  && current_time <= proposal.end_time , ErrorCode::VotingPeriodExpired);
@@ -68,6 +69,7 @@ pub struct Voting<'info>{
 
     let leaf = keccak::hashv(&[
         signer.key().as_ref(),
+        property_system.governance_mint.as_ref(),
         &voting_power.to_le_bytes(),
     ]).0;
 
@@ -102,8 +104,9 @@ pub struct Voting<'info>{
 
     if proposal.votes_for >= proposal.vote_required{
 
-        proposal.proposal_status =   ProposalStatus::Passed as u8       
+        proposal.proposal_status =  ProposalStatus::Passed as u8;       
 
+        proposal.transfer_window = current_time;
     } 
 
     Ok(())

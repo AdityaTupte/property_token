@@ -81,10 +81,10 @@ pub struct ExecuteLandProposal<'info>{
         init,
         payer = signer,
         seeds = [
-            LAND_SEED,
-            &land_proposal.land_id.to_le_bytes(),
-            state.key().as_ref(),
-            country.key().as_ref(),
+                LAND_SEED,
+                &land_proposal.land_id.to_le_bytes(),
+                state.key().as_ref(),
+                country.key().as_ref(),
         ],
         bump,
         space = 8 + LandAccount::SIZE
