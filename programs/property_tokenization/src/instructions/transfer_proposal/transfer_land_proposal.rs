@@ -13,8 +13,8 @@ pub struct TransferLandProposal<'info>{
         payer = signer,
         seeds =[
             TRANSFERPROPOSAL,
+            source_property_system.key().as_ref(),
             &proposal_id.to_le_bytes(),
-            source_property_system.key().as_ref()
         ],
         bump,
         space = TransferLandDetail::SIZE

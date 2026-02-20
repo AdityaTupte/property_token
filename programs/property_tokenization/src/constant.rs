@@ -13,6 +13,8 @@ pub const TRANSFERPROPOSAL : &[u8] = b"transferproposal";
 
 pub const VOTERRECIEPT : &[u8] = b"voter_receipt";
 
+pub const BUYPROPOSAL : &[u8] = b"buyproposal";
+
 
 
 

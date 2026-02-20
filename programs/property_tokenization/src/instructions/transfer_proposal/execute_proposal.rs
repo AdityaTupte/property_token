@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, token_interface::{TokenAccount, TokenInterface}};
 
-use crate::{constant::{HARDCODED_PUBKEY, LAND_PAGE_SEEDS, LAND_SEED, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRANSFERPROPOSAL}, errors::ErrorCode, state::{LandAccount, LandPage, PropertySystemAccount, TransferLandDetail, TreasuryPda, TrusteeRegistry}};
+use crate::{constant::{HARDCODED_PUBKEY, LAND_PAGE_SEEDS, LAND_SEED, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRANSFERPROPOSAL}, errors::ErrorCode, state::{LandAccount, LandPage, PropertySystemAccount, ReinvestmentPda, TransferLandDetail, TreasuryPda, TrusteeRegistry}};
 
 
 #[derive(Accounts)]
@@ -18,8 +18,8 @@ pub struct ExecuteTranferProposal<'info>{
         mut,
         seeds=[
             TRANSFERPROPOSAL,
+            source_property_system.key().as_ref(),
             &proposal.proposal_id.to_le_bytes(),
-            source_property_system.key().as_ref()
         ],
         bump= proposal.bump,
         constraint = proposal.proposal_status == ProposalStatus::Passed as u8 @ ErrorCode::ProposalNotPassed,
@@ -77,6 +77,8 @@ pub struct ExecuteTranferProposal<'info>{
     )]
     pub source_property_system_treasury_ata: InterfaceAccount<'info,TokenAccount>,
 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    
     #[account(
         seeds=[
             PROPERTY_SYSTEM_SEEDS,
@@ -108,11 +110,16 @@ pub struct ExecuteTranferProposal<'info>{
     )]
     pub destination_treasury_pda: Account<'info,TreasuryPda>,
 
-     #[account(
-        associated_token::mint = HARDCODED_PUBKEY ,
-        associated_token::authority = destination_treasury_pda ,
+    #[account(
+        constraint = destination_treasury_pda.reinvenstement_acc == destination_reinvestment_pda.key() @ ErrorCode::InvalidReinvestAccount
     )]
-    pub destination_property_system_treasury_ata: InterfaceAccount<'info,TokenAccount>,
+    pub destination_reinvestment_pda :Account<'info,ReinvestmentPda>,
+
+    #[account(
+        associated_token::mint = HARDCODED_PUBKEY ,
+        associated_token::authority = destination_reinvestment_pda,
+    )]
+    pub destination_property_system_reinvestment_ata: InterfaceAccount<'info,TokenAccount>,
 
     pub token_program: Interface<'info, TokenInterface>,
     
@@ -122,14 +129,13 @@ pub struct ExecuteTranferProposal<'info>{
 
 }
 
-
     pub fn execute_tranfer_proposal(ctx:Context<ExecuteTranferProposal>)->Result<()>{
 
         let proposal = &mut ctx.accounts.proposal;
 
         let source_treasury_ata = &mut ctx.accounts.source_property_system_treasury_ata;
 
-        let destination_treasury_ata = &mut ctx.accounts.destination_property_system_treasury_ata;
+        let destination_reinvestment_ata = &mut ctx.accounts.destination_property_system_reinvestment_ata;
 
         let source_page = &mut ctx.accounts.source_land_page;
 
@@ -147,9 +153,9 @@ pub struct ExecuteTranferProposal<'info>{
 
         require!(proposal.transfer_window <= current_time && current_time<= transfer_window_close,ErrorCode::TransferWindowClose);
 
-        require!(destination_treasury_ata.amount >= proposal.amount_to_transfer , ErrorCode::InsufficentBalance);
+        require!(destination_reinvestment_ata.amount >= proposal.amount_to_transfer , ErrorCode::InsufficentBalance);
 
-        
+        ///hold 
         
 
         Ok(())

@@ -25,8 +25,8 @@ pub struct DeleteFailProposal<'info>{
         mut,
         seeds=[
             TRANSFERPROPOSAL,
+            property_system.key().as_ref(),
             &proposal.proposal_id.to_le_bytes(),
-            property_system.key().as_ref()
         ],
         bump = proposal.bump,
         constraint = proposal.source_property_system  == property_system.key(),

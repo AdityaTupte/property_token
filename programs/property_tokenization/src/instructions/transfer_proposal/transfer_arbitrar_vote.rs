@@ -18,8 +18,9 @@ pub struct ArbitrarApproval<'info>{
         mut,
         seeds=[
             TRANSFERPROPOSAL,
+            source_property_system.key().as_ref(),
             &proposal.proposal_id.to_le_bytes(),
-            source_property_system.key().as_ref()
+    
         ],
         bump = proposal.bump,
         constraint = !proposal.arbitrar_approved @ ErrorCode::AlreadyApproved 

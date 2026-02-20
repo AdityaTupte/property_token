@@ -129,4 +129,9 @@ pub enum ErrorCode{
     #[msg("the given land page in invalid")]
     LandPageInvalid,
 
+
+    #[msg("the reinvestment treasury is invalid")]
+    InvalidReinvestAccount,
+
+
 }

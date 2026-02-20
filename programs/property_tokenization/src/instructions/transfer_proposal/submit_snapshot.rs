@@ -17,8 +17,8 @@ pub struct SubmitSnapshot<'info>{
         mut,
         seeds=[
             TRANSFERPROPOSAL,
+            proposal.source_property_system.as_ref(),
             &proposal.proposal_id.to_le_bytes(),
-            proposal.source_property_system.as_ref()
         ],
         bump = proposal.bump
     )]
