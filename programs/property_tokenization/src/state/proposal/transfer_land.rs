@@ -44,8 +44,16 @@ pub struct TransferLandDetail{
 
     pub snapshot_submitted : bool,
 
+    pub proposal_type : ProposalType,
+
     pub bump : u8,
   
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
+pub enum ProposalType {
+    Sell,
+    Buy,
 }
 
 impl TransferLandDetail {
@@ -67,6 +75,7 @@ impl TransferLandDetail {
                     8 +
                     8 +
                     8 +
+                    1 +
                     1 +
                     1 +
                     1 ;

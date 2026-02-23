@@ -30,6 +30,7 @@ pub struct SubmitSnapshot<'info>{
 pub fn submit_snapshot_for_buyer(
     ctx:Context<SubmitSnapshot>,
     merkle_root : [u8;32],
+    total_voting_power: u64,
 )->Result<()>{
 
     let proposal = &mut ctx.accounts.proposal;
@@ -56,6 +57,17 @@ pub fn submit_snapshot_for_buyer(
     proposal.merkle_root = merkle_root;
 
     proposal.snapshot_submitted = true;
+
+    proposal.total_voting_power = total_voting_power;
+
+    let vote_required = total_voting_power
+                                        .checked_mul(65)
+                                        .ok_or(ErrorCode::MathOverflow)?
+                                        .checked_add(99)
+                                        .ok_or(ErrorCode::MathOverflow)?
+                                        / 100; 
+    
+    proposal.vote_required = vote_required;
 
     proposal.proposal_status = ProposalStatus::Active as u8;
 
