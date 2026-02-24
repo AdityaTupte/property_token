@@ -1,4 +1,4 @@
-use crate::{constant::Arbitrable, events::SnapshotRequested};
+    use crate::{constant::Arbitrable, events::SnapshotRequested};
 use anchor_lang::prelude::*;
 use crate::errors::ErrorCode;
 

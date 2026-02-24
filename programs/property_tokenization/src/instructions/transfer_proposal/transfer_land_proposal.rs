@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use crate::constant::*;
 use crate::errors::ErrorCode;
-use crate::state::{LandAccount, LandPage, PropertySystemAccount, ReinvestmentPda, TransferLandDetail2, TreasuryPda, TrusteeRegistry};
+use crate::state::{LandAccount, LandPage, PropertySystemAccount, ReinvestmentPda, TransferLandDetail, TreasuryPda, TrusteeRegistry};
 
 
 #[derive(Accounts)]
@@ -17,10 +17,10 @@ pub struct SellLandProposal<'info>{
             &proposal_id.to_le_bytes(),
         ],
         bump,
-        space = TransferLandDetail2::SIZE
+        space = TransferLandDetail::SIZE
     )]
 
-    pub proposal : Account<'info,TransferLandDetail2>,
+    pub proposal : Account<'info,TransferLandDetail>,
 
     #[account(
         mut,
@@ -146,6 +146,7 @@ pub fn transfer_proposal(ctx:Context<SellLandProposal>,proposal_id: u64,amount:u
     amount,
     ProposalType::SELLPROPERTY, 
     );
+    proposal.total_voting_power = seller.total_token_supply;
     
     Ok(())
 

@@ -14,7 +14,9 @@ pub struct PropertySystemAccount{
 
     pub arbitrator_registry: Pubkey,    // PDA managing arbitrators
 
-    pub total_properties: u64,          // Global counter (land_id source)
+    pub total_properties: u64, 
+
+    pub total_token_supply :u64,         // Global counter (land_id source)
 
     pub max_page: u16,                  // Page size for indexing (pagination)
 
@@ -28,7 +30,7 @@ pub struct PropertySystemAccount{
 
 impl PropertySystemAccount{
 
-pub const SIZE : usize = 8 + 32 + 32 + 32 + 32 + 8 + 2 + 8 + 32 + 1 ;
+pub const SIZE : usize = 8 + 32 + 32 + 32 + 32 + 8 + 8 + 2 + 8 + 32 + 1 ;
 
 
 

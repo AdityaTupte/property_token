@@ -28,11 +28,11 @@ pub const MAX_LAND_PER_PAGE:usize = 100;
 
 
 
-#[repr(u8)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
 pub enum ProposalStatus {
-    Active = 1,
-    Passed = 2,
-    Failed = 3,
+    Active ,
+    Passed ,
+    Executed ,
 }
 
 
@@ -44,7 +44,56 @@ pub trait Arbitrable {
 
     fn proposal_id(& self) -> u64;
 
-  
+}
 
 
+pub trait Snapshot {
+
+    fn merkle_root(&mut self) -> &mut [u8;32] ;
+
+    fn start_time(&mut self) -> &mut i64;
+
+    fn end_time(&mut self) -> &mut i64;
+
+    fn snapshot_submitted(&mut self) -> &mut bool;
+
+    fn total_voting_power(& self) ->  u64;
+
+    fn vote_required(&mut self) -> &mut u64;
+
+    fn proposal_status(&mut self) -> &mut ProposalStatus;
+
+}
+
+pub trait Vote {
+
+    fn merkle_root(&mut self) -> &mut [u8;32] ;
+
+    fn start_time(&mut self) -> &mut i64;
+
+    fn end_time(&mut self) -> &mut i64;
+
+    fn total_voting_power(& self) ->  u64;
+
+    fn votes_for(&mut self) -> &mut u64;
+
+    fn votes_against(&mut self) -> &mut u64;
+
+    fn vote_required(&mut self) ->  u64;
+
+
+}
+
+
+
+pub trait Receipt  {
+
+    fn proposal(&mut self) -> &mut Pubkey;
+
+    fn voter(&mut self) -> &mut Pubkey;
+
+    fn voting_power(&mut self) ->&mut u64;
+
+    fn bump(&mut self) -> &mut u8 ;
+    
 }

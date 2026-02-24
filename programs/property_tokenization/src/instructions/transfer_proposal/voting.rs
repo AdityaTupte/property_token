@@ -1,7 +1,7 @@
 use anchor_lang::{ prelude::*};
 use anchor_spl::associated_token::spl_associated_token_account::solana_program::keccak;
 
-use crate::{constant::{ProposalStatus, TRANSFERPROPOSAL, VOTERRECIEPT}, errors::ErrorCode, functions::verify_proof, state::{PropertySystemAccount, TransferLandDetail, VoterReciept}};
+use crate::{constant::{ProposalStatus, SELLPROPERTY, VOTERRECIEPT}, errors::ErrorCode, functions::verify_proof, state::{PropertySystemAccount, TransferLandDetail, VoterReciept}};
 
 #[derive(Accounts)]
 pub struct Voting<'info>{
@@ -12,21 +12,21 @@ pub struct Voting<'info>{
     #[account(
         mut,
         seeds=[
-            TRANSFERPROPOSAL,
+            SELLPROPERTY,
             &proposal.proposal_id.to_le_bytes(),
             property_system.key().as_ref(),
         ],
         bump = proposal.bump,
          constraint = proposal.snapshot_submitted @ ErrorCode::SnapshotNotSubmitted,
-         constraint = proposal.proposal_status !=  ProposalStatus::Passed as u8 @ ErrorCode::ProposalAlreadyPassed,
-         constraint = proposal.proposal_status == ProposalStatus::Active as u8 @ ErrorCode::ProposalNotActive
+         constraint = proposal.proposal_status !=  ProposalStatus::Passed  @ ErrorCode::ProposalAlreadyPassed,
+         constraint = proposal.proposal_status == ProposalStatus::Active @ ErrorCode::ProposalNotActive
     )]
 
     pub proposal : Account<'info,TransferLandDetail>,
 
 
     #[account(
-        constraint = proposal.source_property_system == property_system.key() @ ErrorCode::InvalidProposal
+        constraint = proposal.seller== property_system.key() @ ErrorCode::InvalidProposal
     )]
     pub property_system: Account<'info,PropertySystemAccount>,
 
@@ -60,6 +60,9 @@ pub struct Voting<'info>{
     let signer = &ctx.accounts.signer;
 
     let property_system = &ctx.accounts.property_system;
+
+    let recepit_bump = ctx.bumps.voter_receipt;
+    
     let current_time = Clock::get()?.unix_timestamp;
     
     require!(current_time >= proposal.start_time  && current_time <= proposal.end_time , ErrorCode::VotingPeriodExpired);
@@ -102,9 +105,13 @@ pub struct Voting<'info>{
    
     receipt.voter = signer.key();
 
+    receipt.voting_power = voting_power;
+
+    receipt.bump = recepit_bump;
+
     if proposal.votes_for >= proposal.vote_required{
 
-        proposal.proposal_status =  ProposalStatus::Passed as u8;       
+        proposal.proposal_status =  ProposalStatus::Passed ;       
 
         proposal.transfer_window = current_time;
     } 

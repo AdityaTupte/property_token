@@ -133,5 +133,8 @@ pub enum ErrorCode{
     #[msg("the reinvestment treasury is invalid")]
     InvalidReinvestAccount,
 
+    #[msg("closing days should be greater than 0 days")]
+    ClosingDay
+
 
 }

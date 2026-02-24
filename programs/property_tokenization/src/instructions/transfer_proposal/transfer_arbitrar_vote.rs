@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
 use crate::functions::{arbitrar_approval};
-use crate::state::{ArbitratorRegistry, PropertySystemAccount, TransferLandDetail2};
+use crate::state::{ArbitratorRegistry, PropertySystemAccount, TransferLandDetail};
 use crate::constant::*;
 use crate::errors::ErrorCode::{self};
 
@@ -24,7 +24,7 @@ pub struct ArbitrarApproval<'info>{
         bump = proposal.bump,
         constraint = !proposal.arbitrar_approved @ ErrorCode::AlreadyApproved 
     )]
-    pub proposal: Account<'info,TransferLandDetail2>,
+    pub proposal: Account<'info,TransferLandDetail>,
 
 
     #[account(

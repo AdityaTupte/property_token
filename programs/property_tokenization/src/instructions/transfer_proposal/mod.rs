@@ -1,15 +1,14 @@
 pub mod transfer_land_proposal;
 pub mod transfer_arbitrar_vote;
-pub mod submit_snapshot;
+pub mod transfer_submit_snapshot;
 pub mod voting;
-pub mod delete_fail_proposal;
+pub mod seller_delete_fail_proposal;
 pub mod execute_proposal;
-pub mod voting2;
+
 
 pub use transfer_land_proposal::*;
 pub use transfer_arbitrar_vote::*;
-pub use submit_snapshot::*;
+pub use transfer_submit_snapshot::*;
 pub use voting::*;
-pub use delete_fail_proposal::*;
+pub use seller_delete_fail_proposal::*;
 pub use execute_proposal::*;
-pub use voting2::*;
