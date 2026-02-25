@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::state::{Country, LandProposal, State};
+use crate::state::{Country, PropertyProposal, State};
 
 use crate::errors::ErrorCode::{self};
 
@@ -40,16 +40,16 @@ pub struct ApproveLand<'info>{
         mut,
         seeds=[
             PROPOSAL_SEEDS,
-            &land_proposal.land_id.to_le_bytes(),
+            &property_proposal.property_id.to_le_bytes(),
             state.key().as_ref(),
             country.key().as_ref(),  
             ],
-        bump = land_proposal.bump,
-        constraint = !land_proposal.approved @ ErrorCode::AlreadyApproved,
-        constraint = land_proposal.state_pubkey == state.key() @ ErrorCode::InvalidLand
+        bump = property_proposal.bump,
+        constraint = !property_proposal.approved @ ErrorCode::AlreadyApproved,
+        constraint = property_proposal.state_pubkey == state.key() @ ErrorCode::InvalidLand
     )]
 
-    pub land_proposal : Account<'info,LandProposal>,
+    pub property_proposal : Account<'info,PropertyProposal>,
 
     #[account(mut)]
     pub signer : Signer<'info>
@@ -60,7 +60,7 @@ pub struct ApproveLand<'info>{
         ctx:Context<ApproveLand>
     )->Result<()>{
 
-        let proposal = &mut ctx.accounts.land_proposal ;
+        let proposal = &mut ctx.accounts.property_proposal ;
 
         require!(!proposal.approval.contains(&ctx.accounts.signer.key()),ErrorCode::AuthorityApproved);
 

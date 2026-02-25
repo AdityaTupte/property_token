@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{errors::ErrorCode, state::{Country, LandProposal, State}};
+use crate::{errors::ErrorCode, state::{Country, PropertyProposal, State}};
 
 const STATE_SEEDS : &[u8] = b"state";
 
@@ -8,8 +8,8 @@ const PROPOSAL_SEEDS: &[u8] = b"proposal";
 
 const  COUNTRY_SEED : &[u8] = b"country";
 #[derive(Accounts)]
-#[instruction(land_id:u64)]
-pub struct CreateLandProposal<'info>{
+#[instruction(property_id:u64)]
+pub struct CreatePropertyProposal<'info>{
 
     #[account(
         seeds = [
@@ -43,21 +43,21 @@ pub struct CreateLandProposal<'info>{
         payer = signer,
         seeds = [
             PROPOSAL_SEEDS,
-            &land_id.to_le_bytes(),
+            &property_id.to_le_bytes(),
             state.key().as_ref(),
             country.key().as_ref(),
         ],
         bump,
-        space =  8 + LandProposal::SIZE
+        space =  8 + PropertyProposal::SIZE
     )]
-    pub proposal: Account<'info,LandProposal>,
+    pub proposal: Account<'info,PropertyProposal>,
 
     pub system_program: Program<'info,System>,
 }
 
 pub fn create_proposal(
-    ctx:Context<CreateLandProposal>,
-    land_id : u64,
+    ctx:Context<CreatePropertyProposal>,
+    property_id : u64,
     legal_doc_hash: [u8; 32],
 )->Result<()>{
 
@@ -67,7 +67,7 @@ pub fn create_proposal(
 
         let country = &mut ctx.accounts.country;
 
-        proposal.land_id = land_id;
+        proposal.property_id = property_id;
 
         proposal.state_id = state.state_id;
 

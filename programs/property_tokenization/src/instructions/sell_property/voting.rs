@@ -1,7 +1,7 @@
 use anchor_lang::{ prelude::*};
 use anchor_spl::associated_token::spl_associated_token_account::solana_program::keccak;
 
-use crate::{constant::{ProposalStatus, SELLPROPERTY, VOTERRECIEPT}, errors::ErrorCode, functions::verify_proof, state::{PropertySystemAccount, TransferLandDetail, VoterReciept}};
+use crate::{constant::{ProposalStatus, SELLPROPERTY, VOTERRECIEPT}, errors::ErrorCode, functions::verify_proof, state::{PropertySellProposal, PropertySystemAccount, VoterReciept}};
 
 #[derive(Accounts)]
 pub struct Voting<'info>{
@@ -18,11 +18,11 @@ pub struct Voting<'info>{
         ],
         bump = proposal.bump,
          constraint = proposal.snapshot_submitted @ ErrorCode::SnapshotNotSubmitted,
-         constraint = proposal.proposal_status !=  ProposalStatus::Passed  @ ErrorCode::ProposalAlreadyPassed,
-         constraint = proposal.proposal_status == ProposalStatus::Active @ ErrorCode::ProposalNotActive
+         constraint = proposal.status !=  ProposalStatus::Passed  @ ErrorCode::ProposalAlreadyPassed,
+         constraint = proposal.status == ProposalStatus::Active @ ErrorCode::ProposalNotActive
     )]
 
-    pub proposal : Account<'info,TransferLandDetail>,
+    pub proposal : Account<'info,PropertySellProposal>,
 
 
     #[account(
@@ -111,9 +111,8 @@ pub struct Voting<'info>{
 
     if proposal.votes_for >= proposal.vote_required{
 
-        proposal.proposal_status =  ProposalStatus::Passed ;       
+        proposal.status =  ProposalStatus::Passed ;       
 
-        proposal.transfer_window = current_time;
     } 
 
     Ok(())

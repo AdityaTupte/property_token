@@ -2,12 +2,12 @@ pub mod create_property_system_account;
 pub mod country_creation;
 pub mod state_creation;
 pub mod land_creation;
-pub mod transfer_proposal;
+pub mod sell_property;
 pub mod add_land;
 
 pub use create_property_system_account::*;
 pub use country_creation::*;
 pub use state_creation::*;
 pub use land_creation::*;
-pub use transfer_proposal::*;
+pub use sell_property::*;
 pub use add_land::*;

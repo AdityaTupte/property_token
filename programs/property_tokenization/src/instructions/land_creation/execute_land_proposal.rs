@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::state::{Country, LandAccount, LandAccountMetadata, LandPage, LandProposal, PropertySystemAccount, State};
+use crate::state::{Country, PropertyAccount, PropertyAccountMetadata, PropertyPage, PropertyProposal, PropertySystemAccount, State};
 
 use crate::errors::ErrorCode::{self};
 
@@ -14,7 +14,7 @@ use crate::constant::*;
 
 #[derive(Accounts)]
 
-pub struct ExecuteLandProposal<'info>{
+pub struct ExecutePropertyProposal<'info>{
 
     #[account(
         mut,
@@ -25,15 +25,15 @@ pub struct ExecuteLandProposal<'info>{
     #[account(
         mut,
         seeds = [
-            LAND_PAGE_SEEDS,
-            &landpage.page.to_le_bytes(),
+            PROPERTY_PAGE_SEEDS,
+            &property_page.page.to_le_bytes(),
             property_system_account.key().as_ref()
         ],
-        bump = landpage.bump,
-        constraint = landpage.property_system == property_system_account.key() @ ErrorCode::PropertySystemInvalid
+        bump = property_page.bump,
+        constraint = property_page.property_system == property_system_account.key() @ ErrorCode::PropertySystemInvalid
     )]
 
-    pub landpage : Account<'info,LandPage>,
+    pub property_page : Account<'info,PropertyPage>,
 
     #[account(
         seeds=[
@@ -58,17 +58,17 @@ pub struct ExecuteLandProposal<'info>{
         mut,
         seeds=[
             PROPOSAL_SEEDS,
-            &land_proposal.land_id.to_le_bytes(),
+            &property_proposal.property_id.to_le_bytes(),
             state.key().as_ref(),
             country.key().as_ref(),
         ],
-        bump = land_proposal.bump,
-        constraint = land_proposal.approved @ ErrorCode::ProposalNotApproved,
-        constraint = land_proposal.state_pubkey == state.key() @ ErrorCode::InvalidLand,
+        bump = property_proposal.bump,
+        constraint = property_proposal.approved @ ErrorCode::ProposalNotApproved,
+        constraint = property_proposal.state_pubkey == state.key() @ ErrorCode::InvalidLand,
         close = signer
     )]
 
-    pub land_proposal: Account<'info,LandProposal>,
+    pub property_proposal: Account<'info,PropertyProposal>,
 
     #[account(
         mut,
@@ -81,16 +81,16 @@ pub struct ExecuteLandProposal<'info>{
         init,
         payer = signer,
         seeds = [
-                LAND_SEED,
-                &land_proposal.land_id.to_le_bytes(),
+                PROPERTY_SEED,
+                &property_proposal.property_id.to_le_bytes(),
                 state.key().as_ref(),
                 country.key().as_ref(),
         ],
         bump,
-        space = 8 + LandAccount::SIZE
+        space = 8 + PropertyAccount::SIZE
     )]
 
-    pub land_pda : Account<'info,LandAccount>,
+    pub land_pda : Account<'info,PropertyAccount>,
 
     #[account(
         init,
@@ -102,25 +102,25 @@ pub struct ExecuteLandProposal<'info>{
             country.key().as_ref()
         ],
         bump,
-        space = 8 + LandAccountMetadata::SIZE
+        space = 8 + PropertyAccountMetadata::SIZE
     )]
-    pub land_metadata : Account<'info,LandAccountMetadata>,
+    pub land_metadata : Account<'info,PropertyAccountMetadata>,
 
     pub system_program : Program<'info,System>,
 
 }
 
 pub fn execute(
-    ctx:Context<ExecuteLandProposal>
+    ctx:Context<ExecutePropertyProposal>
 )->Result<()>{
 
-    let proposal = &mut ctx.accounts.land_proposal ;
+    let proposal = &mut ctx.accounts.property_proposal ;
 
-    let land_acc = &mut ctx.accounts.land_pda;
+    let property_acc = &mut ctx.accounts.land_pda;
 
     let metadata = &mut ctx.accounts.land_metadata;
 
-    let land_page  = &mut ctx.accounts.landpage;
+    let land_page  = &mut ctx.accounts.property_page;
 
     let state = & ctx.accounts.state;
 
@@ -130,31 +130,31 @@ pub fn execute(
     
     require!(!land_page.land.len() < 100 , ErrorCode::PageFull);
 
-    land_page.land.push(land_acc.key());
+    land_page.land.push(property_acc.key());
 
-    land_acc.land_id = proposal.land_id;
+    property_acc.property_id = proposal.property_id;
 
-    land_acc.property_system = ctx.accounts.property_system_account.key();
+    property_acc.property_system = ctx.accounts.property_system_account.key();
 
-    land_acc.page_number = land_page.page;
+    property_acc.page_number = land_page.page;
  
-    land_acc.state_id = state.state_id;
+    property_acc.state_id = state.state_id;
 
-    land_acc.state_pubkey = state.key();
+    property_acc.state_pubkey = state.key();
 
-    land_acc.country_id  = country.country_id;
+    property_acc.country_id  = country.country_id;
 
-    land_acc.country_pubkey = country.key();
+    property_acc.country_pubkey = country.key();
 
-    land_acc.issued_at  = current_time;
+    property_acc.issued_at  = current_time;
 
-    land_acc.issued_by = proposal.issued_by;
+    property_acc.issued_by = proposal.issued_by;
 
-    land_acc.metadata = metadata.key();
+    property_acc.metadata = metadata.key();
 
-    land_acc.bump = ctx.bumps.land_pda;
+    property_acc.bump = ctx.bumps.land_pda;
    
-    metadata.land = land_acc.key();
+    metadata.land = property_acc.key();
 
     metadata.legal_doc_hash = proposal.legal_doc_hash;
     

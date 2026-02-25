@@ -1,7 +1,5 @@
 use anchor_lang::prelude::*;
 use anchor_spl::associated_token::spl_associated_token_account::solana_program::keccak;
-
-use crate::constant::{Snapshot, Vote};
 use crate::errors::ErrorCode;
 use crate::functions::verify_proof;
 

@@ -4,7 +4,7 @@ use anchor_lang::prelude::*;
 
 #[account]
 
-pub struct LandAccountMetadata{
+pub struct PropertyAccountMetadata{
             
     pub land: Pubkey,
 
@@ -16,7 +16,7 @@ pub struct LandAccountMetadata{
 
 }
 
-impl LandAccountMetadata {
+impl PropertyAccountMetadata {
 
     pub const SIZE: usize = 32 + 32+ 8 + 1 ;
     

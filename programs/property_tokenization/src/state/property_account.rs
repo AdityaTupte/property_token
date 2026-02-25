@@ -3,9 +3,9 @@ use anchor_lang::prelude::*;
 
 #[account]
 
-pub struct LandAccount{
+pub struct PropertyAccount{
 
-    pub land_id: u64,
+    pub property_id: u64,
     pub property_system: Pubkey,
     pub page_number : u16,
     pub state_id: u16,
@@ -19,7 +19,7 @@ pub struct LandAccount{
 }
 
 
-impl LandAccount {
+impl PropertyAccount {
     pub const SIZE: usize = 8 + 32 + 2  + 2 + 32 + 2 + 32 + 8 + 32 + 32 + 1   ;
     
 }

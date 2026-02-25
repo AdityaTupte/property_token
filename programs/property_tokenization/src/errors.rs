@@ -134,7 +134,13 @@ pub enum ErrorCode{
     InvalidReinvestAccount,
 
     #[msg("closing days should be greater than 0 days")]
-    ClosingDay
+    ClosingDay,
+
+    #[msg("the proposal should be draft stage")]
+    NotInDraft,
+
+    #[msg("proposal is cannot Finalize")]
+    CannotFinalize,
 
 
 }

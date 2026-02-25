@@ -1,8 +1,8 @@
-    use crate::{constant::Arbitrable, events::SnapshotRequested};
+    use crate::{constant::Governance, events::SnapshotRequested};
 use anchor_lang::prelude::*;
 use crate::errors::ErrorCode;
 
-pub fn arbitrar_approval<T: Arbitrable>(
+pub fn arbitrar_approval<T: Governance>(
     item:&mut T,
     signer:Pubkey,
     governance_mint:Pubkey,
@@ -23,11 +23,14 @@ pub fn arbitrar_approval<T: Arbitrable>(
 
         let slot = Clock::get()?.slot;
 
+        *item.slot() = slot;
+
         emit!(SnapshotRequested {
-            proposal_id: item.proposal_id(),
+            proposal_id: *item.proposal_id(),
             mint: governance_mint,
             slot,
         });
+
 
     }
 

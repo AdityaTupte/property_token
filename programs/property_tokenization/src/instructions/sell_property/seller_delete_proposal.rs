@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{constant::*, errors::ErrorCode, state::{PropertySystemAccount, TransferLandDetail, TrusteeRegistry}};
+use crate::{constant::*, errors::ErrorCode, state::{PropertySellProposal, PropertySystemAccount, TrusteeRegistry}};
 
 
 #[derive(Accounts)]
@@ -28,10 +28,10 @@ pub struct DeleteFailProposal<'info>{
             &proposal.proposal_id.to_le_bytes(),
         ],
         bump = proposal.bump,
-        constraint = proposal.seller  == property_system.key(),
+        constraint = proposal.property_system_account  == property_system.key(),
         close = trustee
     )]
-    pub proposal : Account<'info,TransferLandDetail>,
+    pub proposal : Account<'info,PropertySellProposal>,
 
 }
 
@@ -41,7 +41,9 @@ pub fn delete_fail_proposal(ctx:Context<DeleteFailProposal>)->Result<()>{
 
     let proposal = &mut ctx.accounts.proposal;
 
-    require!(proposal.start_time  >  current_time || (proposal.end_time < current_time  && proposal.proposal_status == ProposalStatus::Active), ErrorCode::DeletingProposalInvalid);
+    require!( !proposal.snapshot_submitted, ErrorCode::AlreadyActivated);
+
+    require!(proposal.start_time  >  current_time || (proposal.end_time < current_time  && proposal.status == ProposalStatus::Failed), ErrorCode::DeletingProposalInvalid);
    
     Ok(())
 

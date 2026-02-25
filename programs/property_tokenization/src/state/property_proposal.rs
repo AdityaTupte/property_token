@@ -3,9 +3,9 @@ use anchor_lang::prelude::*;
 pub const MAX_APPROVAL:usize =10 ;
 #[account]
 
-pub struct LandProposal{
+pub struct PropertyProposal{
 
-    pub land_id : u64,
+    pub property_id : u64,
 
     pub state_id : u16,
 
@@ -28,7 +28,7 @@ pub struct LandProposal{
     pub bump : u8,
 }
 
-impl LandProposal {
+impl PropertyProposal {
     pub const SIZE:usize = 
                 8 +
                 2 +

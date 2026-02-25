@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use crate::constant::*;
 #[account]
-pub struct LandPage{
+pub struct PropertyPage{
 
     pub property_system : Pubkey,
 
@@ -14,7 +14,7 @@ pub struct LandPage{
 }
 
 
-impl LandPage {
+impl PropertyPage {
     
     pub const  SIZE: usize = 
 
