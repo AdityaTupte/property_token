@@ -5,6 +5,7 @@ use crate::errors::ErrorCode;
 pub fn arbitrar_approval<T: Governance>(
     item:&mut T,
     signer:Pubkey,
+    proposal_key:Pubkey,
     governance_mint:Pubkey,
 )->Result<()>{
 
@@ -27,6 +28,7 @@ pub fn arbitrar_approval<T: Governance>(
 
         emit!(SnapshotRequested {
             proposal_id: *item.proposal_id(),
+            proposal_key: proposal_key,
             mint: governance_mint,
             slot,
         });

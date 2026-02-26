@@ -127,8 +127,8 @@ impl Governance for PropertySellProposal {
     fn total_voting_power(&mut self) -> &mut u64 {
         return &mut self.total_voting_power;
     }
-    fn vote_required(&mut self) -> &mut u64 {
-        return &mut self.vote_required;
+    fn vote_threshold(&mut self) -> &mut u64 {
+        return &mut self.vote_threshold;
     }
 
     fn votes_for(&mut self) -> &mut u64 {
@@ -149,10 +149,6 @@ impl Governance for PropertySellProposal {
 
     fn proposal_type(&mut self) -> &mut ProposalType {
         return &mut self.proposal_type;
-    }
-
-    fn transfer_deadline(&mut self) -> &mut i64 {
-        return &mut self.transfer_deadline;
     }
 
     fn slot(&mut self) -> &mut u64 {

@@ -34,14 +34,27 @@ pub fn submit_snapshot(
     ctx:Context<SubmitSnapshot>,
     merkle_root : [u8;32],
     closing_days_gap : u8,
-    transfer_deadline_days : u8 
+    transfer_deadline_days : u8 ,
+    vote_threshold :u64,
 )->Result<()>{
 
-    let proposal = &mut *ctx.accounts.proposal;
+    require!(vote_threshold < ctx.accounts.proposal.total_voting_power, ErrorCode::InvalidVotingThreshold);
 
     require!(closing_days_gap>0,ErrorCode::ClosingDay);
 
-    submit(proposal, merkle_root, closing_days_gap,transfer_deadline_days)?;
+    let proposal = &mut *ctx.accounts.proposal;
+
+    submit(proposal, merkle_root, closing_days_gap,vote_threshold)?;
+    
+    let one_day: i64 = 24 * 60 * 60;
+
+    proposal.transfer_deadline = proposal.end_time
+            .checked_add(
+                one_day
+                    .checked_mul(transfer_deadline_days as i64)
+                    .ok_or(ErrorCode::MathOverflow)?
+            )
+            .ok_or(ErrorCode::MathOverflow)?;
  
     Ok(())
 

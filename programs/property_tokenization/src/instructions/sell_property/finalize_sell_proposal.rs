@@ -1,6 +1,7 @@
 use anchor_lang::prelude::*;
 
 use crate::constant::ProposalStatus;
+use crate::functions::finalize;
 use crate::state::PropertySellProposal;
 use crate::errors::ErrorCode;
 
@@ -28,13 +29,9 @@ pub struct Finalize<'info>{
 
 pub fn finalize_sell_proposal(ctx:Context<Finalize>)->Result<()>{
 
-    let proposal = &mut ctx.accounts.proposal; 
+    let proposal = &mut *ctx.accounts.proposal; 
 
-    let current_time= Clock::get()?.unix_timestamp;
-
-    require!(current_time > proposal.end_time && proposal.status == Active ,ErrorCode::CannotFinalize);
-
-    proposal.status = ProposalStatus::Failed;
+    finalize(proposal)?;
 
     Ok(())
 }

@@ -53,14 +53,14 @@ pub struct ArbitrarApproval<'info>{
 
 pub fn sell_proposal_arbitrar_vote(ctx:Context<ArbitrarApproval>)->Result<()>{
     
-
+    let proposal_key = ctx.accounts.proposal.key();
     let proposal = &mut  *ctx.accounts.proposal;
 
     let signer =  ctx.accounts.signer.key();
 
     let property_system = & ctx.accounts.seller;
 
-    arbitrar_approval(proposal,signer,property_system.governance_mint)?;
+    arbitrar_approval(proposal,signer,proposal_key,property_system.governance_mint)?;
 
     Ok(())
 }

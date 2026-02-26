@@ -34,6 +34,7 @@ pub enum ProposalStatus {
     Active ,
     Passed ,
     Failed,
+    Rejected,
     Executed ,
 }
 
@@ -54,7 +55,7 @@ pub trait Governance {
 
     fn total_voting_power(&mut self) -> &mut u64;
 
-    fn vote_required(&mut self) -> &mut u64;
+    fn vote_threshold(&mut self) -> &mut u64;
 
     fn votes_for(&mut self) -> &mut u64;
 
@@ -66,11 +67,7 @@ pub trait Governance {
 
     fn proposal_type(&mut self) -> &mut ProposalType;
 
-    fn transfer_deadline(&mut self) -> &mut i64;
-
     fn slot(&mut self) -> &mut u64;
-
-   
 
     fn bump(&mut self) -> &mut u8;
         
@@ -126,14 +123,14 @@ pub trait Governance {
 
 
 
-// pub trait Receipt  {
+pub trait Receipt  {
 
-//     fn proposal(&mut self) -> &mut Pubkey;
+    fn proposal(&mut self) -> &mut Pubkey;
 
-//     fn voter(&mut self) -> &mut Pubkey;
+    fn voter(&mut self) -> &mut Pubkey;
 
-//     fn voting_power(&mut self) ->&mut u64;
+    fn voting_power(&mut self) ->&mut u64;
 
-//     fn bump(&mut self) -> &mut u8 ;
+    fn bump(&mut self) -> &mut u8 ;
     
-// }
+}

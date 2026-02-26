@@ -96,7 +96,7 @@ pub enum ErrorCode{
     #[msg("the voting period it not start yet or expired")]
     VotingPeriodExpired,
 
-    #[msg("the voting power exceed the total votes")]
+    #[msg("the voting power should be greater than 0 ")]
     VotingPowerInvalid,
 
     #[msg("the proposal is not active ")]
@@ -140,7 +140,20 @@ pub enum ErrorCode{
     NotInDraft,
 
     #[msg("proposal is cannot Finalize")]
-    CannotFinalize,
+    AlreadyFinalized,
 
+    #[msg("voting is still live")]
+    VotingStillActive,
 
+    #[msg("the threshold should be less than total voting power")]
+    InvalidVotingThreshold,
+
+    #[msg("the snapshot is submitted you cant delete proposal now")]
+    AlreadyActivated,
+
+    #[msg("proposal does not achive voting threshold ")]
+    ThresholdReject,
+
+    #[msg("deletion of proposal not allowed")]
+    DeleteNotAllowed,
 }

@@ -1,7 +1,6 @@
 use anchor_lang::{ prelude::*};
-use anchor_spl::associated_token::spl_associated_token_account::solana_program::keccak;
 
-use crate::{constant::{ProposalStatus, SELLPROPERTY, VOTERRECIEPT}, errors::ErrorCode, functions::verify_proof, state::{PropertySellProposal, PropertySystemAccount, VoterReciept}};
+use crate::{constant::{ProposalStatus, SELLPROPERTY, VOTERRECIEPT}, errors::ErrorCode, functions::{voting}, state::{PropertySellProposal, PropertySystemAccount, VoterReciept}};
 
 #[derive(Accounts)]
 pub struct Voting<'info>{
@@ -26,7 +25,7 @@ pub struct Voting<'info>{
 
 
     #[account(
-        constraint = proposal.seller== property_system.key() @ ErrorCode::InvalidProposal
+        constraint = proposal.property_system_account == property_system.key() @ ErrorCode::InvalidProposal
     )]
     pub property_system: Account<'info,PropertySystemAccount>,
 
@@ -54,12 +53,16 @@ pub struct Voting<'info>{
         voting_power : u64,
         yes_or_no : bool,
     )->Result<()>{
+    
+    let proposal_key  =  ctx.accounts.proposal.key();
 
-    let proposal = &mut ctx.accounts.proposal;
+    let proposal= &mut *ctx.accounts.proposal;
     
     let signer = &ctx.accounts.signer;
 
     let property_system = &ctx.accounts.property_system;
+    
+    let receipt = &mut *ctx.accounts.voter_receipt;
 
     let recepit_bump = ctx.bumps.voter_receipt;
     
@@ -67,53 +70,20 @@ pub struct Voting<'info>{
     
     require!(current_time >= proposal.start_time  && current_time <= proposal.end_time , ErrorCode::VotingPeriodExpired);
 
+    require!(voting_power > 0, ErrorCode::VotingPowerInvalid);
 
-    require!(voting_power <= proposal.total_voting_power, ErrorCode::VotingPowerInvalid);
+    voting(
+        proposal,
+        receipt,
+        proof,
+        voting_power,
+        yes_or_no,
+        signer.key(),
+        property_system.governance_mint,
+        proposal_key,
+        recepit_bump
+    )?;
 
-    let leaf = keccak::hashv(&[
-        signer.key().as_ref(),
-        property_system.governance_mint.as_ref(),
-        &voting_power.to_le_bytes(),
-    ]).0;
-
-    
-    require!(
-        verify_proof(leaf, &proof, proposal.merkle_root),
-        ErrorCode::InvalidMerkleProof
-    );
-
-    if yes_or_no{
-
-       proposal.votes_for = proposal
-        .votes_for
-        .checked_add(voting_power)
-        .ok_or(ErrorCode::MathOverflow)?;
-
-    } 
-
-    else {
-        proposal.votes_against = proposal
-        .votes_against
-        .checked_add(voting_power)
-        .ok_or(ErrorCode::MathOverflow)?;
-    }
-
-   
-    let receipt = &mut ctx.accounts.voter_receipt;
-   
-    receipt.proposal = proposal.key();
-   
-    receipt.voter = signer.key();
-
-    receipt.voting_power = voting_power;
-
-    receipt.bump = recepit_bump;
-
-    if proposal.votes_for >= proposal.vote_required{
-
-        proposal.status =  ProposalStatus::Passed ;       
-
-    } 
 
     Ok(())
 
