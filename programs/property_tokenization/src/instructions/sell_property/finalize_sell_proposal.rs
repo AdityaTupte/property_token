@@ -1,9 +1,8 @@
 use anchor_lang::prelude::*;
 
-use crate::constant::ProposalStatus;
 use crate::functions::finalize;
 use crate::state::PropertySellProposal;
-use crate::errors::ErrorCode;
+
 
 
 

@@ -64,7 +64,7 @@ pub struct ExecutePropertyProposal<'info>{
         ],
         bump = property_proposal.bump,
         constraint = property_proposal.approved @ ErrorCode::ProposalNotApproved,
-        constraint = property_proposal.state_pubkey == state.key() @ ErrorCode::InvalidLand,
+        constraint = property_proposal.state_pubkey == state.key() @ ErrorCode::InvalidProperty,
         close = signer
     )]
 

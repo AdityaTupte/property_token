@@ -46,7 +46,7 @@ pub struct ApproveLand<'info>{
             ],
         bump = property_proposal.bump,
         constraint = !property_proposal.approved @ ErrorCode::AlreadyApproved,
-        constraint = property_proposal.state_pubkey == state.key() @ ErrorCode::InvalidLand
+        constraint = property_proposal.state_pubkey == state.key() @ ErrorCode::InvalidProperty
     )]
 
     pub property_proposal : Account<'info,PropertyProposal>,

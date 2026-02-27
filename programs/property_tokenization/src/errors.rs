@@ -54,8 +54,8 @@ pub enum ErrorCode{
     #[msg("the country is invalid please check the country ")]
     InvalidCountry,
 
-    #[msg("the land is invalid please check the land ")]
-    InvalidLand,
+    #[msg("the Property is invalid please check the Property ")]
+    InvalidProperty,
 
     #[msg("the trusteeRegistry is Invalid")]
     InvalidTrusteeRegsitry,
@@ -156,4 +156,7 @@ pub enum ErrorCode{
 
     #[msg("deletion of proposal not allowed")]
     DeleteNotAllowed,
+
+    #[msg("the propperty proposal must have status of passed")]
+    PropertyNotPass
 }

@@ -96,7 +96,7 @@ pub fn create_sell_proposal(ctx:Context<SellLandProposal>,proposal_id: u64,sale_
 
     let proposal =&mut ctx.accounts.proposal;
 
-    require!(seller_land_page.land.contains(&property_account.key()), ErrorCode::InvalidLand);
+    require!(seller_land_page.land.contains(&property_account.key()), ErrorCode::InvalidProperty);
 
     proposal.initialize(
     proposal_id,
