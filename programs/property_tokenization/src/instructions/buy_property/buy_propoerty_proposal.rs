@@ -1,14 +1,14 @@
 use anchor_lang::prelude::*;
 
 use crate::constant::{PROPERTY_SEED, ProposalStatus, ProposalType, SELLPROPERTY};
-use crate::state::{PropertyAccount, PropertySellProposal, ReinvestmentPda, TreasuryPda, TrusteeRegistry};
+use crate::state::{PropertyAccount, PropertyBuyProposal, PropertySellProposal, ReinvestmentPda, TreasuryPda, TrusteeRegistry};
 use crate::{constant::PROPERTY_SYSTEM_SEEDS, state::PropertySystemAccount};
 use crate::errors::ErrorCode;
 
 
 #[derive(Accounts)]
-
-pub struct PropertyBuyProposal<'info>{
+#[instruction(proposal_id : u64)]
+pub struct BuyPropertyProposal<'info>{
 
     #[account(
         mut,
@@ -71,18 +71,42 @@ pub struct PropertyBuyProposal<'info>{
         init,
         payer = trustee,
         seeds=[
-            BUY
+            BUYPROPERTY,
+            buyer.key().as_ref(),
+            &proposal_id.to_le_bytes()
         ],
         bump,
-        space = 8 + 
+        space = 8 + PropertyBuyProposal::SIZE
     )]
-    pub 
+    pub proposal : Account<'info,PropertyBuyProposal>,
 
+    pub system_program : Program<'info,System>,
 
 }
 
 
-pub fn buyproposal(ctx:Context<PropertyBuyProposal>) ->Result<()>{
+pub fn createbuyproposal(ctx:Context<BuyPropertyProposal>,proposal_id : u64) ->Result<()>{
+
+    let buy_proposal = &mut ctx.accounts.proposal;
+    
+    let buyer = & ctx.accounts.buyer;
+
+    let buyer_wallet = & ctx.accounts.buyer_reinvestment_pda;
+
+    let seller_proposal = & ctx.accounts.seller_proposal;
+
+    let property = & ctx.accounts.property;
+    
+    buy_proposal.initialize(
+        proposal_id,
+        buyer.key(),
+        buyer_wallet.key(),
+        property.key(),
+        seller_proposal.key(),
+        seller_proposal.sale_price,
+        ctx.bumps.proposal,
+        buyer.total_token_supply,
+    );
 
 
     Ok(())

@@ -105,7 +105,7 @@ pub fn create_sell_proposal(ctx:Context<SellLandProposal>,proposal_id: u64,sale_
     seller_treasury.key(),
     sale_price,
     seller.total_token_supply,
-    
+    ctx.bumps.proposal,
     );
     
     Ok(())

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{constant::{Governance, ProposalStatus, ProposalType}, state::MAX_ARBITRATOR};
+use crate::{constant::{Governance, ProposalStatus, ProposalType}, instructions::buy_property, state::MAX_ARBITRATOR};
 
 #[account]
 
@@ -82,16 +82,14 @@ impl PropertySellProposal {
         seller_treasury_pda: Pubkey,
         sale_price: u64,
         total_token_supply:u64,
+        bump:u8,
     ) {
         self.proposal_id = proposal_id;
         self.property_account = property_account;
         self.property_system_account = seller;
         self.deposit_account_pda = seller_treasury_pda;
         self.sale_price = sale_price;
-        self.votes_for = 0;
-        self.votes_against = 0;
-        self.snapshot_submitted = false;
-        self.is_arbitrar_approved = false;
+        self.bump = bump;
         self.proposal_type = ProposalType::SELLPROPERTY;
         self.total_voting_power = total_token_supply;
         self.status = ProposalStatus::Draft;

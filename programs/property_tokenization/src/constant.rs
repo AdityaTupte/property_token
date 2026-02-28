@@ -13,7 +13,7 @@ pub const TRANSFERPROPOSAL : &[u8] = b"transferproposal";
 
 pub const VOTERRECIEPT : &[u8] = b"voter_receipt";
 
-pub const BUYPROPOSAL : &[u8] = b"buyproposal";
+pub const BUYPROPERTY : &[u8] = b"BUYPROPERTY";
 
 pub const SELLPROPERTY : &[u8] = b"SELLPROPERTY";
 
@@ -21,7 +21,7 @@ pub const SELLPROPERTY : &[u8] = b"SELLPROPERTY";
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
 pub enum ProposalType {
     SELLPROPERTY,
-    Buy,
+    BUYPROPERTY,
 }
 
 pub const MAX_LAND_PER_PAGE:usize = 100;
