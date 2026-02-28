@@ -44,7 +44,7 @@ pub fn submit_snapshot(
     let proposal = &mut *ctx.accounts.proposal;
 
     submit(proposal, merkle_root, closing_days_gap,vote_threshold)?;
-    
+
  
     Ok(())
 

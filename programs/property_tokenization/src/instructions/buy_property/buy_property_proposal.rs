@@ -100,6 +100,7 @@ pub fn createbuyproposal(ctx:Context<BuyPropertyProposal>,proposal_id : u64) ->R
     let current_time = Clock::get()?.unix_timestamp ;
 
     require!(current_time < seller_proposal.transfer_deadline , ErrorCode::TransferDeadLineReached);
+    require!(buyer.key() != seller_proposal.property_system_account,ErrorCode:: SamePropertySystem);
 
     buy_proposal.initialize(
         proposal_id,
