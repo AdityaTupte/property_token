@@ -160,53 +160,5 @@ impl Governance for PropertySellProposal {
 
 }
 
-// // impl Arbitrable for TransferLandDetail {
-
-// //     fn arbitrar_list(&mut self) -> &mut Vec<Pubkey> {
-        
-// //        return  &mut self.arbitrar_approval;
-// //     }
-
-// //     fn arbitrar_approved(&mut self) -> &mut bool {
-// //         return  &mut self.arbitrar_approved ;
-// //     }
-
-// //     fn proposal_id(& self) -> u64 {
-// //         return self.proposal_id;
-// //     }
-    
-// // }
-
-// // impl Snapshot for TransferLandDetail  {
-
-// //     fn merkle_root(&mut self) -> &mut [u8;32] {
-// //         return &mut self.merkle_root;
-// //     }
-
-// //     fn start_time(&mut self) -> &mut i64 {
-// //         return &mut self.start_time;
-// //     }
-// //     fn end_time(&mut self) -> &mut i64 {
-// //         return &mut self.end_time;
-// //     }
-    
-// //     fn snapshot_submitted(&mut self) -> &mut bool {
-// //          return &mut self.snapshot_submitted;
-// //     }
-
-// //     fn total_voting_power(& self) -> u64 {
-// //          return self.total_voting_power;
-// //     }
-
-// //     fn vote_required(&mut self) -> &mut u64 {
-// //          return &mut self.vote_required;
-// //     }
-
-// //     fn proposal_status(&mut self) -> &mut ProposalStatus {
-// //          return &mut self.proposal_status;
-// //     }
-
-
-// // }
 
 

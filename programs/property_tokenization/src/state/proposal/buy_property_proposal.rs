@@ -100,3 +100,71 @@ impl PropertyBuyProposal {
 }
 
 
+impl Governance for PropertyBuyProposal {
+
+    fn proposal_id(&mut self) ->&mut u64 {
+        return &mut self.proposal_id;
+    }
+
+    fn start_time(&mut self) -> &mut i64 {
+        return &mut self.start_time;
+    }
+
+    fn end_time(&mut self) -> &mut i64 {
+        return &mut self.end_time;
+    }
+    fn merkle_root(&mut self) -> &mut [u8;32] {
+        return &mut self.merkle_root;
+    }
+
+    fn arbitrar_list(&mut self) -> &mut Vec<Pubkey> {
+        return  &mut self.arbitrar_approvals;
+    }
+    
+    fn arbitrar_approved(&mut self)-> &mut bool {
+        return  &mut self.is_arbitrar_approved ;
+    }
+
+    fn total_voting_power(&mut self) -> &mut u64 {
+        return &mut self.total_voting_power;
+    }
+    fn vote_threshold(&mut self) -> &mut u64 {
+        return &mut self.vote_threshold;
+    }
+
+    fn votes_for(&mut self) -> &mut u64 {
+        return &mut self.votes_for;
+    }
+
+    fn votes_against(&mut self) -> &mut u64 {
+        return &mut self.votes_against;
+    }
+
+    fn proposal_status(&mut self) -> &mut ProposalStatus {
+        return &mut self.status;
+    }
+
+    fn snapshot_submitted(&mut self) -> &mut bool {
+        return &mut self.snapshot_submitted;
+    }
+
+    fn proposal_type(&mut self) -> &mut ProposalType {
+        return &mut self.proposal_type;
+    }
+
+    fn slot(&mut self) -> &mut u64 {
+        return &mut self.slot;
+    }
+
+
+    fn bump(&mut self) -> &mut u8 {
+        return &mut self.bump;
+    }
+
+}
+
+
+
+
+
+
