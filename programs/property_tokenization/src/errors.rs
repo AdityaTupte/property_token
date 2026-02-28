@@ -158,5 +158,9 @@ pub enum ErrorCode{
     DeleteNotAllowed,
 
     #[msg("the propperty proposal must have status of passed")]
-    PropertyNotPass
+    PropertyNotPass,
+
+    #[msg("the sell property proposal reached the transfer deadline")]
+    TransferDeadLineReached,    
+
 }

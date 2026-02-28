@@ -1,5 +1,7 @@
-pub mod buy_propoerty_proposal;
+pub mod buy_property_proposal;
 pub mod buy_proposal_arbitrar_vote;
+pub mod buy_submit_snapshot;
 
-pub use buy_propoerty_proposal::*;
-pub use buy_propoerty_proposal::*;
+pub use buy_property_proposal::*;
+pub use buy_proposal_arbitrar_vote::*;
+pub use buy_submit_snapshot::*;
