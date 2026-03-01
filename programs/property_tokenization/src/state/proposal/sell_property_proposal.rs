@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{constant::{Governance, ProposalStatus, ProposalType}, instructions::buy_property, state::MAX_ARBITRATOR};
+use crate::{constant::{Governance, ProposalStatus, ProposalType}, state::MAX_ARBITRATOR};
 
 #[account]
 
@@ -153,6 +153,9 @@ impl Governance for PropertySellProposal {
         return &mut self.slot;
     }
 
+    fn deadline(&mut self) -> &mut i64 {
+        return &mut self.transfer_deadline;
+    }
 
     fn bump(&mut self) -> &mut u8 {
         return &mut self.bump;

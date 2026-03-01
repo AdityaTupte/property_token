@@ -26,7 +26,7 @@ pub struct Finalize<'info>{
 }
 
 
-pub fn finalize_sell_proposal(ctx:Context<Finalize>)->Result<()>{
+pub fn finalize_buy_proposal(ctx:Context<Finalize>)->Result<()>{
 
     let proposal = &mut *ctx.accounts.proposal; 
 

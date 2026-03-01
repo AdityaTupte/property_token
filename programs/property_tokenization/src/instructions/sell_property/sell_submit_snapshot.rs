@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use crate::constant::*;
 use crate::errors::ErrorCode;
 use crate::functions::submit;
-use crate::state::PropertySellProposal;
+use crate::state::{PropertySellProposal, treasury};
 
 #[derive(Accounts)]
 
@@ -44,18 +44,8 @@ pub fn submit_snapshot(
 
     let proposal = &mut *ctx.accounts.proposal;
 
-    submit(proposal, merkle_root, closing_days_gap,vote_threshold)?;
+    submit(proposal, merkle_root, closing_days_gap,vote_threshold,transfer_deadline_days)?;
     
-    let one_day: i64 = 24 * 60 * 60;
-
-    proposal.transfer_deadline = proposal.end_time
-            .checked_add(
-                one_day
-                    .checked_mul(transfer_deadline_days as i64)
-                    .ok_or(ErrorCode::MathOverflow)?
-            )
-            .ok_or(ErrorCode::MathOverflow)?;
- 
     Ok(())
 
 

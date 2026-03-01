@@ -8,6 +8,7 @@ use crate::errors::ErrorCode;
         merkle_root : [u8;32],
         closing_days : u8,
         vote_threshold :u64,
+        transfer_deadline_days : u8 ,
     )->Result<()>{
 
     let current_time = Clock::get()?.unix_timestamp;
@@ -25,6 +26,15 @@ use crate::errors::ErrorCode;
     let end_time = start_time
             .checked_add(closing_time)
             .ok_or(ErrorCode::MathOverflow)?;
+
+        *item.deadline() = end_time
+            .checked_add(
+                one_day
+                    .checked_mul(transfer_deadline_days as i64)
+                    .ok_or(ErrorCode::MathOverflow)?
+            )
+            .ok_or(ErrorCode::MathOverflow)?;
+ 
 
         *item.start_time() = start_time;
 

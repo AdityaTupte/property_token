@@ -34,6 +34,8 @@ pub struct PropertyBuyProposal{
     pub start_time: i64,
 
     pub end_time: i64,
+
+    pub payment_deadline : i64,
     
     pub status : ProposalStatus,
 
@@ -57,6 +59,7 @@ impl PropertyBuyProposal {
                             32 +
                             4 + (32 * MAX_ARBITRATOR) +
                             1 +
+                            8 +
                             8 +
                             8 +
                             8 +
@@ -156,6 +159,9 @@ impl Governance for PropertyBuyProposal {
         return &mut self.slot;
     }
 
+    fn deadline(&mut self) -> &mut i64 {
+        return &mut self.payment_deadline;
+    }
 
     fn bump(&mut self) -> &mut u8 {
         return &mut self.bump;

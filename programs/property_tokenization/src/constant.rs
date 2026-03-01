@@ -69,6 +69,8 @@ pub trait Governance {
 
     fn slot(&mut self) -> &mut u64;
 
+    fn deadline(&mut self) -> &mut i64;
+
     fn bump(&mut self) -> &mut u8;
         
 }
