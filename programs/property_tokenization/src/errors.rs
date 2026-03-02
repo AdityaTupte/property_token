@@ -161,6 +161,18 @@ pub enum ErrorCode{
     PropertyNotPass,
 
     #[msg("the sell property proposal reached the transfer deadline")]
-    TransferDeadLineReached,    
+    TransferDeadLineReached,   
+
+    #[msg("the page is full please create a new to add property")]
+    InsufficentSpace, 
+
+    #[msg("the payement por tranfer deadline is reached .")]
+    CantTramnsfer,
+
+    #[msg("sell proposal key doies niot mnatchjes with the sell proposal in buy proposal")]
+    InvalidSellProposal,
+
+    #[msg("the purchasing ans the selling price must be diffrent")]
+    DiffrentPrice,
 
 }

@@ -17,6 +17,8 @@ pub const BUYPROPERTY : &[u8] = b"BUYPROPERTY";
 
 pub const SELLPROPERTY : &[u8] = b"SELLPROPERTY";
 
+pub const REINVESTMENTPDA : &[u8] = b"reinvestment";
+
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
 pub enum ProposalType {
@@ -75,56 +77,6 @@ pub trait Governance {
         
 }
 
-// pub trait Arbitrable {
-   
-//     fn arbitrar_list(&mut self) -> &mut Vec<Pubkey>;
-
-//     fn arbitrar_approved(&mut self)-> &mut bool;
-
-//     fn proposal_id(& self) -> u64;
-
-// }
-
-
-// pub trait Snapshot {
-
-//     fn merkle_root(&mut self) -> &mut [u8;32] ;
-
-//     fn start_time(&mut self) -> &mut i64;
-
-//     fn end_time(&mut self) -> &mut i64;
-
-//     fn snapshot_submitted(&mut self) -> &mut bool;
-
-//     fn total_voting_power(& self) ->  u64;
-
-//     fn vote_required(&mut self) -> &mut u64;
-
-//     fn proposal_status(&mut self) -> &mut ProposalStatus;
-
-// }
-
-// pub trait Vote {
-
-//     fn merkle_root(&mut self) -> &mut [u8;32] ;
-
-//     fn start_time(&mut self) -> &mut i64;
-
-//     fn end_time(&mut self) -> &mut i64;
-
-//     fn total_voting_power(& self) ->  u64;
-
-//     fn votes_for(&mut self) -> &mut u64;
-
-//     fn votes_against(&mut self) -> &mut u64;
-
-//     fn vote_required(&mut self) ->  u64;
-
-
-// }
-
-
-
 pub trait Receipt  {
 
     fn proposal(&mut self) -> &mut Pubkey;
@@ -136,3 +88,18 @@ pub trait Receipt  {
     fn bump(&mut self) -> &mut u8 ;
     
 }
+
+// pub trait buyer_transfer {
+
+//     fn seller_proposal (&mut self) -> &mut Pubkey;
+
+//     fn owner (&mut self) -> &mut Pubkey;
+
+//     fn owner_wallet(&mut self) -> &mut Pubkey;
+
+//     fn property_account(&mut self) -> &mut Pubkey;
+
+//     fn purchase_price(&mut self) -> &mut u64;
+    
+
+// }

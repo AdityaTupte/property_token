@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
-use anchor_spl::{associated_token::AssociatedToken, token_interface::{TokenAccount}};
+use anchor_spl::{associated_token::AssociatedToken,token_interface::{Mint, TokenAccount, TokenInterface,TransferChecked, transfer_checked}};
 
-use crate::{constant::{HARDCODED_PUBKEY, PROPERTY_PAGE_SEEDS, PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, SELLPROPERTY}, state::{PropertyAccount, PropertyBuyProposal, PropertyPage, PropertySellProposal, PropertySystemAccount, ReinvestmentPda, TreasuryPda, TrusteeRegistry}};
+use crate::{constant::{HARDCODED_PUBKEY, PROPERTY_PAGE_SEEDS, PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, REINVESTMENTPDA, SELLPROPERTY}, state::{PropertyAccount, PropertyBuyProposal, PropertyPage, PropertySellProposal, PropertySystemAccount, ReinvestmentPda, TreasuryPda, TrusteeRegistry}};
 
 use crate::errors::ErrorCode;
 #[derive(Accounts)]
@@ -30,9 +30,23 @@ pub struct ExecuteProposal<'info>{
     pub buyer : Account<'info,PropertySystemAccount>,
 
     #[account(
+        mut,
+        seeds = [
+            PROPERTY_PAGE_SEEDS,
+            &buyer_property_page.page.to_le_bytes(),
+            &buyer.key().as_ref()
+        ],
+        bump = buyer_property_page.bump,
+        constraint = buyer_property_page.property_system == buyer.key() @ ErrorCode::PropertySystemInvalid
+    )]
+
+    pub buyer_property_page : Account<'info,PropertyPage>,
+
+    #[account(
         constraint = buyer.treasury == buyer_treasury.key() @ ErrorCode::InvalidTreasury
     )]
     pub buyer_treasury: Account<'info,TreasuryPda>,
+
 
     #[account(
         mut,
@@ -48,8 +62,12 @@ pub struct ExecuteProposal<'info>{
             &proposal.proposal_id.to_le_bytes(),
         ],
         bump = proposal.bump,
-        constraint = proposal.buyer  == buyer.key(),
-    )]
+        constraint = proposal.status == ProposalStatus::Passed @ ErrorCode::ProposalNotPassed,
+        constraint = proposal.property == property_account.key() @ ErrorCode::InvalidProperty,
+        constraint = proposal.buyer == buyer.key() @ ErrorCode::InvalidProposal,
+        constraint = proposal.buyer_wallet == buyer_wallet.key() @ ErrorCode::InvalidReinvestAccount,
+        constraint = proposal.sell_proposal == sell_proposal.key() @ ErrorCode::InvalidSellProposal,
+        )]
     pub proposal : Account<'info,PropertyBuyProposal>,
 
     #[account(
@@ -58,9 +76,7 @@ pub struct ExecuteProposal<'info>{
     )]
     pub buyer_ata : InterfaceAccount<'info, TokenAccount>,
 
-    pub associated_token_program: Program<'info, AssociatedToken>,
     
-    pub system_program: Program<'info, System>,
     ///
     /// 
     /// 
@@ -73,7 +89,10 @@ pub struct ExecuteProposal<'info>{
             &sell_proposal.proposal_id.to_le_bytes(),
         ],
         bump = sell_proposal.bump,
-        constraint = sell_proposal.property_system_account  == buyer.key(),
+        constraint = sell_proposal.status == ProposalStatus::Passed @ ErrorCode::ProposalNotPassed,
+        constraint = sell_proposal.property_system_account  == seller.key() @ ErrorCode::InvalidProposal,
+        constraint = sell_proposal.deposit_account_pda == seller_treasury.key() @ ErrorCode::InvalidTreasury,
+        constraint = sell_proposal.property_account == propoerty.key() @ ErrorCode::InvalidProperty 
     )]
     pub sell_proposal: Account<'info,PropertySellProposal>,
 
@@ -94,9 +113,16 @@ pub struct ExecuteProposal<'info>{
             &seller.key().as_ref(),
         ],
         bump = seller_treasury.bump,
+        constraint = seller.treasury == seller_treasury.key() @ ErrorCode:: InvalidTreasury
     )]
     
     pub seller_treasury : Account<'info,TreasuryPda>,
+
+     #[account(
+        associated_token::mint = HARDCODED_PUBKEY,
+        associated_token::authority = seller_treasury ,
+    )]
+    pub seller_ata : InterfaceAccount<'info, TokenAccount>,
 
     #[account(
         mut,
@@ -124,6 +150,17 @@ pub struct ExecuteProposal<'info>{
 
     pub seller_property_page : Account<'info,PropertyPage>,
 
+    #[account(
+        address = HARDCODED_PUBKEY,
+    )]
+    pub mint : InterfaceAccount<'info,Mint>,
+
+    pub token_program : Interface<'info,TokenInterface>,
+
+    pub associated_token_program: Program<'info, AssociatedToken>,
+    
+    pub system_program: Program<'info, System>,
+
 
 }
 
@@ -131,10 +168,67 @@ pub fn execute_buy_proposal(ctx:Context<ExecuteProposal>)->Result<()>{
 
     let proposal = &mut ctx.accounts.proposal;
 
+    let sell_proposal = &mut ctx.accounts.sell_proposal;
+
+    let sell_property_page = &mut ctx.accounts.seller_property_page;
+
+    let property = &mut ctx.accounts.property_account;
+
+    let buy_property_page = &mut ctx.accounts.buyer_property_page;
+
+    let buyer = &mut ctx.accounts.buyer;
+
+    let seller = &mut ctx.accounts.seller;
+
+
     let current_time = Clock::get()?.unix_timestamp;
 
-    // require!(proposal.)
+    require!(sell_property_page.land.contains(&property.key()), ErrorCode::InvalidProperty);
+    
+    require!(buy_property_page.land.len() < 100, ErrorCode::InsufficentSpace);
 
+    require!(current_time <= sell_proposal.transfer_deadline  && current_time <= proposal.payment_deadline , ErrorCode::CantTramnsfer );
+
+    require!(seller.key() != buyer.key(),ErrorCode::SamePropertySystem);
+
+    require!(proposal.sale_price == sell_proposal.sale_price ,ErrorCode::DiffrentPrice);
+    
+    let amount = proposal.sale_price;
+
+    let decimals = ctx.accounts.mint.decimals;
+
+
+    
+
+   if  let Some(index) = sell_property_page.land.iter().position(|x| *x == property.key()){
+
+        sell_property_page.land.swap_remove(index);
+
+   }
+
+   buy_property_page.land.push(property.key());
+
+   property.property_system = buyer.key();
+   
+   property.page_number = buy_property_page.page;
+
+   let cpi_accounts = TransferChecked{
+    from:ctx.accounts.buyer_ata.to_account_info(),
+    to : ctx.accounts.seller_ata.to_account_info(),
+    authority:ctx.accounts.buyer_wallet.to_account_info(),
+    mint:ctx.accounts.mint.to_account_info(),
+   };
+   
+    let signer_seed:&[&[&[u8]]] = &[&[
+        REINVESTMENTPDA,
+        buyer.key().as_ref(),
+        &[ctx.accounts.buyer_wallet.bump]]];
+
+   let cpi_program = ctx.accounts.token_program.to_account_info(); 
+
+   let cpi_context = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
+
+   transfer_checked(cpi_context, amount, decimals)?;
 
     Ok(())
 

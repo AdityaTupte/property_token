@@ -169,6 +169,28 @@ impl Governance for PropertyBuyProposal {
 
 }
 
+// impl buyer_transfer for PropertyBuyProposal {
+    
+//     fn owner (&mut self) -> &mut Pubkey {
+//         return &mut self.buyer;
+//     }
+
+//     fn owner_wallet(&mut self) -> &mut Pubkey {
+//         return &mut self.buyer_wallet;
+//     }
+//     fn property_account(&mut self) -> &mut Pubkey {
+//         return &mut self.property;
+//     }
+
+//     fn purchase_price(&mut self) -> &mut u64 {
+//         return &mut self.sale_price;
+//     }
+
+//     fn seller_proposal (&mut self) -> &mut Pubkey {
+//         return &mut self.sell_proposal;
+//     }
+// }
+
 
 
 
