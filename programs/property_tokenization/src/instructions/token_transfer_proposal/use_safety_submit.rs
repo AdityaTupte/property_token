@@ -33,7 +33,7 @@ pub fn saftey_submit_snapshot(
     ctx:Context<SubmitSnapshot>,
     merkle_root : [u8;32],
     closing_days_gap : u8,
-    transfer_deadline_days : u8 ,
+    deadline_days : u8 ,
     vote_threshold :u64,
 )->Result<()>{
 
@@ -43,7 +43,7 @@ pub fn saftey_submit_snapshot(
 
     let proposal = &mut *ctx.accounts.proposal;
 
-    submit(proposal, merkle_root, closing_days_gap,vote_threshold,transfer_deadline_days)?;
+    submit(proposal, merkle_root, closing_days_gap,vote_threshold,deadline_days)?;
     
     Ok(())
 
