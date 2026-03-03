@@ -54,6 +54,7 @@ pub struct ArbitrarApproval<'info>{
 pub fn sell_proposal_arbitrar_vote(ctx:Context<ArbitrarApproval>)->Result<()>{
     
     let proposal_key = ctx.accounts.proposal.key();
+    
     let proposal = &mut  *ctx.accounts.proposal;
 
     let signer =  ctx.accounts.signer.key();

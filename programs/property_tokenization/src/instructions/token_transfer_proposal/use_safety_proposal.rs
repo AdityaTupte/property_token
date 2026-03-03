@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{constant::PROPERTY_SYSTEM_SEEDS, errors::ErrorCode, state::{PropertySystemAccount, SafetyProposal, TrusteeRegistry}};
+use crate::{constant::{PROPERTY_SYSTEM_SEEDS, SAFETYPROPOSAL}, errors::ErrorCode, state::{PropertySystemAccount, SafetyProposal, TrusteeRegistry}};
 
 #[derive(Accounts)]
 #[instruction(proposal_id:u64)]
@@ -33,6 +33,7 @@ pub struct UseSafetyTokensProposal<'info>{
         payer = trustee,
         seeds=[
                 SAFETYPROPOSAL,
+                property_system.key().as_ref(),
                 &proposal_id.to_le_bytes(),
         ],
         bump,

@@ -1,4 +1,4 @@
-    use crate::{constant::Governance, events::SnapshotRequested};
+use crate::{constant::Governance, events::SnapshotRequested};
 use anchor_lang::prelude::*;
 use crate::errors::ErrorCode;
 
