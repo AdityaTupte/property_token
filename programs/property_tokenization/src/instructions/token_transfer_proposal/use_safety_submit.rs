@@ -24,7 +24,6 @@ pub struct SubmitSnapshot<'info>{
         constraint = !proposal.snapshot_submitted @ ErrorCode::SnapshotAlreadySubmitted,
         constraint = proposal.status == ProposalStatus::Draft @ ErrorCode::NotInDraft
     )]
-
     pub proposal : Account<'info,SafetyProposal>,
 
 }
