@@ -1,6 +1,6 @@
 use anchor_lang::prelude::{ *};
 
-use crate::{constant::{PROPERTY_SYSTEM_SEEDS, SAFETYPROPOSAL}, errors::ErrorCode, functions::arbitrar_approval, state::{ArbitratorRegistry, PropertySystemAccount, SafetyProposal, proposal}};
+use crate::{constant::{PROPERTY_SYSTEM_SEEDS, SAFETYPROPOSAL}, errors::ErrorCode, functions::arbitrar_approval, state::{ArbitratorRegistry, PropertySystemAccount, SafetyProposal}};
 
 #[derive(Accounts)]
 pub struct ArbitrarVote<'info>{

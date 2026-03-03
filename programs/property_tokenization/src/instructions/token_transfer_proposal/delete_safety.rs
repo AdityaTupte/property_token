@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{constant::*, state::{PropertySellProposal, PropertySystemAccount, TrusteeRegistry}};
+use crate::{constant::*, state::{PropertySystemAccount, SafetyProposal, TrusteeRegistry}};
 
 
 #[derive(Accounts)]
@@ -17,35 +17,37 @@ pub struct DeleteFailProposal<'info>{
     )]
     pub trustee : Signer<'info>,
 
-    #[account()]
+    #[account(
+        seeds=[
+            PROPERTY_SYSTEM_SEEDS,
+            &property_system.property_system_id.to_le_bytes(),
+        ],
+        bump = property_system.bump
+    )]
     pub property_system : Account<'info,PropertySystemAccount>,
 
     #[account(
         mut,
         seeds=[
-            SELLPROPERTY,
+            BUYPROPERTY,
             property_system.key().as_ref(),
             &proposal.proposal_id.to_le_bytes(),
         ],
         bump = proposal.bump,
-        constraint = proposal.property_system_account  == property_system.key(),
+        constraint = proposal.property_system  == property_system.key(),
         close = trustee
     )]
-    pub proposal : Account<'info,PropertySellProposal>,
+    pub proposal : Account<'info,SafetyProposal>,
 
-}
+}  
 
-pub fn delete_fail_proposal(ctx:Context<DeleteFailProposal>)->Result<()>{
 
-    let current_time = Clock::get()?.unix_timestamp;
+pub fn delete_buy_proposal(ctx:Context<DeleteFailProposal>) ->Result<()>{
 
     let proposal = &mut *ctx.accounts.proposal;
 
     delete_proposal(proposal)?;
 
-
     Ok(())
 
 }
-
-
