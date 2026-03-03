@@ -4,7 +4,7 @@ pub mod submit_snapshot;
 pub mod voting;
 pub mod finalize_proposal;
 pub mod delete_proposal;
-pub mod proposal_match_check;
+
 
 pub use verify_proof::*;
 pub use arbitrar_check::*;
@@ -12,4 +12,3 @@ pub use submit_snapshot::*;
 pub use voting::*;
 pub use finalize_proposal::*;
 pub use delete_proposal::*;
-pub use proposal_match_check::*;

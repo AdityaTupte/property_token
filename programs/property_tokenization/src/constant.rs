@@ -19,11 +19,14 @@ pub const SELLPROPERTY : &[u8] = b"SELLPROPERTY";
 
 pub const REINVESTMENTPDA : &[u8] = b"reinvestment";
 
+pub const SAFETYPROPOSAL :  &[u8] = b"safetyproposal";
+
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
 pub enum ProposalType {
     SELLPROPERTY,
     BUYPROPERTY,
+    USESAFETY,
 }
 
 pub const MAX_LAND_PER_PAGE:usize = 100;

@@ -6,7 +6,6 @@ pub struct TreasuryPda{
 
     pub property_system_accout: Pubkey, // Property system this treasury belongs to
 
-
     pub reinvenstement_acc: Pubkey, // Used for reinvestment and property growth
 
     pub safety_acc: Pubkey, // Emergency and risk-reserve funds
