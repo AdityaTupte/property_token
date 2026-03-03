@@ -1,24 +1,23 @@
 use anchor_lang::prelude::*;
-use crate::constant::*;
-use crate::errors::ErrorCode;
-use crate::functions::submit;
-use crate::state::PropertyBuyProposal;
+
+use crate::{constant::SAFETYPROPOSAL, errors::ErrorCode, functions::submit, state::SafetyProposal};
+
+
 
 #[derive(Accounts)]
-
 pub struct SubmitSnapshot<'info>{
 
     #[account(
         constraint = proposal.arbitrar_approvals.contains(&signer.key()),
         constraint = proposal.is_arbitrar_approved
     )]
-    pub signer: Signer<'info>,
+    pub signer : Signer<'info>,
 
     #[account(
         mut,
         seeds=[
-            BUYPROPERTY,
-            proposal.buyer.as_ref(),
+            SAFETYPROPOSAL,
+            proposal.property_system.as_ref(),
             &proposal.proposal_id.to_le_bytes(),
         ],
         bump = proposal.bump,
@@ -26,15 +25,15 @@ pub struct SubmitSnapshot<'info>{
         constraint = proposal.status == ProposalStatus::Draft @ ErrorCode::NotInDraft
     )]
 
-    pub proposal : Account<'info,PropertyBuyProposal>,
+    pub proposal : Account<'info,SafetyProposal>,
 
 }
 
-pub fn buy_submit_snapshot(
+pub fn saftey_submit_snapshot(
     ctx:Context<SubmitSnapshot>,
     merkle_root : [u8;32],
     closing_days_gap : u8,
-    payment_deadline_days : u8,
+    transfer_deadline_days : u8 ,
     vote_threshold :u64,
 )->Result<()>{
 
@@ -44,17 +43,8 @@ pub fn buy_submit_snapshot(
 
     let proposal = &mut *ctx.accounts.proposal;
 
-    submit(proposal, merkle_root, closing_days_gap,vote_threshold,payment_deadline_days)?;
-
-    // proposal.transfer_deadline = proposal.end_time
-    //         .checked_add(
-    //             one_day
-    //                 .checked_mul(transfer_deadline_days as i64)
-    //                 .ok_or(ErrorCode::MathOverflow)?
-    //         )
-    //         .ok_or(ErrorCode::MathOverflow)?;
-
- 
+    submit(proposal, merkle_root, closing_days_gap,vote_threshold,transfer_deadline_days)?;
+    
     Ok(())
 
 

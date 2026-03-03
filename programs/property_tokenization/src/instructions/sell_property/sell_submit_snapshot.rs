@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use crate::constant::*;
 use crate::errors::ErrorCode;
 use crate::functions::submit;
-use crate::state::{PropertySellProposal, treasury};
+use crate::state::{PropertySellProposal};
 
 #[derive(Accounts)]
 
@@ -30,7 +30,7 @@ pub struct SubmitSnapshot<'info>{
 
 }
 
-pub fn submit_snapshot(
+pub fn sell_submit_snapshot(
     ctx:Context<SubmitSnapshot>,
     merkle_root : [u8;32],
     closing_days_gap : u8,
