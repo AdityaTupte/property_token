@@ -29,7 +29,7 @@ pub struct DeleteFailProposal<'info>{
     #[account(
         mut,
         seeds=[
-            BUYPROPERTY,
+            SAFETYPROPOSAL,
             property_system.key().as_ref(),
             &proposal.proposal_id.to_le_bytes(),
         ],

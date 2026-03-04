@@ -21,12 +21,16 @@ pub const REINVESTMENTPDA : &[u8] = b"reinvestment";
 
 pub const SAFETYPROPOSAL :  &[u8] = b"safetyproposal";
 
+pub const USEREINVESTMENTOKEN :&[u8] = b"use_reinvestment_token";
+
+
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
 pub enum ProposalType {
     SELLPROPERTY,
     BUYPROPERTY,
     USESAFETY,
+    USEREINVESTMENT
 }
 
 pub const MAX_LAND_PER_PAGE:usize = 100;
@@ -92,17 +96,5 @@ pub trait Receipt  {
     
 }
 
-// pub trait buyer_transfer {
 
-//     fn seller_proposal (&mut self) -> &mut Pubkey;
 
-//     fn owner (&mut self) -> &mut Pubkey;
-
-//     fn owner_wallet(&mut self) -> &mut Pubkey;
-
-//     fn property_account(&mut self) -> &mut Pubkey;
-
-//     fn purchase_price(&mut self) -> &mut u64;
-    
-
-// }

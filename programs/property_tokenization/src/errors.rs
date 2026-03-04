@@ -174,5 +174,8 @@ pub enum ErrorCode{
 
     #[msg("the purchasing ans the selling price must be diffrent")]
     DiffrentPrice,
+    
+    #[msg("the given safety is invalid")]
+    InvalidSafety,
 
 }
