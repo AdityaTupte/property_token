@@ -11,11 +11,13 @@ pub struct TreasuryPda{
     pub safety_acc: Pubkey, // Emergency and risk-reserve funds
 
     pub divdend_acc: Pubkey,
+
+    pub rent_acc: Pubkey,
     
     pub bump : u8,
 
 }
 
 impl TreasuryPda {
-    pub const SIZE : usize =  32 + 32 + 32 + 32 + 1; 
+    pub const SIZE : usize =  32 + 32 + 32 + 32 + 32 + 1; 
 }
