@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::constant::{PROPERTY_SEED, ProposalStatus, ProposalType, SELLPROPERTY};
+use crate::constant::{BUYPROPERTY, PROPERTY_SEED, ProposalStatus, ProposalType, SELLPROPERTY};
 use crate::state::{PropertyAccount, PropertyBuyProposal, PropertySellProposal, ReinvestmentPda, TreasuryPda, TrusteeRegistry};
 use crate::{constant::PROPERTY_SYSTEM_SEEDS, state::PropertySystemAccount};
 use crate::errors::ErrorCode;

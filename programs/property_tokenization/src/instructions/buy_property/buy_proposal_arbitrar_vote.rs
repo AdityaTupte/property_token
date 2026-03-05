@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{constant::PROPERTY_SYSTEM_SEEDS, errors::ErrorCode, functions::arbitrar_approval, state::{ArbitratorRegistry, PropertyBuyProposal, PropertySystemAccount}};
+use crate::{constant::{BUYPROPERTY, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, functions::arbitrar_approval, state::{ArbitratorRegistry, PropertyBuyProposal, PropertySystemAccount}};
 
 
 #[derive(Accounts)]

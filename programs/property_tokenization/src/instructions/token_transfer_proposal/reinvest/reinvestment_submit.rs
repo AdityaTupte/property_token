@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{constant::USEREINVESTMENTOKEN, errors::ErrorCode, functions::submit, state::{UseReinvestmentProposal}};
+use crate::{constant::{ProposalStatus, USEREINVESTMENTOKEN}, errors::ErrorCode, functions::submit, state::UseReinvestmentProposal};
 
 
 

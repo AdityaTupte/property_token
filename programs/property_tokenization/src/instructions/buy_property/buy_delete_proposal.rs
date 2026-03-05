@@ -2,6 +2,7 @@ use anchor_lang::prelude::*;
 
 use crate::{constant::*, state::{PropertyBuyProposal, PropertySystemAccount, TrusteeRegistry}};
 
+use crate::functions::*;
 
 #[derive(Accounts)]
 pub struct DeleteFailProposal<'info>{

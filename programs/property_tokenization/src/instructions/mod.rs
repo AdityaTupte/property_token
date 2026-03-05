@@ -5,6 +5,7 @@ pub mod land_creation;
 pub mod sell_property;
 pub mod buy_property;
 pub mod token_transfer_proposal;
+pub mod create_property_system;
 
 pub use create_property_system_account::*;
 pub use country_creation::*;
@@ -13,3 +14,4 @@ pub use land_creation::*;
 pub use sell_property::*;
 pub use buy_property::*;
 pub use token_transfer_proposal::*;
+pub use create_property_system::*;

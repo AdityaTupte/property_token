@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{constant::*, state::{PropertySellProposal, PropertySystemAccount, TrusteeRegistry}};
+use crate::{constant::*, functions::delete_proposal, state::{PropertySellProposal, PropertySystemAccount, TrusteeRegistry}};
 
 
 #[derive(Accounts)]

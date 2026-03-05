@@ -23,6 +23,8 @@ pub const SAFETYPROPOSAL :  &[u8] = b"safetyproposal";
 
 pub const USEREINVESTMENTOKEN :&[u8] = b"use_reinvestment_token";
 
+pub const LAND_METADATA_SEEDS :&[u8] = b"property_metadata";
+
 
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]

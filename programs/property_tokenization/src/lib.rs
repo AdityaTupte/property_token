@@ -41,18 +41,7 @@ pub mod peoperty_tokenization {
 
 
         Ok(())
-    }
-
-//     pub fn create_land_account(
-//         ctx:Context<CreateLandAccount>,
-//         land_id :u16,
-//         legal_doc_hash : [u8;32]
-//     )->Result<()>{
-
-//         create_land_acc::create_land_acc(ctx, land_id, legal_doc_hash)?;
-//         Ok(())
-
-// }   
+    } 
     pub fn create_approve_country_authority(
         ctx:Context<CreateApproveCountryAuthority>,
         threshold : u8,
@@ -127,17 +116,17 @@ pub mod peoperty_tokenization {
         Ok(())
     }
 
-    pub fn create_land_proposal(
-        ctx:Context<CreateLandProposal>,
-        land_id : u64,
-        legal_doc_hash: [u8; 32],
-    )->Result<()>{
+    // pub fn create_land_proposal(
+    //     ctx:Context<CreateLandProposal>,
+    //     land_id : u64,
+    //     legal_doc_hash: [u8; 32],
+    // )->Result<()>{
 
-        proposal_land_account::create_proposal(ctx, land_id, legal_doc_hash)?;
+    //     proposal_land_account::create_proposal(ctx, land_id, legal_doc_hash)?;
 
-        Ok(())
+    //     Ok(())
 
-    }
+    // }
 
     pub fn approve_land(
         ctx:Context<ApproveLand>
@@ -149,15 +138,15 @@ pub mod peoperty_tokenization {
 
     }
     
-    pub fn execute_land(
-        ctx:Context<ExecuteLandProposal>
-    )->Result<()>{
+    // pub fn execute_land(
+    //     ctx:Context<ExecuteLandProposal>
+    // )->Result<()>{
 
-        execute_land_proposal::execute(ctx)?;
+    //     execute_land_proposal::execute(ctx)?;
 
-        Ok(())
+    //     Ok(())
 
-    }
+    // }
 
 
 }

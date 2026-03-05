@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken,token_interface::{Mint, TokenAccount, TokenInterface,TransferChecked, transfer_checked}};
 
-use crate::{constant::{HARDCODED_PUBKEY, PROPERTY_PAGE_SEEDS, PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, REINVESTMENTPDA, SELLPROPERTY}, state::{PropertyAccount, PropertyBuyProposal, PropertyPage, PropertySellProposal, PropertySystemAccount, ReinvestmentPda, TreasuryPda, TrusteeRegistry}};
+use crate::{constant::{BUYPROPERTY, HARDCODED_PUBKEY, PROPERTY_PAGE_SEEDS, PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, ProposalStatus, REINVESTMENTPDA, SELLPROPERTY}, state::{PropertyAccount, PropertyBuyProposal, PropertyPage, PropertySellProposal, PropertySystemAccount, ReinvestmentPda, TreasuryPda, TrusteeRegistry}};
 
 use crate::errors::ErrorCode;
 #[derive(Accounts)]
@@ -92,7 +92,7 @@ pub struct ExecuteProposal<'info>{
         constraint = sell_proposal.status == ProposalStatus::Passed @ ErrorCode::ProposalNotPassed,
         constraint = sell_proposal.property_system_account  == seller.key() @ ErrorCode::InvalidProposal,
         constraint = sell_proposal.deposit_account_pda == seller_treasury.key() @ ErrorCode::InvalidTreasury,
-        constraint = sell_proposal.property_account == propoerty.key() @ ErrorCode::InvalidProperty 
+        constraint = sell_proposal.property_account == property_account.key() @ ErrorCode::InvalidProperty 
     )]
     pub sell_proposal: Account<'info,PropertySellProposal>,
 
@@ -180,7 +180,8 @@ pub fn execute_buy_proposal(ctx:Context<ExecuteProposal>)->Result<()>{
 
     let seller = &mut ctx.accounts.seller;
 
-
+    let buyer_key =  buyer.key();
+    
     let current_time = Clock::get()?.unix_timestamp;
 
     require!(sell_property_page.land.contains(&property.key()), ErrorCode::InvalidProperty);
@@ -221,12 +222,12 @@ pub fn execute_buy_proposal(ctx:Context<ExecuteProposal>)->Result<()>{
    
     let signer_seed:&[&[&[u8]]] = &[&[
         REINVESTMENTPDA,
-        buyer.key().as_ref(),
+        buyer_key.as_ref(),
         &[ctx.accounts.buyer_wallet.bump]]];
 
    let cpi_program = ctx.accounts.token_program.to_account_info(); 
 
-   let cpi_context = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
+   let cpi_context = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seed);
 
    transfer_checked(cpi_context, amount, decimals)?;
 

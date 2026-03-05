@@ -18,7 +18,7 @@ pub struct PropertySystemAcc<'info>{
         mut,
         address = HARDCODED_PUBKEY  @ ErrorCode::PropertyCounterInvalid
     )]
-    pub property_system_count : Account<'info,PropertySystemCounter>,
+    pub property_system_count : Box<Account<'info,PropertySystemCounter>>,
 
     #[account(
         init,
@@ -31,13 +31,13 @@ pub struct PropertySystemAcc<'info>{
         space = 8 + PropertySystemAccount::SIZE
     )]
 
-    pub property_system_acc : Account<'info,PropertySystemAccount>,
+    pub property_system_acc : Box<Account<'info,PropertySystemAccount>>,
 
     #[account(
         address = HARDCODED_PUBKEY  @ ErrorCode::StableMintInvalid  
     )]
 
-    pub stable_coin_mint : InterfaceAccount<'info, Mint>,
+    pub stable_coin_mint : Box<InterfaceAccount<'info, Mint>>,
 
     #[account(
         init,
@@ -50,7 +50,7 @@ pub struct PropertySystemAcc<'info>{
         space = 8 + Threshold::SIZE,
     )]
 
-    pub threshold : Account<'info,Threshold>,
+    pub threshold : Box<Account<'info,Threshold>>,
 
     #[account(
         init,
@@ -62,7 +62,7 @@ pub struct PropertySystemAcc<'info>{
         space = 8 + TreasuryPda::SIZE,
     )]
 
-    pub treasury_pda : Account<'info,TreasuryPda>,
+    pub treasury_pda : Box<Account<'info,TreasuryPda>>,
 
 
 
@@ -74,7 +74,7 @@ pub struct PropertySystemAcc<'info>{
         associated_token::token_program = token_program,
     )]
 
-    pub treasury_pda_ata : InterfaceAccount<'info,TokenAccount>,
+    pub treasury_pda_ata : Box<InterfaceAccount<'info,TokenAccount>>,
 
 
     #[account(
@@ -88,7 +88,7 @@ pub struct PropertySystemAcc<'info>{
         space = 8 + ReinvestmentPda::SIZE,
     )]
 
-    pub reinvestment_pda : Account<'info,ReinvestmentPda>,
+    pub reinvestment_pda : Box<Account<'info,ReinvestmentPda>>,
 
     #[account(
         init,
@@ -98,7 +98,7 @@ pub struct PropertySystemAcc<'info>{
         associated_token::token_program = token_program,
     )]
 
-    pub reinvestment_pda_ata : InterfaceAccount<'info,TokenAccount>,
+    pub reinvestment_pda_ata : Box<InterfaceAccount<'info,TokenAccount>>,
 
     #[account(
         init,
@@ -111,7 +111,7 @@ pub struct PropertySystemAcc<'info>{
         space = 8 + SafetyPda::SIZE,
     )]
 
-    pub safety_pda : Account<'info,SafetyPda>,
+    pub safety_pda : Box<Account<'info,SafetyPda>>,
 
      #[account(
         init,
@@ -121,7 +121,7 @@ pub struct PropertySystemAcc<'info>{
         associated_token::token_program = token_program,
     )]
 
-    pub safety_pda_ata : InterfaceAccount<'info,TokenAccount>,
+    pub safety_pda_ata : Box<InterfaceAccount<'info,TokenAccount>>,
 
 
      #[account(
@@ -135,7 +135,7 @@ pub struct PropertySystemAcc<'info>{
         space = 8 + DividendPda::SIZE,
     )]
 
-    pub dividend_pda : Account<'info,DividendPda>,
+    pub dividend_pda : Box<Account<'info,DividendPda>>,
 
      #[account(
         init,
@@ -145,7 +145,7 @@ pub struct PropertySystemAcc<'info>{
         associated_token::token_program = token_program,
     )]
 
-    pub dividend_pda_ata : InterfaceAccount<'info,TokenAccount>,
+    pub dividend_pda_ata : Box<InterfaceAccount<'info,TokenAccount>>,
 
 
     #[account(
@@ -158,7 +158,7 @@ pub struct PropertySystemAcc<'info>{
         bump,
         space = 8 + TrusteeRegistry::SIZE,
     )]
-    pub trustee_registry : Account<'info,TrusteeRegistry>,
+    pub trustee_registry : Box<Account<'info,TrusteeRegistry>>,
 
     #[account(
         init,
@@ -168,7 +168,7 @@ pub struct PropertySystemAcc<'info>{
         associated_token::token_program = token_program,
     )]
 
-    pub trustee_pda_ata : InterfaceAccount<'info,TokenAccount>,
+    pub trustee_pda_ata : Box<InterfaceAccount<'info,TokenAccount>>,
     
     
     #[account(
@@ -178,7 +178,7 @@ pub struct PropertySystemAcc<'info>{
         bump,
         space = 8 + ArbitratorRegistry::SIZE,
     )]
-    pub arbitrator_registry : Account<'info,ArbitratorRegistry>,
+    pub arbitrator_registry : Box<Account<'info,ArbitratorRegistry>>,
 
     #[account(
         init,
@@ -188,7 +188,7 @@ pub struct PropertySystemAcc<'info>{
         associated_token::token_program = token_program,
     )]
 
-    pub arbirtrator_pda_ata : InterfaceAccount<'info,TokenAccount>,
+    pub arbirtrator_pda_ata : Box<InterfaceAccount<'info,TokenAccount>>,
 
 
     #[account(
@@ -198,7 +198,7 @@ pub struct PropertySystemAcc<'info>{
         mint::authority = property_system_acc.key(),
         mint::freeze_authority = property_system_acc.key(),
     )]
-    pub governance_mint: InterfaceAccount<'info, Mint>,
+    pub governance_mint: Box<InterfaceAccount<'info, Mint>>,
 
     // later add metadata program
 
@@ -210,7 +210,7 @@ pub struct PropertySystemAcc<'info>{
         associated_token::token_program = token_program,
     )]
 
-    pub creator_ata : InterfaceAccount<'info, TokenAccount>,
+    pub creator_ata : Box<InterfaceAccount<'info, TokenAccount>>,
 
     pub token_program: Interface<'info, TokenInterface>,
 
@@ -221,7 +221,7 @@ pub struct PropertySystemAcc<'info>{
 }
 
 pub fn create(
-        ctx:Context<PropertySystemAcc>,
+        mut ctx:Context<PropertySystemAcc>,
         system_id : u64,decimal:u8,amount:u64,
         safety_threshold:u8,
         trustee_salary_threshold:u8,
@@ -229,148 +229,195 @@ pub fn create(
         dividend_threshold:u8,
         reinvestment_threshold:u8,
     )->Result<()>{
+    validate_thresholds(
+        safety_threshold,
+        trustee_salary_threshold,
+        arbitrator_salary_threshold,
+        dividend_threshold,
+        reinvestment_threshold,
+    )?;
 
-    require_eq!(safety_threshold + trustee_salary_threshold + arbitrator_salary_threshold + dividend_threshold + reinvestment_threshold , 100, ErrorCode::ThresholdInvalid );
-
-    let property_system_count = &mut ctx.accounts.property_system_count;
-
-    let property_system_acc = &mut ctx.accounts.property_system_acc;
-
-    let treasury_pda = &mut ctx.accounts.treasury_pda;
-
-    let trustee_registry = &mut ctx.accounts.trustee_registry;
-
-    let arbitrator_registry = &mut ctx.accounts.arbitrator_registry;
-
-    let governance_mint = &mut ctx.accounts.governance_mint;
-
-    let creator_ata = &mut ctx.accounts.creator_ata;
-
-    let reinvestment_pda = &mut ctx.accounts.reinvestment_pda;
-
-    let safety_pda= &mut ctx.accounts.safety_pda;
-
-    let dividend_pda = &mut ctx.accounts.dividend_pda;
-
-    let threshold=&mut ctx.accounts.threshold;
-    
-    let signer_seeds: &[&[&[u8]]] = &[&[
-        b"property_system_account".as_ref(),
-        &(property_system_count.total_property_system + 1).to_le_bytes(),
-        &[ctx.bumps.property_system_acc]]];
-    
-    let cpi_ctx = CpiContext::new_with_signer(
-        ctx.accounts.token_program.to_account_info(),
-        MintToChecked{
-            mint:governance_mint.to_account_info(),
-            to:creator_ata.to_account_info(),   
-            authority:property_system_acc.to_account_info()
-        },
-        &signer_seeds,
-    );
-    
-    mint_to_checked(cpi_ctx,amount,decimal).map_err(|_| ErrorCode::MintFailed)?;
+    mint_initial_governance_tokens(&ctx, amount, decimal)?;
 
     let current_time = Clock::get()?.unix_timestamp;
+    let accounts = &mut ctx.accounts;
 
-    property_system_acc.property_system_id = system_id;
+    initialize_property_system_account(
+        accounts,
+        system_id,
+        current_time,
+        ctx.bumps.property_system_acc,
+    );
 
-    property_system_acc.governance_mint = governance_mint.key();
+    initialize_thresholds(
+        &mut accounts.threshold,
+        safety_threshold,
+        trustee_salary_threshold,
+        arbitrator_salary_threshold,
+        dividend_threshold,
+        reinvestment_threshold,
+    );
 
-    property_system_acc.treasury = treasury_pda.key();
+    initialize_related_pdas(
+        accounts,
+        ctx.bumps.treasury_pda,
+        ctx.bumps.reinvestment_pda,
+        ctx.bumps.safety_pda,
+        ctx.bumps.dividend_pda,
+        ctx.bumps.trustee_registry,
+        ctx.bumps.arbitrator_registry,
+    );
 
-    property_system_acc.trustee_registry = trustee_registry.key();
-
-    property_system_acc.arbitrator_registry = arbitrator_registry.key();
-
-    property_system_acc.total_properties = 0;
-
-    property_system_acc.max_page = 0;
-
-    property_system_acc.created_at = current_time;
-
-    property_system_acc.creator = ctx.accounts.creator.key();
-
-    property_system_acc.bump = ctx.bumps.property_system_acc;
-
-    //threshold
-
-    threshold.trustee_salary_threshold = trustee_salary_threshold;
-
-    threshold.arbitrator_salary_threshold = arbitrator_salary_threshold;
-
-    threshold.dividend_threshold = dividend_threshold;
-
-    threshold.reinvestment_threshold = reinvestment_threshold;
-
-    threshold.safety_threshold = safety_threshold;
-
-    //treasury_pda
-
-    treasury_pda.property_system_accout = property_system_acc.key();
-
-    treasury_pda.reinvenstement_acc = reinvestment_pda.key() ;
-
-    treasury_pda.safety_acc = safety_pda.key() ;
-
-    treasury_pda.bump = ctx.bumps.treasury_pda;
-
-    //reinvestment_pda
-
-    reinvestment_pda.property_system = property_system_acc.key();
-
-    reinvestment_pda.bump = ctx.bumps.reinvestment_pda;
-
-    reinvestment_pda.reinvestement_used = 0;
-
-
-    //safety
-
-    safety_pda.property_system = property_system_acc.key();
-
-    safety_pda.bump = ctx.bumps.safety_pda;
-
-    //dividend
-
-    dividend_pda.property_system = property_system_acc.key();
-
-    dividend_pda.bump = ctx.bumps.dividend_pda;
-
-    // trusteeregistry
-
-    trustee_registry.property_system_accout = property_system_acc.key();
-
-    trustee_registry.bump = ctx.bumps.trustee_registry;
-
-
-    //arbitrator_registry
-
-    arbitrator_registry.property_system_account = property_system_acc.key();
-
-    arbitrator_registry.bump = ctx.bumps.arbitrator_registry;
-
-
-    emit!(  PropertySystemCreated {
-    property_system: property_system_acc.key(),
-    creator: ctx.accounts.creator.key(),
-    governance_mint: governance_mint.key(),
-
-    treasury: treasury_pda.key(),
-    reinvestment: reinvestment_pda.key(),
-    safety: safety_pda.key(),
-    dividend: dividend_pda.key(),
-
-    safety_threshold,
-    trustee_salary_threshold,
-    arbitrator_salary_threshold,
-    dividend_threshold,
-    reinvestment_threshold,
-
-    created_at: current_time,
-
-    });
-
+    emit_property_system_created(
+        accounts,
+        safety_threshold,
+        trustee_salary_threshold,
+        arbitrator_salary_threshold,
+        dividend_threshold,
+        reinvestment_threshold,
+        current_time,
+    );
 
     Ok(())
+}
 
+fn validate_thresholds(
+    safety_threshold: u8,
+    trustee_salary_threshold: u8,
+    arbitrator_salary_threshold: u8,
+    dividend_threshold: u8,
+    reinvestment_threshold: u8,
+) -> Result<()> {
+    require_eq!(
+        safety_threshold
+            + trustee_salary_threshold
+            + arbitrator_salary_threshold
+            + dividend_threshold
+            + reinvestment_threshold,
+        100,
+        ErrorCode::ThresholdInvalid
+    );
+    Ok(())
+}
+
+#[inline(never)]
+fn mint_initial_governance_tokens(
+    ctx: &Context<PropertySystemAcc>,
+    amount: u64,
+    decimal: u8,
+) -> Result<()> {
+    let signer_id = (ctx.accounts.property_system_count.total_property_system + 1).to_le_bytes();
+    let bump = [ctx.bumps.property_system_acc];
+    let signer_seed_slice: &[&[u8]] = &[b"property_system_account".as_ref(), &signer_id, &bump];
+    let signer_seeds: &[&[&[u8]]] = &[signer_seed_slice];
+
+    let cpi_ctx = CpiContext::new_with_signer(
+        ctx.accounts.token_program.to_account_info(),
+        MintToChecked {
+            mint: ctx.accounts.governance_mint.to_account_info(),
+            to: ctx.accounts.creator_ata.to_account_info(),
+            authority: ctx.accounts.property_system_acc.to_account_info(),
+        },
+        signer_seeds,
+    );
+
+    mint_to_checked(cpi_ctx, amount, decimal).map_err(|_| ErrorCode::MintFailed.into())
+}
+
+#[inline(never)]
+fn initialize_property_system_account(
+    accounts: &mut PropertySystemAcc,
+    system_id: u64,
+    current_time: i64,
+    property_system_bump: u8,
+) {
+    let property_system_acc = &mut accounts.property_system_acc;
+
+    property_system_acc.property_system_id = system_id;
+    property_system_acc.governance_mint = accounts.governance_mint.key();
+    property_system_acc.treasury = accounts.treasury_pda.key();
+    property_system_acc.trustee_registry = accounts.trustee_registry.key();
+    property_system_acc.arbitrator_registry = accounts.arbitrator_registry.key();
+    property_system_acc.total_properties = 0;
+    property_system_acc.max_page = 0;
+    property_system_acc.created_at = current_time;
+    property_system_acc.creator = accounts.creator.key();
+    property_system_acc.bump = property_system_bump;
+}
+
+#[inline(never)]
+fn initialize_thresholds(
+    threshold: &mut Account<Threshold>,
+    safety_threshold: u8,
+    trustee_salary_threshold: u8,
+    arbitrator_salary_threshold: u8,
+    dividend_threshold: u8,
+    reinvestment_threshold: u8,
+) {
+    threshold.trustee_salary_threshold = trustee_salary_threshold;
+    threshold.arbitrator_salary_threshold = arbitrator_salary_threshold;
+    threshold.dividend_threshold = dividend_threshold;
+    threshold.reinvestment_threshold = reinvestment_threshold;
+    threshold.safety_threshold = safety_threshold;
+}
+
+#[inline(never)]
+fn initialize_related_pdas(
+    accounts: &mut PropertySystemAcc,
+    treasury_bump: u8,
+    reinvestment_bump: u8,
+    safety_bump: u8,
+    dividend_bump: u8,
+    trustee_registry_bump: u8,
+    arbitrator_registry_bump: u8,
+) {
+    let property_system_key = accounts.property_system_acc.key();
+
+    accounts.treasury_pda.property_system_accout = property_system_key;
+    accounts.treasury_pda.reinvenstement_acc = accounts.reinvestment_pda.key();
+    accounts.treasury_pda.safety_acc = accounts.safety_pda.key();
+    accounts.treasury_pda.bump = treasury_bump;
+
+    accounts.reinvestment_pda.property_system = property_system_key;
+    accounts.reinvestment_pda.bump = reinvestment_bump;
+    accounts.reinvestment_pda.reinvestement_used = 0;
+
+    accounts.safety_pda.property_system = property_system_key;
+    accounts.safety_pda.bump = safety_bump;
+
+    accounts.dividend_pda.property_system = property_system_key;
+    accounts.dividend_pda.bump = dividend_bump;
+
+    accounts.trustee_registry.property_system_accout = property_system_key;
+    accounts.trustee_registry.bump = trustee_registry_bump;
+
+    accounts.arbitrator_registry.property_system_account = property_system_key;
+    accounts.arbitrator_registry.bump = arbitrator_registry_bump;
+}
+
+#[inline(never)]
+fn emit_property_system_created(
+    accounts: &PropertySystemAcc,
+    safety_threshold: u8,
+    trustee_salary_threshold: u8,
+    arbitrator_salary_threshold: u8,
+    dividend_threshold: u8,
+    reinvestment_threshold: u8,
+    current_time: i64,
+) {
+    emit!(PropertySystemCreated {
+        property_system: accounts.property_system_acc.key(),
+        creator: accounts.creator.key(),
+        governance_mint: accounts.governance_mint.key(),
+        treasury: accounts.treasury_pda.key(),
+        reinvestment: accounts.reinvestment_pda.key(),
+        safety: accounts.safety_pda.key(),
+        dividend: accounts.dividend_pda.key(),
+        safety_threshold,
+        trustee_salary_threshold,
+        arbitrator_salary_threshold,
+        dividend_threshold,
+        reinvestment_threshold,
+        created_at: current_time,
+    });
 }
