@@ -2,12 +2,10 @@ use std::collections::BTreeSet;
 
 use anchor_lang::prelude::*;
 
+use crate::common::{COUNTRY_SEED, STATE_PROPOSAL_SEEDS};
 use crate::state::{Country, StateProposalPda};
 use crate::errors::ErrorCode;
 
-
-const PROPOSAL_SEEDS: &[u8] = b"proposal";
-const  COUNTRY_SEED : &[u8] = b"country";
 #[derive(Accounts)]
 #[instruction(state_id : u16)]
 pub struct StateProposal<'info>{
@@ -15,15 +13,15 @@ pub struct StateProposal<'info>{
     #[account(
         seeds = [
             COUNTRY_SEED,
-            &country_pda.country_id.to_le_bytes()
+            &country.country_id.to_le_bytes()
             ],
         bump = country_pda.bump
     )]
-    pub country_pda : Account<'info,Country>,
+    pub country : Account<'info,Country>,
 
     #[account(
         mut,
-        constraint = country_pda.authority.contains(&signer.key()) @ ErrorCode::NotAuthorized
+        constraint = country.authority.contains(&signer.key()) @ ErrorCode::NotAuthorized
     )]
 
     pub signer : Signer<'info>,    
@@ -32,9 +30,9 @@ pub struct StateProposal<'info>{
         init,
         payer = signer,
         seeds = [
-            PROPOSAL_SEEDS,
+            STATE_PROPOSAL_SEEDS,
             &state_id.to_le_bytes(),
-            country_pda.key().as_ref(),
+            country.key().as_ref(),
         ],
         bump,
         space = 8 + StateProposalPda::SIZE,
@@ -64,7 +62,7 @@ pub fn create_state_proposal(
 
     let proposal = &mut ctx.accounts.state_proposal;
 
-    let country = & ctx.accounts.country_pda;
+    let country = & ctx.accounts.country;
 
     proposal.state_id = state_id;
 

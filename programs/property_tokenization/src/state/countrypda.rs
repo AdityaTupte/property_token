@@ -1,9 +1,7 @@
 use anchor_lang::prelude::*;
 
+use crate::common::{MAX_COUNTRY_AUTHORITY, MAX_COUNTRY_NAME};
 
-pub const MAX_COUNTRY_NAME: usize = 64;
-
-pub const MAX_COUNTRY_AUTHORITY: usize = 10;
 
 #[account]
 

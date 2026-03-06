@@ -1,24 +1,18 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint,MintToChecked,mint_to_checked, TokenAccount, TokenInterface}};
-use crate::state::{ArbitratorRegistry, DividendPda, PropertySystemAccount, PropertySystemCounter, ReinvestmentPda, SafetyPda, Threshold, TreasuryPda, TrusteeRegistry,};
+use crate::{common::PROPERTY_SYSTEM_SEEDS, state::{ArbitratorRegistry, DividendPda, PropertySystemAccount, ReinvestmentPda, SafetyPda, Threshold, TreasuryPda, TrusteeRegistry,}};
 use crate::events::*;
 use crate::errors::ErrorCode;
 use crate::constant::*;
 
-const HARDCODED_PUBKEY: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
 #[derive(Accounts)]
 #[instruction(decimal:u8 ,system_id : u64 )]
-pub struct PropertySystemAcc<'info>{
+pub struct PropertySystem<'info>{
 
 
     #[account(mut)]
     pub creator: Signer<'info>,
 
-    // #[account(
-    //     mut,
-    //     address = HARDCODED_PUBKEY  @ ErrorCode::PropertyCounterInvalid
-    // )]
-    // pub property_system_count : Account<'info,PropertySystemCounter>,
 
     #[account(
         init,
@@ -31,13 +25,8 @@ pub struct PropertySystemAcc<'info>{
         space = 8 + PropertySystemAccount::SIZE
     )]
 
-    pub property_system_acc : Account<'info,PropertySystemAccount>,
+    pub property_system_acc : Box<Account<'info,PropertySystemAccount>>,
 
-    #[account(
-        address = HARDCODED_PUBKEY  @ ErrorCode::StableMintInvalid  
-    )]
-
-    pub stable_coin_mint : InterfaceAccount<'info, Mint>,
 
     #[account(
         init,
@@ -62,19 +51,7 @@ pub struct PropertySystemAcc<'info>{
         space = 8 + TreasuryPda::SIZE,
     )]
 
-    pub treasury_pda : Account<'info,TreasuryPda>,
-
-
-
-    #[account(
-        init,
-        payer = creator,
-        associated_token::mint = stable_coin_mint,
-        associated_token::authority = treasury_pda,
-        associated_token::token_program = token_program,
-    )]
-
-    pub treasury_pda_ata : InterfaceAccount<'info,TokenAccount>,
+    pub treasury_pda : Box<Account<'info,TreasuryPda>>,
 
 
     #[account(
@@ -88,17 +65,8 @@ pub struct PropertySystemAcc<'info>{
         space = 8 + ReinvestmentPda::SIZE,
     )]
 
-    pub reinvestment_pda : Account<'info,ReinvestmentPda>,
+    pub reinvestment_pda : Box<Account<'info,ReinvestmentPda>>,
 
-    #[account(
-        init,
-        payer = creator,
-        associated_token::mint = stable_coin_mint,
-        associated_token::authority = reinvestment_pda,
-        associated_token::token_program = token_program,
-    )]
-
-    pub reinvestment_pda_ata : InterfaceAccount<'info,TokenAccount>,
 
     #[account(
         init,
@@ -111,18 +79,7 @@ pub struct PropertySystemAcc<'info>{
         space = 8 + SafetyPda::SIZE,
     )]
 
-    pub safety_pda : Account<'info,SafetyPda>,
-
-     #[account(
-        init,
-        payer = creator,
-        associated_token::mint = stable_coin_mint,
-        associated_token::authority = safety_pda,
-        associated_token::token_program = token_program,
-    )]
-
-    pub safety_pda_ata : InterfaceAccount<'info,TokenAccount>,
-
+    pub safety_pda : Box<Account<'info,SafetyPda>>,
 
      #[account(
         init,
@@ -135,18 +92,20 @@ pub struct PropertySystemAcc<'info>{
         space = 8 + DividendPda::SIZE,
     )]
 
-    pub dividend_pda : Account<'info,DividendPda>,
+    pub dividend_pda :Box<Account<'info,DividendPda>>,
 
-     #[account(
+    #[account(
         init,
         payer = creator,
-        associated_token::mint = stable_coin_mint,
-        associated_token::authority = dividend_pda,
-        associated_token::token_program = token_program,
+        seeds = [
+            b"rent",
+            property_system_acc.key().as_ref()
+        ],
+        bump,
+        space = 8 + DividendPda::SIZE,
     )]
 
-    pub dividend_pda_ata : InterfaceAccount<'info,TokenAccount>,
-
+    pub rent_pda :Box<Account<'info,DividendPda>>,
 
     #[account(
         init,
@@ -158,17 +117,8 @@ pub struct PropertySystemAcc<'info>{
         bump,
         space = 8 + TrusteeRegistry::SIZE,
     )]
-    pub trustee_registry : Account<'info,TrusteeRegistry>,
+    pub trustee_registry : Box<Account<'info,TrusteeRegistry>>,
 
-    #[account(
-        init,
-        payer = creator,
-        associated_token::mint = stable_coin_mint,
-        associated_token::authority = treasury_pda,
-        associated_token::token_program = token_program,
-    )]
-
-    pub trustee_pda_ata : InterfaceAccount<'info,TokenAccount>,
     
     
     #[account(
@@ -178,17 +128,8 @@ pub struct PropertySystemAcc<'info>{
         bump,
         space = 8 + ArbitratorRegistry::SIZE,
     )]
-    pub arbitrator_registry : Account<'info,ArbitratorRegistry>,
+    pub arbitrator_registry : Box<Account<'info,ArbitratorRegistry>>,
 
-    #[account(
-        init,
-        payer = creator,
-        associated_token::mint = stable_coin_mint,
-        associated_token::authority = arbitrator_registry,
-        associated_token::token_program = token_program,
-    )]
-
-    pub arbirtrator_pda_ata : InterfaceAccount<'info,TokenAccount>,
 
 
     #[account(
@@ -198,7 +139,7 @@ pub struct PropertySystemAcc<'info>{
         mint::authority = property_system_acc.key(),
         mint::freeze_authority = property_system_acc.key(),
     )]
-    pub governance_mint: InterfaceAccount<'info, Mint>,
+    pub governance_mint: Box<InterfaceAccount<'info, Mint>>,
 
     // later add metadata program
 
@@ -221,8 +162,8 @@ pub struct PropertySystemAcc<'info>{
 }
 
 pub fn create(
-        ctx:Context<PropertySystemAcc>,
-        system_id : u64,decimal:u8,amount:u64,
+        ctx:Context<PropertySystem>,
+        system_id : u64,decimal:u8,number_of_tokens:u64,
         safety_threshold:u8,
         trustee_salary_threshold:u8,
         arbitrator_salary_threshold:u8,
@@ -232,8 +173,7 @@ pub fn create(
 
     require_eq!(safety_threshold + trustee_salary_threshold + arbitrator_salary_threshold + dividend_threshold + reinvestment_threshold , 100, ErrorCode::ThresholdInvalid );
 
-    let property_system_count = &mut ctx.accounts.property_system_count;
-
+    
     let property_system_acc = &mut ctx.accounts.property_system_acc;
 
     let treasury_pda = &mut ctx.accounts.treasury_pda;
@@ -253,10 +193,14 @@ pub fn create(
     let dividend_pda = &mut ctx.accounts.dividend_pda;
 
     let threshold=&mut ctx.accounts.threshold;
+
+    let rent = &mut ctx.accounts.rent_pda;
+    
+
     
     let signer_seeds: &[&[&[u8]]] = &[&[
         b"property_system_account".as_ref(),
-        &(property_system_count.total_property_system + 1).to_le_bytes(),
+        &system_id.to_le_bytes(),
         &[ctx.bumps.property_system_acc]]];
     
     let cpi_ctx = CpiContext::new_with_signer(
@@ -269,7 +213,6 @@ pub fn create(
         &signer_seeds,
     );
     
-    mint_to_checked(cpi_ctx,amount,decimal).map_err(|_| ErrorCode::MintFailed)?;
 
     let current_time = Clock::get()?.unix_timestamp;
 
@@ -309,10 +252,6 @@ pub fn create(
 
     treasury_pda.property_system_accout = property_system_acc.key();
 
-    treasury_pda.reinvenstement_acc = reinvestment_pda.key() ;
-
-    treasury_pda.safety_acc = safety_pda.key() ;
-
     treasury_pda.bump = ctx.bumps.treasury_pda;
 
     //reinvestment_pda
@@ -336,9 +275,14 @@ pub fn create(
 
     dividend_pda.bump = ctx.bumps.dividend_pda;
 
+    //
+    rent.property_system = property_system_acc.key();
+
+    rent.bump = ctx.bumps.rent_pda;
+
     // trusteeregistry
 
-    trustee_registry.property_system_accout = property_system_acc.key();
+    trustee_registry.property_system_account = property_system_acc.key();
 
     trustee_registry.bump = ctx.bumps.trustee_registry;
 
@@ -349,6 +293,7 @@ pub fn create(
 
     arbitrator_registry.bump = ctx.bumps.arbitrator_registry;
 
+    mint_to_checked(cpi_ctx,number_of_tokens,decimal).map_err(|_| ErrorCode::MintFailed)?;
 
     emit!(  PropertySystemCreated {
     property_system: property_system_acc.key(),

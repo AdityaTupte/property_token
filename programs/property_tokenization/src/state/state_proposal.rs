@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
-pub const MAX_STATE_NAME: usize = 32;
-pub const MAX_STATE_AUTHORITIES: usize = 10;
-pub const MAX_APPROVAL: usize = 10;
+
+use crate::common::{MAX_COUNTRY_AUTHORITY, MAX_STATE_AUTHORITIES, MAX_STATE_NAME};
+
 
 
 #[account]
@@ -39,7 +39,7 @@ impl StateProposalPda {
                     1 + 
                     2 +
                     32 + 
-                    4 + (32 * MAX_APPROVAL) +
+                    4 + (32 * MAX_COUNTRY_AUTHORITY) +
                     1 +
                     1 +
                     1 ;  

@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use anchor_lang::prelude::*;
 
-use crate::{errors::ErrorCode, state::ApproveCountryAuthority};
+use crate::{common::COUNTRY_APPROVE_AUTHORITY_SEEDS, errors::ErrorCode, state::ApproveCountryAuthority};
 const HARDCODED_PUBKEY: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
 #[derive(Accounts)]
 
@@ -19,7 +19,7 @@ pub struct CreateApproveCountryAuthority<'info>{
         init,
         payer = signer,
         seeds = [
-            b"AuthorityForApprovingCountry"
+           COUNTRY_APPROVE_AUTHORITY_SEEDS
         ],
         bump,
         space = 8 + ApproveCountryAuthority::SIZE,

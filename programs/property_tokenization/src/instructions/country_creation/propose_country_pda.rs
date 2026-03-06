@@ -2,9 +2,9 @@ use std::collections::BTreeSet;
 
 use anchor_lang::prelude::*;
 
-use crate::{errors::ErrorCode, state::ProposalCountryPda};
+use crate::{common::COUNTRY_PROPOSAL_SEEDS, errors::ErrorCode, state::ProposalCountryPda};
 
-const PROPOSAL_SEEDS: &[u8] = b"proposal";
+
 
 #[derive(Accounts)]
 #[instruction(country_id:u16)]
@@ -17,7 +17,7 @@ pub struct ProposeCountry<'info>{
         init,
         payer = signer,
         seeds =[ 
-            PROPOSAL_SEEDS,
+            COUNTRY_PROPOSAL_SEEDS,
             country_id.to_le_bytes().as_ref(),
         ],
         bump,

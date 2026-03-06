@@ -1,15 +1,15 @@
 use anchor_lang:: prelude::*;
 
-use crate::{errors::ErrorCode, state::{Country, StateProposalPda}};
+use crate::{common::STATE_PROPOSAL_SEEDS, errors::ErrorCode, state::{Country, StateProposalPda}};
 
-const PROPOSAL_SEEDS: &[u8] = b"proposal";
+
 #[derive(Accounts)]
 pub struct ApproveState<'info>{
 
     #[account(
         mut,
         seeds =[
-            PROPOSAL_SEEDS,
+            STATE_PROPOSAL_SEEDS,
             &proposal.state_id.to_le_bytes(),
             country.key().as_ref(),
         ],
@@ -31,7 +31,7 @@ pub struct ApproveState<'info>{
 }
 
 
-pub fn approve(
+pub fn approve_state(
     ctx:Context<ApproveState>
 )->Result<()>{
 

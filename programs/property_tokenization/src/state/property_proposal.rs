@@ -1,5 +1,7 @@
 use anchor_lang::prelude::*;
 
+use crate::common::MAX_STATE_AUTHORITIES;
+
 pub const MAX_APPROVAL:usize =10 ;
 #[account]
 
@@ -37,7 +39,7 @@ impl PropertyProposal {
                 32 +
                 32 +
                 32 +
-                4 + (32 * 10) + 
+                4 + (32 * MAX_STATE_AUTHORITIES) + 
                 1 +
                 1 +
                 1 ;

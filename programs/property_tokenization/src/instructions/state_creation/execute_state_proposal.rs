@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
+use crate::common::{STATE_PROPOSAL_SEEDS, STATE_SEEDS};
 use crate::state::{Country, State, StateProposalPda};
 use crate::errors::ErrorCode::{self};
-const PROPOSAL_SEEDS: &[u8] = b"proposal";
-const STATE_SEEDS : &[u8] = b"state";
+
 #[derive(Accounts)]
 
 pub struct ExecuteStatePda<'info>{
@@ -10,7 +10,7 @@ pub struct ExecuteStatePda<'info>{
     #[account{
         mut,
         seeds=[
-            PROPOSAL_SEEDS,
+            STATE_PROPOSAL_SEEDS,
             &proposal.state_id.to_le_bytes(),
             country.key().as_ref()
         ],

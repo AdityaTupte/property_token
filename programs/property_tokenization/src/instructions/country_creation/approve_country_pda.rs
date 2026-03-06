@@ -1,7 +1,7 @@
 
 use anchor_lang::prelude::*;
 
-use crate::{errors::ErrorCode, state::*};
+use crate::{common::{ COUNTRY_APPROVE_AUTHORITY_SEEDS}, errors::ErrorCode, state::*};
 
 
 #[derive(Accounts)]
@@ -16,7 +16,7 @@ pub struct ApproveCountryId<'info>{
 
     #[account(
         seeds = [
-            b"AuthorityForApprovingCountry",
+            COUNTRY_APPROVE_AUTHORITY_SEEDS,
         ],
         bump = authority.bump, 
     )]

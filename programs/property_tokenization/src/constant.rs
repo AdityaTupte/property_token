@@ -1,11 +1,9 @@
 use anchor_lang::prelude::*;
-pub const PROPERTY_SYSTEM_SEEDS : &[u8] =  b"property_system_account";
 
-pub const PROPERTY_SEED : &[u8] = b"property";
 
-pub const PROPERTY_METADATA_SEEDS : &[u8] = b"metadata";
 
-pub const PROPERTY_PAGE_SEEDS : &[u8] = b"property_page";
+
+p
 
 pub const HARDCODED_PUBKEY: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
 
@@ -23,7 +21,7 @@ pub const SAFETYPROPOSAL :  &[u8] = b"safetyproposal";
 
 pub const USEREINVESTMENTOKEN :&[u8] = b"use_reinvestment_token";
 
-pub const LAND_METADATA_SEEDS :&[u8] = b"property_metadata";
+
 
 
 

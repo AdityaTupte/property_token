@@ -5,6 +5,8 @@ pub struct SafetyPda{
 
     pub property_system: Pubkey,
 
+    pub reinvestement_used:u64,
+
     pub bump: u8,
 
 
@@ -12,6 +14,6 @@ pub struct SafetyPda{
 
 impl SafetyPda {
 
-    pub const SIZE:usize = 32 + 1;
+    pub const SIZE:usize = 32  + 8 + 1;
     
 }

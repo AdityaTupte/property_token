@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
-use crate::{errors::ErrorCode, state::{Country, ProposalCountryPda}};
-const  COUNTRY_SEED : &[u8] = b"country";
+use crate::{common::COUNTRY_SEED, errors::ErrorCode, state::{Country, ProposalCountryPda}};
+
 #[derive(Accounts)]
 
 pub struct ExecuteCountryPda<'info>{

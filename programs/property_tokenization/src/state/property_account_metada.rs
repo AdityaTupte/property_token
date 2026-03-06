@@ -6,7 +6,7 @@ use anchor_lang::prelude::*;
 
 pub struct PropertyAccountMetadata{
             
-    pub land: Pubkey,
+    pub property: Pubkey,
 
     pub legal_doc_hash: [u8; 32],
 

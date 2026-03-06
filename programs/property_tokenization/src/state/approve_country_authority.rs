@@ -1,6 +1,8 @@
 use anchor_lang::prelude::*;
 
-pub const MAX_AUTHORITY :usize = 10;
+use crate::common::MAX_COUNTRY_APPROVE_AUTHORITY;
+
+
 #[account]
 pub  struct ApproveCountryAuthority{
 
@@ -13,5 +15,5 @@ pub  struct ApproveCountryAuthority{
 }
 
 impl ApproveCountryAuthority {
-    pub const SIZE : usize =  4  + ( MAX_AUTHORITY * 32) + 1 + 1; 
+    pub const SIZE : usize =  4  + ( MAX_COUNTRY_APPROVE_AUTHORITY * 32) + 1 + 1; 
 }

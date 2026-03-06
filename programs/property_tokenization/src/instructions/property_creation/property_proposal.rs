@@ -1,34 +1,22 @@
 use anchor_lang::prelude::*;
 
-use crate::{errors::ErrorCode, state::{Country, PropertyProposal, State}};
-
-const STATE_SEEDS : &[u8] = b"state";
+use crate::{common::{ PROPERTY_PROPOSAL_SEEDS, STATE_SEEDS}, errors::ErrorCode, state::{ PropertyProposal, State}};
 
 const PROPOSAL_SEEDS: &[u8] = b"proposal";
 
-const  COUNTRY_SEED : &[u8] = b"country";
 #[derive(Accounts)]
 #[instruction(property_id:u64)]
 pub struct CreatePropertyProposal<'info>{
 
-    #[account(
-        seeds = [
-            COUNTRY_SEED,
-            &country.country_id.to_le_bytes(),
-        ],
-        bump = country.bump
-    )]
-    pub country : Account<'info,Country>,
+   
 
     #[account(
         seeds=[
             STATE_SEEDS,
             &state.state_id.to_le_bytes(),
-            country.key().as_ref(),
+            state.country_pubkey.as_ref(),
         ],
         bump = state.bump,
-        constraint = state.country_id == country.country_id @ ErrorCode::InvalidCountry,
-        constraint = state.country_pubkey == country.key() @ ErrorCode::InvalidCountry
     )]
     pub state: Account<'info,State>,
 
@@ -42,10 +30,9 @@ pub struct CreatePropertyProposal<'info>{
         init,
         payer = signer,
         seeds = [
-            PROPOSAL_SEEDS,
+            PROPERTY_PROPOSAL_SEEDS,
             &property_id.to_le_bytes(),
             state.key().as_ref(),
-            country.key().as_ref(),
         ],
         bump,
         space =  8 + PropertyProposal::SIZE
@@ -63,9 +50,7 @@ pub fn create_proposal(
 
         let proposal = &mut ctx.accounts.proposal;
 
-        let state = &mut ctx.accounts.state;
-
-        let country = &mut ctx.accounts.country;
+        let state = & ctx.accounts.state;
 
         proposal.property_id = property_id;
 
@@ -73,9 +58,9 @@ pub fn create_proposal(
 
         proposal.state_pubkey = state.key();
 
-        proposal.country_id = country.country_id;
+        proposal.country_id = state.country_id;
 
-        proposal.country_pubkey = country.key();
+        proposal.country_pubkey = state.country_pubkey;
 
         proposal.legal_doc_hash = legal_doc_hash;
 
