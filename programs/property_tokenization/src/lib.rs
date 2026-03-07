@@ -12,12 +12,12 @@ use crate::instructions::*;
 declare_id!("8PRrAQa9Y4ZVxcdNXP4Q8CiQzAyiWoyJT64t7FUmrN4L");
 
 #[program]
-pub mod peoperty_tokenization {
+pub mod property_tokenization {
 
     use super::*;
 
     pub fn create_property_system_account(
-        ctx:Context<PropertySystemAcc>,
+        ctx:Context<PropertySystem>,
         system_id:u64,
         decimal:u8,
         amount:u64,
@@ -102,7 +102,7 @@ pub mod peoperty_tokenization {
         ctx:Context<ApproveState>
     )->Result<()>{
 
-        approve_state_proposal::approve(ctx)?;
+        approve_state_proposal::approve_state(ctx)?;
         
         Ok(())
 

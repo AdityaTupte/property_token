@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{constant::{Governance, ProposalStatus, ProposalType}, state::MAX_ARBITRATOR};
+use crate::{common::{MAX_ARBITRATOR, ProposalStatus, ProposalType}, constant::Governance};
 
 #[account]
 

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{constant::*, state::{PropertyBuyProposal, PropertySystemAccount, TrusteeRegistry}};
+use crate::{common::BUYPROPERTY, state::{PropertyBuyProposal, PropertySystemAccount, TrusteeRegistry}};
 
 use crate::functions::*;
 

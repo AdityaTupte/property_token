@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{constant::USEREINVESTMENTOKEN, functions::finalize, state::{ UseReinvestmentProposal}};
+use crate::{common::USEREINVESTMENTOKEN, functions::finalize, state::UseReinvestmentProposal};
 
 
 #[derive(Accounts)]

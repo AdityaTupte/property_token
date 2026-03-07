@@ -1,8 +1,9 @@
 use anchor_lang::prelude::*;
 
+use crate::common::{ARBITRAR_REGISTRYSEEDS, PROPERTY_SYSTEM_SEEDS, ProposalStatus, SELLPROPERTY};
 use crate::functions::{arbitrar_approval};
 use crate::state::{ArbitratorRegistry, PropertySystemAccount, PropertySellProposal};
-use crate::constant::*;
+
 use crate::errors::ErrorCode::{self};
 
 #[derive(Accounts)]
@@ -40,7 +41,7 @@ pub struct ArbitrarApproval<'info>{
 
     #[account(
         seeds=[
-            b"arbitrator_registry",
+            ARBITRAR_REGISTRYSEEDS,
             seller.key().as_ref()
         ],
         bump=arbitrar_registry.bump,

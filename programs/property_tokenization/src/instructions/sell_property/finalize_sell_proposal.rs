@@ -1,6 +1,7 @@
 use anchor_lang::prelude::*;
 
-use crate::constant::SELLPROPERTY;
+
+use crate::common::SELLPROPERTY;
 use crate::functions::finalize;
 use crate::state::PropertySellProposal;
 

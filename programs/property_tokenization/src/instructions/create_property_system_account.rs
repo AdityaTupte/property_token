@@ -3,7 +3,6 @@ use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint,MintT
 use crate::{common::PROPERTY_SYSTEM_SEEDS, state::{ArbitratorRegistry, DividendPda, PropertySystemAccount, ReinvestmentPda, SafetyPda, Threshold, TreasuryPda, TrusteeRegistry,}};
 use crate::events::*;
 use crate::errors::ErrorCode;
-use crate::constant::*;
 
 #[derive(Accounts)]
 #[instruction(decimal:u8 ,system_id : u64 )]

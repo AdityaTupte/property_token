@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use crate::constant::*;
+use crate::common::{PROPERTY_PAGE_SEEDS, PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, SELLPROPERTY, TREASURYSEEDS, TRUSTEEREGISTRYSEEDS};
 use crate::errors::ErrorCode;
 use crate::state::{PropertyAccount, PropertyPage, PropertySellProposal, PropertySystemAccount, TreasuryPda, TrusteeRegistry};
 
@@ -7,6 +7,13 @@ use crate::state::{PropertyAccount, PropertyPage, PropertySellProposal, Property
 #[derive(Accounts)]
 #[instruction(proposal_id : u64)]
 pub struct SellLandProposal<'info>{
+
+    #[account(
+        mut,
+        constraint = trustee_registry.trustees.contains(&signer.key()) @ ErrorCode::NotAuthorized
+    )]
+
+    pub signer:Signer<'info>,
 
     #[account(
         init,
@@ -19,15 +26,9 @@ pub struct SellLandProposal<'info>{
         bump,
         space = PropertySellProposal::SIZE
     )]
-
     pub proposal : Account<'info,PropertySellProposal>,
 
-    #[account(
-        mut,
-        constraint = trustee_registry.trustees.contains(&signer.key()) @ ErrorCode::NotAuthorized
-    )]
-
-    pub signer:Signer<'info>,
+    
 
     #[account(
         seeds =[
@@ -39,14 +40,19 @@ pub struct SellLandProposal<'info>{
     pub seller:Account<'info,PropertySystemAccount>,
 
     #[account(
-        constraint = seller.trustee_registry == trustee_registry.key() @ ErrorCode::InvalidTrusteeRegsitry
+        seeds = [
+            TRUSTEEREGISTRYSEEDS,
+            seller.key().as_ref()
+        ],
+        bump = trustee_registry.bump,
+        // constraint = seller.trustee_registry == trustee_registry.key() @ ErrorCode::InvalidTrusteeRegsitry
     )]
     pub trustee_registry: Account<'info,TrusteeRegistry>,
 
     #[account(
         seeds = [
-            b"treasury",
-            &seller.key().as_ref(),
+            TREASURYSEEDS,
+            seller.key().as_ref(),
         ],
         bump = seller_treasury.bump
     )]
@@ -58,8 +64,7 @@ pub struct SellLandProposal<'info>{
         seeds=[ 
             PROPERTY_SEED,
             &property_account.property_id.to_le_bytes(),                
-            &property_account.state_pubkey.as_ref(),
-            &property_account.country_pubkey.as_ref(),                
+            property_account.state_pubkey.as_ref(),                
         ],bump = property_account.bump,
         constraint = property_account.property_system == seller.key() @ ErrorCode::InvalidLandForSource
     )]
@@ -71,10 +76,10 @@ pub struct SellLandProposal<'info>{
         seeds = [
             PROPERTY_PAGE_SEEDS,
             &seller_property_page.page.to_le_bytes(),
-            &seller.key().as_ref()
+            seller.key().as_ref()
         ],
         bump = seller_property_page.bump,
-        constraint = seller_property_page.property_system == seller.key() @ ErrorCode::PropertySystemInvalid
+        // constraint = seller_property_page.property_system == seller.key() @ ErrorCode::PropertySystemInvalid
     )]
 
     pub seller_property_page : Account<'info,PropertyPage>,

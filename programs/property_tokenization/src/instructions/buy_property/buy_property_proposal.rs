@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 
-use crate::constant::{BUYPROPERTY, PROPERTY_SEED, ProposalStatus, ProposalType, SELLPROPERTY};
-use crate::state::{PropertyAccount, PropertyBuyProposal, PropertySellProposal, ReinvestmentPda, TreasuryPda, TrusteeRegistry};
-use crate::{constant::PROPERTY_SYSTEM_SEEDS, state::PropertySystemAccount};
+use crate::common::{BUYPROPERTY, PROPERTY_SYSTEM_SEEDS, ProposalStatus, ProposalType, REINVESTMENTPDA, SELLPROPERTY};
+use crate::state::{PropertyBuyProposal, PropertySellProposal, ReinvestmentPda, TrusteeRegistry};
+use crate::{ state::PropertySystemAccount};
 use crate::errors::ErrorCode;
 
 
@@ -31,13 +31,17 @@ pub struct BuyPropertyProposal<'info>{
     )]
     pub trustee_registry: Account<'info,TrusteeRegistry>,
 
-    #[account(
-        constraint = buyer.treasury == buyer_treasury.key() @ ErrorCode::InvalidTreasury
-    )]
-    pub buyer_treasury: Account<'info,TreasuryPda>,
+    // #[account(
+    //     constraint = buyer.treasury == buyer_treasury.key() @ ErrorCode::InvalidTreasury
+    // )]
+    // pub buyer_treasury: Account<'info,TreasuryPda>,
 
     #[account(
-        constraint = buyer_treasury.reinvenstement_acc == buyer_reinvestment_pda.key() @ ErrorCode::InvalidReinvestAccount
+        seeds = [
+            REINVESTMENTPDA,
+            buyer.key().as_ref()
+        ],
+        bump = buyer_reinvestment_pda.bump,
     )]
     pub buyer_reinvestment_pda:Account<'info,ReinvestmentPda>,
     
@@ -48,23 +52,23 @@ pub struct BuyPropertyProposal<'info>{
             &seller_proposal.proposal_id.to_le_bytes(),  
         ],
         bump = seller_proposal.bump,
-        constraint = seller_proposal.property_account == property.key() @ ErrorCode::InvalidProperty,
+        // constraint = seller_proposal.property_account == property.key() @ ErrorCode::InvalidProperty,
         constraint = seller_proposal.proposal_type == ProposalType::SELLPROPERTY,
         constraint = seller_proposal.status == ProposalStatus::Passed @ ErrorCode::PropertyNotPass,
     )]
     pub seller_proposal : Account<'info,PropertySellProposal>,
 
-    #[account(
-        seeds=[
-                PROPERTY_SEED,
-                &property.property_id.to_le_bytes(),
-                property.state_pubkey.as_ref(),
-                property.country_pubkey.as_ref()
-        ],
-        bump = property.bump,
-        constraint = seller_proposal.property_system_account == property.property_system @ ErrorCode::InvalidProperty
-    )]
-    pub property : Account<'info,PropertyAccount>,
+    // #[account(
+    //     seeds=[
+    //             PROPERTY_SEED,
+    //             &property.property_id.to_le_bytes(),
+    //             property.state_pubkey.as_ref(),
+    //             property.country_pubkey.as_ref()
+    //     ],
+    //     bump = property.bump,
+    //     constraint = seller_proposal.property_system_account == property.property_system @ ErrorCode::InvalidProperty
+    // )]
+    // pub property : Account<'info,PropertyAccount>,
 
 
     #[account(
@@ -95,7 +99,6 @@ pub fn createbuyproposal(ctx:Context<BuyPropertyProposal>,proposal_id : u64) ->R
 
     let seller_proposal = & ctx.accounts.seller_proposal;
 
-    let property = & ctx.accounts.property;
 
     let current_time = Clock::get()?.unix_timestamp ;
 
@@ -106,7 +109,7 @@ pub fn createbuyproposal(ctx:Context<BuyPropertyProposal>,proposal_id : u64) ->R
         proposal_id,
         buyer.key(),
         buyer_wallet.key(),
-        property.key(),
+        seller_proposal.property_account,
         seller_proposal.key(),
         seller_proposal.sale_price,
         ctx.bumps.proposal,

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{constant::{ProposalStatus, SAFETYPROPOSAL}, errors::ErrorCode, functions::submit, state::SafetyProposal};
+use crate::{common::{ProposalStatus, SAFETYPROPOSAL}, errors::ErrorCode, functions::submit, state::SafetyProposal};
 
 
 

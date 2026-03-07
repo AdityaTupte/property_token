@@ -1,6 +1,6 @@
 use anchor_lang::{ prelude::*};
 
-use crate::{constant::{ProposalStatus, SELLPROPERTY, VOTERRECIEPT}, errors::ErrorCode, functions::{voting}, state::{PropertySellProposal, PropertySystemAccount, VoterReciept}};
+use crate::{common::{ProposalStatus, SELLPROPERTY, VOTERRECIEPT}, errors::ErrorCode, functions::voting, state::{PropertySellProposal, PropertySystemAccount, VoterReciept}};
 
 #[derive(Accounts)]
 pub struct Voting<'info>{
@@ -87,6 +87,4 @@ pub struct Voting<'info>{
 
     Ok(())
 
-
-
-    }
+}

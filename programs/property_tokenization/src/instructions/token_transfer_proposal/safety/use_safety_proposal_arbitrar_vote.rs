@@ -1,6 +1,6 @@
 use anchor_lang::prelude::{ *};
 
-use crate::{constant::{PROPERTY_SYSTEM_SEEDS, SAFETYPROPOSAL}, errors::ErrorCode, functions::arbitrar_approval, state::{ArbitratorRegistry, PropertySystemAccount, SafetyProposal}};
+use crate::{common::{ARBITRAR_REGISTRYSEEDS, PROPERTY_SYSTEM_SEEDS, SAFETYPROPOSAL}, errors::ErrorCode, functions::arbitrar_approval, state::{ArbitratorRegistry, PropertySystemAccount, SafetyProposal}};
 
 #[derive(Accounts)]
 pub struct ArbitrarVote<'info>{
@@ -9,13 +9,14 @@ pub struct ArbitrarVote<'info>{
     pub signer : Signer<'info>,
 
     #[account(
+        mut,
         seeds=[
             SAFETYPROPOSAL,
             property_system.key().as_ref(),
             &proposal.proposal_id.to_le_bytes(),
         ],
         bump = proposal.bump,
-        constraint = proposal.property_system == property_system.key() @ ErrorCode::InvalidProposal 
+       // constraint = proposal.property_system == property_system.key() @ ErrorCode::InvalidProposal 
     )]
     pub proposal: Account<'info,SafetyProposal>,
 
@@ -31,11 +32,11 @@ pub struct ArbitrarVote<'info>{
 
     #[account(
         seeds=[
-            b"arbitrator_registry",
+            ARBITRAR_REGISTRYSEEDS,
             property_system.key().as_ref()
         ],
         bump = arbitrar_registry.bump,
-        constraint = arbitrar_registry.property_system_account == property_system.key() @ ErrorCode::ARBITRARREGISTRYINVALID
+        //constraint = arbitrar_registry.property_system_account == property_system.key() @ ErrorCode::ARBITRARREGISTRYINVALID
     )]
     pub arbitrar_registry: Account<'info,ArbitratorRegistry>,
 

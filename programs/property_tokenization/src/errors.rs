@@ -129,6 +129,8 @@ pub enum ErrorCode{
     #[msg("the given land page in invalid")]
     LandPageInvalid,
 
+    #[msg("the transfer deadline be more than 0")]
+    TransferDeadline,
 
     #[msg("the reinvestment treasury is invalid")]
     InvalidReinvestAccount,
@@ -141,6 +143,9 @@ pub enum ErrorCode{
 
     #[msg("proposal is cannot Finalize")]
     AlreadyFinalized,
+
+    #[msg("proposal is already excecuted")]
+    AlreadyExecuted,
 
     #[msg("voting is still live")]
     VotingStillActive,

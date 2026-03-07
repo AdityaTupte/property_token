@@ -1,6 +1,7 @@
 use anchor_lang::prelude::*;
 
-use crate::constant::{Governance, ProposalStatus};
+use crate::common::ProposalStatus;
+use crate::constant::{Governance};
 use crate::errors::ErrorCode;
 
     pub fn submit<T:Governance>(

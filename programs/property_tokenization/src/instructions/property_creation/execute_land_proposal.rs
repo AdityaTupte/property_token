@@ -33,14 +33,6 @@
 
         pub property_page : Account<'info,PropertyPage>,
 
-        // #[account(
-        //     seeds=[
-        //         COUNTRY_SEED,
-        //         &country.country_id.to_le_bytes()
-        //     ],
-        //     bump = country.bump
-        // )]
-        // pub country : Account<'info,Country>,
 
         #[account(
             seeds = [

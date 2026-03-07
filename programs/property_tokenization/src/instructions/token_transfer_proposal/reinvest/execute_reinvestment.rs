@@ -2,9 +2,9 @@ use anchor_lang::prelude::*;
 use anchor_spl::token_interface::{TokenAccount,Mint,TransferChecked,transfer_checked, TokenInterface};
 use anchor_spl::associated_token::*;
 
+use crate::common::{PROPERTY_SYSTEM_SEEDS, ProposalStatus, REINVESTMENTPDA, USEREINVESTMENTOKEN};
 use crate::state::{ReinvestmentPda, UseReinvestmentProposal};
-use crate::{errors::ErrorCode, state::{PropertySystemAccount, TreasuryPda, TrusteeRegistry}};
-use crate::constant::*;
+use crate::{errors::ErrorCode, state::{PropertySystemAccount, TrusteeRegistry}};
 
 #[derive(Accounts)]
 pub struct ExecuteReinvestment<'info>{
@@ -16,6 +16,7 @@ pub struct ExecuteReinvestment<'info>{
     pub trustee:Signer<'info>,
 
     #[account(
+        mut,
         seeds=[
             USEREINVESTMENTOKEN,
             property_system.key().as_ref(),
@@ -23,7 +24,7 @@ pub struct ExecuteReinvestment<'info>{
         ],
         bump = proposal.bump,
         constraint = proposal.status == ProposalStatus::Passed @ ErrorCode::ProposalNotPassed,
-        constraint = proposal.property_system == property_system.key() @ ErrorCode::InvalidProposal,
+       // constraint = proposal.property_system == property_system.key() @ ErrorCode::InvalidProposal,
     )]
     pub proposal: Account<'info,UseReinvestmentProposal>,
 
@@ -41,15 +42,10 @@ pub struct ExecuteReinvestment<'info>{
     )]
     pub trustee_registry : Account<'info,TrusteeRegistry>,
 
-    #[account(
-        constraint = property_system.treasury == treasury.key() @ ErrorCode::InvalidTreasury,
-    )]
-    pub treasury : Account<'info,TreasuryPda>,
 
     #[account(
-        constraint = treasury.safety_acc == reinvestment_treasury.key() @ ErrorCode::InvalidSafety,
         seeds=[
-            b"safety",
+            REINVESTMENTPDA,
             property_system.key().as_ref()
         ],
         bump = reinvestment_treasury.bump,
@@ -57,6 +53,7 @@ pub struct ExecuteReinvestment<'info>{
     pub reinvestment_treasury: Account<'info,ReinvestmentPda>,
 
     #[account(
+        mut,
         associated_token::mint = mint,
         associated_token::authority = reinvestment_treasury,
     )]
@@ -83,6 +80,8 @@ pub struct ExecuteReinvestment<'info>{
 
 pub fn execute_reivestment_proposal(ctx:Context<ExecuteReinvestment>)->Result<()>{
 
+    let amount = ctx.accounts.proposal.amount_required;
+
     let proposal = &mut ctx.accounts.proposal;
 
     let current_time = Clock::get()?.unix_timestamp;
@@ -101,18 +100,20 @@ pub fn execute_reivestment_proposal(ctx:Context<ExecuteReinvestment>)->Result<()
     let cpi_token_program = ctx.accounts.token_program.to_account_info();
 
     let signer_seeds :&[&[&[u8]]] = &[&[ 
-            USEREINVESTMENTOKEN,
+            REINVESTMENTPDA,
             property_system.as_ref(),
             &[ctx.accounts.reinvestment_treasury.bump]
         ]];
+        
     
     let cpi_context = CpiContext::new_with_signer(
             cpi_token_program,
             cpi_accounts, 
             signer_seeds);
 
-    transfer_checked(cpi_context, ctx.accounts.proposal.amount_required, ctx.accounts.mint.decimals)?;
+    transfer_checked(cpi_context, amount, ctx.accounts.mint.decimals)?;
 
+    proposal.status = ProposalStatus::Executed;
     Ok(())
 
 

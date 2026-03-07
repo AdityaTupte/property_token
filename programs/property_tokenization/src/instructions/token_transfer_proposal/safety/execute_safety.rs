@@ -2,8 +2,9 @@ use anchor_lang::prelude::*;
 use anchor_spl::token_interface::{TokenAccount,Mint,TransferChecked,transfer_checked, TokenInterface};
 use anchor_spl::associated_token::*;
 
-use crate::{constant::{PROPERTY_SYSTEM_SEEDS, SAFETYPROPOSAL}, errors::ErrorCode, state::{PropertySystemAccount, SafetyPda, SafetyProposal, TreasuryPda, TrusteeRegistry}};
-use crate::constant::*;
+use crate::common::{PROPERTY_SYSTEM_SEEDS, ProposalStatus, SAFETYPDA, SAFETYPROPOSAL};
+use crate::{ errors::ErrorCode, state::{PropertySystemAccount, SafetyPda, SafetyProposal, TrusteeRegistry}};
+
 
 #[derive(Accounts)]
 pub struct ExecuteSafety<'info>{
@@ -15,6 +16,7 @@ pub struct ExecuteSafety<'info>{
     pub trustee:Signer<'info>,
 
     #[account(
+        mut,
         seeds=[
             SAFETYPROPOSAL,
             property_system.key().as_ref(),
@@ -40,15 +42,14 @@ pub struct ExecuteSafety<'info>{
     )]
     pub trustee_registry : Account<'info,TrusteeRegistry>,
 
-    #[account(
-        constraint = property_system.treasury == treasury.key() @ ErrorCode::InvalidTreasury,
-    )]
-    pub treasury : Account<'info,TreasuryPda>,
+    // #[account(
+    //     constraint = property_system.treasury == treasury.key() @ ErrorCode::InvalidTreasury,
+    // )]
+    // pub treasury : Account<'info,TreasuryPda>,
 
     #[account(
-        constraint = treasury.safety_acc == safety_treasury.key() @ ErrorCode::InvalidSafety,
         seeds=[
-            b"safety",
+            SAFETYPDA,
             property_system.key().as_ref()
         ],
         bump = safety_treasury.bump,
@@ -82,6 +83,8 @@ pub struct ExecuteSafety<'info>{
 
 pub fn execute_safety_proposal(ctx:Context<ExecuteSafety>)->Result<()>{
 
+    let amount  = ctx.accounts.proposal.amount_required;
+
     let proposal = &mut ctx.accounts.proposal;
 
     let current_time = Clock::get()?.unix_timestamp;
@@ -100,7 +103,7 @@ pub fn execute_safety_proposal(ctx:Context<ExecuteSafety>)->Result<()>{
     let cpi_token_program = ctx.accounts.token_program.to_account_info();
 
     let signer_seeds :&[&[&[u8]]] = &[&[ 
-            SAFETYPROPOSAL,
+            SAFETYPDA,
             property_system.as_ref(),
             &[ctx.accounts.safety_treasury.bump]
         ]];
@@ -110,8 +113,9 @@ pub fn execute_safety_proposal(ctx:Context<ExecuteSafety>)->Result<()>{
             cpi_accounts, 
             signer_seeds);
 
-    transfer_checked(cpi_context, ctx.accounts.proposal.amount_required, ctx.accounts.mint.decimals)?;
-
+    transfer_checked(cpi_context, amount, ctx.accounts.mint.decimals)?;
+    
+    proposal.status = ProposalStatus::Executed;
     Ok(())
 
 

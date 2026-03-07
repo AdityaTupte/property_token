@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{constant::{BUYPROPERTY, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, functions::arbitrar_approval, state::{ArbitratorRegistry, PropertyBuyProposal, PropertySystemAccount}};
+use crate::{common::{ARBITRAR_REGISTRYSEEDS, BUYPROPERTY, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, functions::arbitrar_approval, state::{ArbitratorRegistry, PropertyBuyProposal, PropertySystemAccount}};
 
 
 #[derive(Accounts)]
@@ -33,17 +33,17 @@ pub struct ArbitrarVote<'info>{
             &buyer.property_system_id.to_le_bytes()
         ],
         bump= buyer.bump,
-        constraint = buyer.arbitrator_registry == arbitrar_registry.key() @ ErrorCode::PropertySystemInvalidForRegistry
+        //constraint = buyer.arbitrator_registry == arbitrar_registry.key() @ ErrorCode::PropertySystemInvalidForRegistry
     )]
     pub buyer:Account<'info,PropertySystemAccount>,
 
     #[account(
         seeds=[
-            b"arbitrator_registry",
+            ARBITRAR_REGISTRYSEEDS,
             buyer.key().as_ref()
         ],
         bump=arbitrar_registry.bump,
-         constraint = arbitrar_registry.property_system_account == buyer.key() @ ErrorCode::ARBITRARREGISTRYINVALID
+        //constraint = arbitrar_registry.property_system_account == buyer.key() @ ErrorCode::ARBITRARREGISTRYINVALID
     )]
     pub arbitrar_registry: Account<'info,ArbitratorRegistry>
 }

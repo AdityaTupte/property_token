@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{constant::SAFETYPROPOSAL, functions::finalize, state::SafetyProposal};
+use crate::{ common::SAFETYPROPOSAL, functions::finalize, state::SafetyProposal};
 
 
 #[derive(Accounts)]

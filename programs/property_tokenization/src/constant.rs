@@ -1,51 +1,29 @@
 use anchor_lang::prelude::*;
 
-
-
-
-p
-
-pub const HARDCODED_PUBKEY: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
-
-pub const TRANSFERPROPOSAL : &[u8] = b"transferproposal";
-
-pub const VOTERRECIEPT : &[u8] = b"voter_receipt";
-
-pub const BUYPROPERTY : &[u8] = b"BUYPROPERTY";
-
-pub const SELLPROPERTY : &[u8] = b"SELLPROPERTY";
-
-pub const REINVESTMENTPDA : &[u8] = b"reinvestment";
-
-pub const SAFETYPROPOSAL :  &[u8] = b"safetyproposal";
-
-pub const USEREINVESTMENTOKEN :&[u8] = b"use_reinvestment_token";
+use crate::common::{ProposalStatus, ProposalType};
 
 
 
 
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
-pub enum ProposalType {
-    SELLPROPERTY,
-    BUYPROPERTY,
-    USESAFETY,
-    USEREINVESTMENT
-}
-
-pub const MAX_LAND_PER_PAGE:usize = 100;
 
 
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
-pub enum ProposalStatus {
-    Draft,
-    Active ,
-    Passed ,
-    Failed,
-    Rejected,
-    Executed ,
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 pub trait Governance {

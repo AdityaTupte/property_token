@@ -1,13 +1,17 @@
 use anchor_lang::prelude::*;
 
-use crate::{constant::*, functions::delete_proposal, state::{PropertySellProposal, PropertySystemAccount, TrusteeRegistry}};
+use crate::{ common::{PROPERTY_SYSTEM_SEEDS, SELLPROPERTY, TRUSTEEREGISTRYSEEDS}, functions::delete_proposal, state::{PropertySellProposal, PropertySystemAccount, TrusteeRegistry}};
 
 
 #[derive(Accounts)]
 pub struct DeleteFailProposal<'info>{
 
     #[account(
-        constraint = property_system.trustee_registry == trustee_registry.key() 
+        seeds = [
+            TRUSTEEREGISTRYSEEDS,
+            property_system.key().as_ref()
+            ],
+        bump = trustee_registry.bump,
     )]
     pub trustee_registry : Account<'info,TrusteeRegistry>,
 
@@ -17,7 +21,13 @@ pub struct DeleteFailProposal<'info>{
     )]
     pub trustee : Signer<'info>,
 
-    #[account()]
+    #[account(
+        seeds = [ 
+            PROPERTY_SYSTEM_SEEDS,
+            &property_system.property_system_id.to_le_bytes(),
+        ],
+        bump=property_system.bump,
+    )]
     pub property_system : Account<'info,PropertySystemAccount>,
 
     #[account(
@@ -28,7 +38,6 @@ pub struct DeleteFailProposal<'info>{
             &proposal.proposal_id.to_le_bytes(),
         ],
         bump = proposal.bump,
-        constraint = proposal.property_system_account  == property_system.key(),
         close = trustee
     )]
     pub proposal : Account<'info,PropertySellProposal>,
@@ -36,8 +45,6 @@ pub struct DeleteFailProposal<'info>{
 }
 
 pub fn delete_fail_proposal(ctx:Context<DeleteFailProposal>)->Result<()>{
-
-    let current_time = Clock::get()?.unix_timestamp;
 
     let proposal = &mut *ctx.accounts.proposal;
 

@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
-use crate::constant::*;
+use crate::common::{ProposalStatus, SELLPROPERTY};
+
 use crate::errors::ErrorCode;
 use crate::functions::submit;
 use crate::state::{PropertySellProposal};
@@ -9,8 +10,8 @@ use crate::state::{PropertySellProposal};
 pub struct SubmitSnapshot<'info>{
 
     #[account(
-        constraint = proposal.arbitrar_approvals.contains(&signer.key()),
-        constraint = proposal.is_arbitrar_approved
+        constraint = proposal.arbitrar_approvals.contains(&signer.key()) @ ErrorCode::NotAuthorized,
+        constraint = proposal.is_arbitrar_approved @ ErrorCode::ProposalNotApproved
     )]
     pub signer: Signer<'info>,
 
@@ -38,9 +39,11 @@ pub fn sell_submit_snapshot(
     vote_threshold :u64,
 )->Result<()>{
 
-    require!(vote_threshold < ctx.accounts.proposal.total_voting_power, ErrorCode::InvalidVotingThreshold);
+    require!( 0 < vote_threshold  && vote_threshold< ctx.accounts.proposal.total_voting_power, ErrorCode::InvalidVotingThreshold);
 
-    require!(closing_days_gap>0,ErrorCode::ClosingDay);
+    require!(closing_days_gap <= 30 && closing_days_gap>0,ErrorCode::ClosingDay);
+
+    require!(transfer_deadline_days > 0, ErrorCode::TransferDeadline);
 
     let proposal = &mut *ctx.accounts.proposal;
 

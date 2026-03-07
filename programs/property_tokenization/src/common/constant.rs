@@ -1,3 +1,4 @@
+use anchor_lang::prelude::*;
 pub const MAX_TRUSTEES: usize = 5 ;
 pub const MAX_ARBITRATOR: usize = 5 ;
 
@@ -29,5 +30,32 @@ pub const PROPERTY_PAGE_SEEDS : &[u8] = b"property_page";
 
 pub const PROPERTY_PROPOSAL_SEEDS: &[u8] = b"property_proposal";
 pub const PROPERTY_SEED : &[u8] = b"property";
-
 pub const PROPERTY_METADATA_SEEDS :&[u8] = b"property_metadata";
+
+
+
+pub const SELLPROPERTY : &[u8] = b"SELLPROPERTY";
+pub const BUYPROPERTY : &[u8] = b"BUYPROPERTY";
+
+pub const REINVESTMENTPDA : &[u8] = b"reinvestment";
+pub const SAFETYPDA :  &[u8] = b"safety";
+
+pub const SAFETYPROPOSAL :  &[u8] = b"safetyproposal";
+
+pub const USEREINVESTMENTOKEN :&[u8] = b"use_reinvestment_token";
+
+
+pub const TRUSTEEREGISTRYSEEDS : &[u8] = b"trustee_registry";
+pub const ARBITRAR_REGISTRYSEEDS : &[u8] = b"arbitrar_registry";
+
+pub const TREASURYSEEDS : &[u8] = b"treasury";
+
+
+
+pub const HARDCODED_PUBKEY: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+
+pub const TRANSFERPROPOSAL : &[u8] = b"transferproposal";
+
+pub const VOTERRECIEPT : &[u8] = b"voter_receipt";
+
+pub const MAX_LAND_PER_PAGE:usize = 100;

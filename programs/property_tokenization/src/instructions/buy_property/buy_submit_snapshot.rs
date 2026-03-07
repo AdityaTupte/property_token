@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use crate::constant::*;
+use crate::common::{BUYPROPERTY, ProposalStatus};
 use crate::errors::ErrorCode;
 use crate::functions::submit;
 use crate::state::PropertyBuyProposal;
@@ -46,13 +46,7 @@ pub fn buy_submit_snapshot(
 
     submit(proposal, merkle_root, closing_days_gap,vote_threshold,payment_deadline_days)?;
 
-    // proposal.transfer_deadline = proposal.end_time
-    //         .checked_add(
-    //             one_day
-    //                 .checked_mul(transfer_deadline_days as i64)
-    //                 .ok_or(ErrorCode::MathOverflow)?
-    //         )
-    //         .ok_or(ErrorCode::MathOverflow)?;
+    
 
  
     Ok(())

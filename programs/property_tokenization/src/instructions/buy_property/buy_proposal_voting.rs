@@ -1,6 +1,6 @@
 use anchor_lang::{ prelude::*};
 
-use crate::{constant::{BUYPROPERTY, ProposalStatus, VOTERRECIEPT}, errors::ErrorCode, functions::voting, state::{PropertyBuyProposal, PropertySystemAccount, VoterReciept}};
+use crate::{ common::{BUYPROPERTY, PROPERTY_SYSTEM_SEEDS, ProposalStatus, VOTERRECIEPT}, errors::ErrorCode, functions::voting, state::{PropertyBuyProposal, PropertySystemAccount, VoterReciept}};
 
 #[derive(Accounts)]
 pub struct Voting<'info>{
@@ -20,11 +20,15 @@ pub struct Voting<'info>{
          constraint = proposal.status !=  ProposalStatus::Passed  @ ErrorCode::ProposalAlreadyPassed,
          constraint = proposal.status == ProposalStatus::Active @ ErrorCode::ProposalNotActive
     )]
-
     pub proposal : Account<'info,PropertyBuyProposal>,
 
 
     #[account(
+        seeds = [
+            PROPERTY_SYSTEM_SEEDS,
+            &property_system.property_system_id.to_le_bytes(),
+            ],
+            bump = property_system.bump,
         constraint = proposal.buyer == property_system.key() @ ErrorCode::InvalidProposal
     )]
     pub property_system: Account<'info,PropertySystemAccount>,

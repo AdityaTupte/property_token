@@ -15,7 +15,7 @@ pub struct StateProposal<'info>{
             COUNTRY_SEED,
             &country.country_id.to_le_bytes()
             ],
-        bump = country_pda.bump
+        bump = country.bump
     )]
     pub country : Account<'info,Country>,
 

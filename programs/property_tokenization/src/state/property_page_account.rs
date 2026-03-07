@@ -1,5 +1,7 @@
 use anchor_lang::prelude::*;
-use crate::constant::*;
+
+use crate::common::MAX_LAND_PER_PAGE;
+
 #[account]
 pub struct PropertyPage{
 

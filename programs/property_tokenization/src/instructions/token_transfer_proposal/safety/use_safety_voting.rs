@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{constant::{ProposalStatus, SAFETYPROPOSAL, VOTERRECIEPT}, errors::ErrorCode, functions::voting, state::{PropertySystemAccount, SafetyProposal, VoterReciept}};
+use crate::{common::{ProposalStatus, SAFETYPROPOSAL, VOTERRECIEPT}, errors::ErrorCode, functions::voting, state::{PropertySystemAccount, SafetyProposal, VoterReciept}};
 
 
 
