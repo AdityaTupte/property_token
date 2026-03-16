@@ -59,3 +59,10 @@ pub const TRANSFERPROPOSAL : &[u8] = b"transferproposal";
 pub const VOTERRECIEPT : &[u8] = b"voter_receipt";
 
 pub const MAX_LAND_PER_PAGE:usize = 100;
+
+
+
+pub const RT_CHG_PROPOSAL_SEEDS : &[u8] = b"rt_change_proposal";
+pub const PROPOSE_THRESHOLD : &[u8] = b"propose_threshold";
+
+pub const THRESHOLD_VOTE_RECEIPT : &[u8] = b"threshold_vote_receipt";

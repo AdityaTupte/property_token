@@ -183,4 +183,22 @@ pub enum ErrorCode{
     #[msg("the given safety is invalid")]
     InvalidSafety,
 
+    #[msg("threshold must be 100 after adding all threshold")]
+    InvalidThreshold,
+
+    #[msg("the deadline for  threshold submission is reached")]
+    ThresholdSubmissionEnd,
+
+    #[msg("governance token invaild")]
+    GovernanceTokenInvalid,
+
+    #[msg("the signer must hold the token for proposing new threshold")]
+    TokenAreZero,
+
+    #[msg("the challenge deadline had been reached")]
+    ChallegeDeadlineExpired,
+     
+    #[msg("the change deadline had been reached")]
+    ChangeDeadlineExpired,
+
 }

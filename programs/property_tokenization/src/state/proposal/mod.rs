@@ -4,6 +4,9 @@ pub mod buy_property_proposal;
 pub mod safety_proposal;
 pub mod reinvestment;
 pub mod country_proposal;
+pub mod rt_proposal;
+pub mod new_threshold_proposal;
+pub mod new_threshold_vote_receipt;
 
 pub use sell_property_proposal::*;
 pub use voter_reciept::*;
@@ -11,3 +14,6 @@ pub use buy_property_proposal::*;
 pub use safety_proposal::*;
 pub use reinvestment::*;
 pub use country_proposal::*;
+pub use rt_proposal::*;
+pub use new_threshold_proposal::*;
+pub use new_threshold_vote_receipt::*;
