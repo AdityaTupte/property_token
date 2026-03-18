@@ -82,7 +82,8 @@ pub fn vote(
         signer.key(),
         property_system.governance_mint,
         proposal_key,
-        recepit_bump
+        recepit_bump,
+        SAFETYPROPOSAL
     )?;
 
 

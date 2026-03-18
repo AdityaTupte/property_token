@@ -78,6 +78,7 @@ pub fn propose_new_threshold(
     
 
     let leaf = keccak::hashv(&[
+        RT_CHG_PROPOSAL_SEEDS,
         ctx.accounts.signer.key().as_ref(),
         ctx.accounts.proposal.key().as_ref(),
         ctx.accounts.mint.key().as_ref(),

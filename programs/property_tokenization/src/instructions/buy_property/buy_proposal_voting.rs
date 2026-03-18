@@ -85,7 +85,8 @@ pub struct Voting<'info>{
         signer.key(),
         property_system.governance_mint,
         proposal_key,
-        receipt_bump
+        receipt_bump,
+        BUYPROPERTY
     )?;
 
 

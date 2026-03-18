@@ -1,8 +1,8 @@
 use anchor_lang::{prelude::*};
-use anchor_spl::{ associated_token::spl_associated_token_account::solana_program::keccak, token_interface::{Mint, TokenAccount}};
+use anchor_spl::{ associated_token::spl_associated_token_account::solana_program::keccak, token_interface::{Mint}};
 
 
-use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, RT_CHG_PROPOSAL_SEEDS, THRESHOLD_VOTE_RECEIPT}, errors::ErrorCode, functions::{verify_proof, voting}, state::{NEWTHRESHOLDPROPOSAL, PropertySystemAccount, RTChgProposal, ThresholdVoteReceipt}};
+use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, RT_CHG_PROPOSAL_SEEDS, THRESHOLD_VOTE_RECEIPT}, errors::ErrorCode, functions::{verify_proof}, state::{NEWTHRESHOLDPROPOSAL, PropertySystemAccount, RTChgProposal, ThresholdVoteReceipt}};
 
 
 #[derive(Accounts)]
@@ -18,13 +18,6 @@ use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, R
         constraint = property_system.governance_mint == mint.key() @ ErrorCode::GovernanceTokenInvalid
     )]
     pub mint : InterfaceAccount<'info,Mint>,
-
-    // #[account(
-    //     associated_token::mint = mint ,
-    //     associated_token::authority = signer
-    // )]
-    // pub ata: InterfaceAccount<'info,TokenAccount>,
-    
 
     #[account(
         seeds=[
@@ -78,7 +71,6 @@ pub fn vote_for_new_threshold(
     ctx:Context<VoteForNewThreshold>,
     proof: Vec<[u8; 32]>,
     voting_power : u64,
-    
 )->Result<()>{
     let current_time = Clock::get()?.unix_timestamp ;
 
@@ -92,6 +84,7 @@ pub fn vote_for_new_threshold(
 
 
     let leaf = keccak::hashv(&[
+        RT_CHG_PROPOSAL_SEEDS,
         ctx.accounts.signer.key().as_ref(),
         ctx.accounts.proposal.key().as_ref(),
         ctx.accounts.mint.key().as_ref(),
