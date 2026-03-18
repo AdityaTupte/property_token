@@ -1,8 +1,8 @@
 use anchor_lang::{prelude::*};
-use anchor_spl::{ token_interface::{Mint, TokenAccount}};
+use anchor_spl::{ associated_token::spl_associated_token_account::solana_program::keccak, token_interface::{Mint, TokenAccount}};
 
 
-use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, RT_CHG_PROPOSAL_SEEDS, THRESHOLD_VOTE_RECEIPT}, errors::ErrorCode, state::{NEWTHRESHOLDPROPOSAL, PropertySystemAccount, RTChgProposal, ThresholdVoteReceipt}};
+use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, RT_CHG_PROPOSAL_SEEDS, THRESHOLD_VOTE_RECEIPT}, errors::ErrorCode, functions::{verify_proof, voting}, state::{NEWTHRESHOLDPROPOSAL, PropertySystemAccount, RTChgProposal, ThresholdVoteReceipt}};
 
 
 #[derive(Accounts)]
@@ -19,11 +19,11 @@ use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, R
     )]
     pub mint : InterfaceAccount<'info,Mint>,
 
-    #[account(
-        associated_token::mint = mint ,
-        associated_token::authority = signer
-    )]
-    pub ata: InterfaceAccount<'info,TokenAccount>,
+    // #[account(
+    //     associated_token::mint = mint ,
+    //     associated_token::authority = signer
+    // )]
+    // pub ata: InterfaceAccount<'info,TokenAccount>,
     
 
     #[account(
@@ -74,10 +74,12 @@ use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, R
 }
 
 
-pub fn vote_for_new_threshold(ctx:Context<VoteForNewThreshold>)->Result<()>{
+pub fn vote_for_new_threshold(
+    ctx:Context<VoteForNewThreshold>,
+    proof: Vec<[u8; 32]>,
+    voting_power : u64,
     
-    require!(ctx.accounts.ata.amount > 0 ,ErrorCode::TokenAreZero);
-
+)->Result<()>{
     let current_time = Clock::get()?.unix_timestamp ;
 
     let proposal = &mut ctx.accounts.proposal;
@@ -88,13 +90,27 @@ pub fn vote_for_new_threshold(ctx:Context<VoteForNewThreshold>)->Result<()>{
         ErrorCode::VotingPeriodExpired 
     );
 
-    let new_threshold_option = &mut ctx.accounts.new_threshold;
 
-    new_threshold_option.vote_gained += ctx.accounts.ata.amount;
+    let leaf = keccak::hashv(&[
+        ctx.accounts.signer.key().as_ref(),
+        ctx.accounts.proposal.key().as_ref(),
+        ctx.accounts.mint.key().as_ref(),
+        &voting_power.to_le_bytes(),
+    ]).0;
+
+    require!(verify_proof(leaf, &proof, ctx.accounts.proposal.merkle_root),ErrorCode::InvalidMerkleProof);
+
+    
+    let new_threshold = &mut ctx.accounts.new_threshold;
+
+    new_threshold.vote_gained = new_threshold
+        .vote_gained
+        .checked_add(voting_power)
+        .ok_or(ErrorCode::MathOverflow)?;
 
     let receipt = &mut ctx.accounts.new_threshold_vote_receipt;
 
-    receipt.thresholdvoted = new_threshold_option.key();
+    receipt.thresholdvoted = new_threshold.key();
 
     receipt.bump = ctx.bumps.new_threshold_vote_receipt;
 

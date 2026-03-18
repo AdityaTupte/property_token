@@ -14,11 +14,13 @@ pub struct Threshold{
 
     pub safety_threshold : u8,
 
+    pub bump: u8,
+
 }
 
 
 impl Threshold {
 
-    pub const SIZE:usize= 1 + 1 + 1 + 1 + 1;
+    pub const SIZE:usize=  1 + 1 + 1 + 1 + 1 + 1;
     
 }

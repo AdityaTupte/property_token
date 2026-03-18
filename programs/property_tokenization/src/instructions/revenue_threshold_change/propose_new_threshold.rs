@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token_interface::{Mint, TokenAccount, };
+use anchor_spl::{associated_token::spl_associated_token_account::solana_program::keccak, token_interface::{Mint, }};
 
-use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, RT_CHG_PROPOSAL_SEEDS}, errors::ErrorCode, state::{NEWTHRESHOLDPROPOSAL, PropertySystemAccount, RTChgProposal}};
+use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, RT_CHG_PROPOSAL_SEEDS}, errors::ErrorCode, functions::verify_proof, state::{NEWTHRESHOLDPROPOSAL, PropertySystemAccount, RTChgProposal}};
 
 
 
@@ -17,13 +17,6 @@ pub struct ProposeNewThreshold<'info>{
         constraint = property_system.governance_mint == mint.key() @ ErrorCode::GovernanceTokenInvalid
     )]
     pub mint : InterfaceAccount<'info,Mint>,
-
-    #[account(
-        associated_token::mint = mint ,
-        associated_token::authority = signer
-    )]
-    pub ata: InterfaceAccount<'info,TokenAccount>,
-    
 
     #[account(
         seeds=[
@@ -65,6 +58,10 @@ pub struct ProposeNewThreshold<'info>{
 pub fn propose_new_threshold(
             ctx:Context<ProposeNewThreshold>,
             
+            proof: Vec<[u8; 32]>,
+            
+            voting_power : u64,
+            
             new_trustee_salary_threshold : u8,
             
             new_arbitrator_salary_threshold : u8,
@@ -78,16 +75,25 @@ pub fn propose_new_threshold(
 
     let new_threshold = &mut ctx.accounts.new_threshold;
 
-    require!(ctx.accounts.ata.amount > 0 ,ErrorCode::TokenAreZero);
+    
 
-    require!(
-        new_trustee_salary_threshold +
-        new_arbitrator_salary_threshold +
-        new_dividend_threshold +
-        new_reinvestment_threshold +
-        new_safety_threshold == 100 ,
-        ErrorCode::InvalidThreshold
-    );
+    let leaf = keccak::hashv(&[
+        ctx.accounts.signer.key().as_ref(),
+        ctx.accounts.proposal.key().as_ref(),
+        ctx.accounts.mint.key().as_ref(),
+        &voting_power.to_le_bytes(),
+    ]).0;
+
+    require!(verify_proof(leaf, &proof, ctx.accounts.proposal.merkle_root),ErrorCode::InvalidMerkleProof);
+
+    let total =
+    new_trustee_salary_threshold as u16 +
+    new_arbitrator_salary_threshold as u16 +
+    new_dividend_threshold as u16 +
+    new_reinvestment_threshold as u16 +
+    new_safety_threshold as u16;
+
+    require!(total == 100, ErrorCode::InvalidThreshold);
 
 
     let current_time = Clock::get()?.unix_timestamp;
