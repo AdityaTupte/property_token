@@ -3,29 +3,6 @@ use anchor_lang::prelude::*;
 use crate::common::{ProposalStatus, ProposalType};
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 pub trait Governance {
 
     fn proposal_id(&mut self) -> &mut u64;
@@ -74,5 +51,25 @@ pub trait Receipt  {
     
 }
 
+
+pub trait AuthorityGovernance {
+    fn proposal_id(&mut self) -> &mut u64;
+
+    fn merkle_root(&mut self) -> &mut [u8;32] ;
+
+    fn arbitrar_list(&mut self) -> &mut Vec<Pubkey>;
+
+    fn arbitrar_approved(&mut self)-> &mut bool;
+
+    fn proposal_status(&mut self) -> &mut ProposalStatus;
+    
+    fn snapshot_submitted(&mut self) -> &mut bool;
+
+    fn slot(&mut self) -> &mut u64;
+
+    fn bump(&mut self) -> &mut u8;
+
+
+}
 
 

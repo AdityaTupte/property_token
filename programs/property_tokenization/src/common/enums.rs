@@ -9,7 +9,9 @@ pub enum ProposalStatus {
     Passed ,
     Failed,
     Rejected,
-    Executed ,
+    Executed,
+    Pending,
+    Approved,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
@@ -19,4 +21,11 @@ pub enum ProposalType {
     USESAFETY,
     USEREINVESTMENT,
     REVENUETHRESHOLDCHANGE  
+}
+
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
+pub enum AuthorityType {
+    TRUSTEE,
+    ARBITRATOR 
 }

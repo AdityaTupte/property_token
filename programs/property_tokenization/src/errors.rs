@@ -203,6 +203,11 @@ pub enum ErrorCode{
 
     #[msg("the challenge deadline not reached yet")]
     ChallegeDeadlineNotExpired,
-     
+    
+    #[msg("the deadline should be less than 30")]
+    DeadlineIssue,
+
+    #[msg("authority limit reached")]
+    AuhtorityLimitReached,
 
 }

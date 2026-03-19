@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 use crate::{common::{ PROPERTY_PROPOSAL_SEEDS, STATE_SEEDS}, errors::ErrorCode, state::{ PropertyProposal, State}};
 
-const PROPOSAL_SEEDS: &[u8] = b"proposal";
+
 
 #[derive(Accounts)]
 #[instruction(property_id:u64)]

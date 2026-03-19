@@ -1,0 +1,97 @@
+use anchor_lang::prelude::*;
+
+use crate::{common::{AuthorityType, MAX_TRUSTEES, ProposalStatus}, constant::{AuthorityGovernance}};
+
+#[account()]
+pub struct ElectAuthority{
+
+    pub property_system: Pubkey,
+
+    pub authority_to_resign : Vec<Pubkey>,
+
+    pub authority_type : AuthorityType,
+    
+    pub status:ProposalStatus,
+
+    pub proposal_id : u64,
+
+    pub merkle_root: [u8; 32],
+
+    pub arbitrar_approvals: Vec<Pubkey>,
+
+    pub is_initialized : bool,
+
+    pub is_arbitrar_approved : bool,
+   
+    pub snapshot_submitted : bool,
+
+    pub candidate_submission_deadline: i64,
+
+    pub voting_for_authority_deadline : i64,
+
+    pub add_new_authority_deadline : i64,
+
+    pub challenge_new_authority_deadline : i64,
+
+    pub slot : u64,
+
+    pub bump:u8,
+
+}
+
+impl ElectAuthority  {
+        pub const SIZE:usize = 
+                                32 +
+                                4 + (32 * MAX_TRUSTEES) +
+                                1 +
+                                1 +
+                                8 +
+                                32 +
+                                4 + (32* MAX_TRUSTEES) +
+                                1 +
+                                1 +
+                                1 +
+                                8 +
+                                8 +
+                                8 +
+                                8 +
+                                8 +
+                                1  ;
+
+}
+
+impl AuthorityGovernance for ElectAuthority {
+    
+    fn proposal_id(&mut self) -> &mut u64 {
+        return &mut self.proposal_id;
+    }
+
+    fn merkle_root(&mut self) -> &mut [u8;32] {
+        return  &mut self.merkle_root;
+    }
+
+    fn arbitrar_list(&mut self) -> &mut Vec<Pubkey> {
+        return &mut self.arbitrar_approvals;
+    }
+
+    fn arbitrar_approved(&mut self)-> &mut bool {
+        return &mut self.is_arbitrar_approved;
+    }
+
+    fn proposal_status(&mut self) -> &mut ProposalStatus {
+        return &mut self.status;
+    }
+
+    fn snapshot_submitted(&mut self) -> &mut bool {
+        return &mut self.snapshot_submitted;
+    }
+    
+    fn slot(&mut self) -> &mut u64 {
+        return &mut self.slot ;
+    }
+
+    fn bump(&mut self) -> &mut u8 {
+        return &mut self.bump;
+    }   
+
+}

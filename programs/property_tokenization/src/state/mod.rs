@@ -12,6 +12,7 @@ pub mod approve_country_authority;
 pub mod state_proposal;
 pub mod property_proposal;
 pub mod property_page_account;
+pub mod resignation;
 //////////////////
 pub mod proposal;
 
@@ -26,7 +27,7 @@ pub use funds::*;
 pub use proposal::*;
 ///////////////////////
 pub use property_system_account::*;
-
+pub use resignation::*;
 pub use trustee_registry::*;
 pub use arbitrator_registry::*;
 

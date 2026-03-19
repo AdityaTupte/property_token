@@ -68,3 +68,8 @@ pub const PROPOSE_THRESHOLD : &[u8] = b"propose_threshold";
 pub const THRESHOLD_VOTE_RECEIPT : &[u8] = b"threshold_vote_receipt";
 
 pub const THRESHOLD :&[u8] = b"threshold";
+
+
+pub const TRUSTEE_RESIGNATION : &[u8] = b"resignation";
+
+pub const ELECT_TRUSTEE : &[u8] = b"elect_trustee";

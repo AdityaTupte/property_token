@@ -1,15 +1,10 @@
 use anchor_lang::prelude::*;
 
-use crate::common::PROPERTY_PROPOSAL_SEEDS;
+use crate::common::{PROPERTY_PROPOSAL_SEEDS, STATE_SEEDS};
 use crate::state::{PropertyProposal, State};
 
 use crate::errors::ErrorCode::{self};
 
-const PROPOSAL_SEEDS: &[u8] = b"proposal";
-
-const STATE_SEEDS : &[u8] = b"state";
-
-const  COUNTRY_SEED : &[u8] = b"country";
 
 #[derive(Accounts)]
 
