@@ -15,15 +15,18 @@ pub mod property_page_account;
 pub mod resignation;
 //////////////////
 pub mod proposal;
-
+pub mod authority_candidate;
+pub mod candidate_profile;
+pub mod authority_vote_receipt;
 
 pub mod funds;
 pub use funds::*;
 
 
 
-
-
+pub use authority_vote_receipt::*;
+pub use authority_candidate::*;
+pub use candidate_profile::*;
 pub use proposal::*;
 ///////////////////////
 pub use property_system_account::*;

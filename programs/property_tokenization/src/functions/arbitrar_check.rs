@@ -22,15 +22,11 @@ pub fn arbitrar_approval<T: Governance>(
 
         *item.arbitrar_approved() = true;
 
-        let slot = Clock::get()?.slot;
-
-        *item.slot() = slot;
-
         emit!(SnapshotRequested {
             proposal_id: *item.proposal_id(),
             proposal_key: proposal_key,
             mint: governance_mint,
-            slot,
+            slot:*item.slot() ,
         });
 
 

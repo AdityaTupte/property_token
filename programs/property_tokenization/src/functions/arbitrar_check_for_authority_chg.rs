@@ -1,4 +1,4 @@
-use crate::{constant::{AuthorityGovernance}, events::SnapshotRequested};
+use crate::{common::ProposalStatus, constant::AuthorityGovernance, events::SnapshotRequested};
 use anchor_lang::prelude::*;
 use crate::errors::ErrorCode;
 
@@ -22,15 +22,15 @@ pub fn arbitrar_approval_for_authority<T: AuthorityGovernance>(
 
         *item.arbitrar_approved() = true;
 
-        let slot = Clock::get()?.slot;
+        *item.slot()= Clock::get()?.slot;
 
-        *item.slot() = slot;
+        *item.proposal_status() = ProposalStatus::Active;
 
         emit!(SnapshotRequested {
             proposal_id: *item.proposal_id(),
             proposal_key: proposal_key,
             mint: governance_mint,
-            slot,
+            slot:*item.slot(),
         });
 
     }

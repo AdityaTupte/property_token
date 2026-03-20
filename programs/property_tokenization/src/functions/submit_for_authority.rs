@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{constant::AuthorityGovernance, errors::ErrorCode};
+use crate::{common::ProposalStatus, constant::AuthorityGovernance, errors::ErrorCode};
 
 
    pub fn submit_authority<T:AuthorityGovernance>(
@@ -20,8 +20,43 @@ use crate::{constant::AuthorityGovernance, errors::ErrorCode};
     ErrorCode::DeadlineIssue,
 );
 
+    let current_time = Clock::get()?.unix_timestamp;
+    
     *item.merkle_root() = merkle_root;
 
+    *item.candidate_submission_deadline() = current_time
+                                                .checked_add(
+                                                    (candidate_submission_deadline as i64)
+                                                    .checked_mul((24*60*60) as i64)
+                                                    .ok_or(ErrorCode::MathOverflow)?
+                                                ).ok_or(ErrorCode::MathOverflow)?;
+
+    
+    *item.voting_for_authority_deadline() = item.candidate_submission_deadline()
+                                                .checked_add(
+                                                    (voting_for_authority_deadline as i64)
+                                                    .checked_mul((24*60*60) as i64)
+                                                    .ok_or(ErrorCode::MathOverflow)?
+                                                ).ok_or(ErrorCode::MathOverflow)?;
+
+    *item.add_new_authority_deadline() =    item.voting_for_authority_deadline()
+                                                .checked_add(
+                                                    (add_new_authority_deadline as i64)
+                                                    .checked_mul((24*60*60) as i64)
+                                                    .ok_or(ErrorCode::MathOverflow)?
+                                                ).ok_or(ErrorCode::MathOverflow)?;
+ 
+    *item.challenge_new_authority_deadline() = item.challenge_new_authority_deadline()
+                                                .checked_add(
+                                                    (challenge_new_authority_deadline as i64)
+                                                    .checked_mul((24*60*60) as i64)
+                                                    .ok_or(ErrorCode::MathOverflow)?
+                                                ).ok_or(ErrorCode::MathOverflow)?;
+
+
+    *item.proposal_status() = ProposalStatus::Passed;
+
+    *item.snapshot_submitted() = true;
 
 
     Ok(())

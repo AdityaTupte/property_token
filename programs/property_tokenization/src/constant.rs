@@ -48,7 +48,7 @@ pub trait Receipt  {
     fn voting_power(&mut self) ->&mut u64;
 
     fn bump(&mut self) -> &mut u8 ;
-    
+
 }
 
 
@@ -68,6 +68,14 @@ pub trait AuthorityGovernance {
     fn slot(&mut self) -> &mut u64;
 
     fn bump(&mut self) -> &mut u8;
+
+    fn candidate_submission_deadline(&mut self) -> &mut i64;
+
+    fn voting_for_authority_deadline(&mut self) -> &mut i64;
+
+    fn add_new_authority_deadline(&mut self) -> &mut i64;
+
+    fn challenge_new_authority_deadline(&mut self) -> &mut i64;
 
 
 }

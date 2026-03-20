@@ -90,6 +90,22 @@ impl AuthorityGovernance for ElectAuthority {
         return &mut self.slot ;
     }
 
+    fn add_new_authority_deadline(&mut self) -> &mut i64 {
+        return &mut self.add_new_authority_deadline;
+    }
+
+    fn candidate_submission_deadline(&mut self) -> &mut i64 {
+        return &mut self.candidate_submission_deadline;
+    }
+
+    fn challenge_new_authority_deadline(&mut self) -> &mut i64 {
+        return &mut self.challenge_new_authority_deadline;
+    }
+
+    fn voting_for_authority_deadline(&mut self) -> &mut i64 {
+        return &mut self.voting_for_authority_deadline;
+    }
+
     fn bump(&mut self) -> &mut u8 {
         return &mut self.bump;
     }   

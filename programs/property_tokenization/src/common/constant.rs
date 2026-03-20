@@ -73,3 +73,11 @@ pub const THRESHOLD :&[u8] = b"threshold";
 pub const TRUSTEE_RESIGNATION : &[u8] = b"resignation";
 
 pub const ELECT_TRUSTEE : &[u8] = b"elect_trustee";
+
+
+pub const CANDIDATE_PROFILE : &[u8] = b"candidate_profile";
+
+pub const AUTHORITY_CANDIDATE : &[u8] = b"authority_candidate";
+
+pub const AUTHORITYVOTERECEIPT : &[u8] = b"authority_vote_receipt";
+

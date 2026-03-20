@@ -7,8 +7,8 @@ use crate::{common::{ELECT_TRUSTEE, ProposalStatus}, errors::ErrorCode, function
 pub struct SubmitSnapshotForAuthority<'info>{
 
     #[account(
-        constraint = proposal.arbitrar_approvals.contains(&signer.key()),
-        constraint = proposal.is_arbitrar_approved
+        constraint = proposal.arbitrar_approvals.contains(&signer.key()) @ ErrorCode::NotAuthorized,
+        constraint = proposal.is_arbitrar_approved  @ ErrorCode::AlreadyApproved
     )]
     pub signer: Signer<'info>,
 
@@ -21,7 +21,7 @@ pub struct SubmitSnapshotForAuthority<'info>{
         ],
         bump = proposal.bump ,
         constraint = !proposal.snapshot_submitted @ ErrorCode::SnapshotAlreadySubmitted,
-        constraint = proposal.status == ProposalStatus::Draft @ ErrorCode::NotInDraft
+        constraint = proposal.status == ProposalStatus::Active @ ErrorCode::ProposalNotActive
     )]
 
     pub proposal : Account<'info,ElectAuthority>,

@@ -3,6 +3,20 @@ use anchor_lang::prelude::*;
 #[error_code]
 pub enum ErrorCode{
 
+    #[msg("the candidate submission is not started yet or deadline is reached")]
+    CandidateSubmissionDeadline,
+
+    #[msg("the voting for authority is not started yet or deadline is reached")]
+    AuthorityVotingDeadline,
+
+    #[msg("the authority type does not match the requirement type")]
+    AuthotityTypeNotMatched,
+
+    #[msg("the voter voting limit reached ")]
+    VotingLimitReached,
+
+    /////////
+
     #[msg("the property system counter is Invalid please check that the property system counter is correct")]
     PropertyCounterInvalid,
 
@@ -209,5 +223,11 @@ pub enum ErrorCode{
 
     #[msg("authority limit reached")]
     AuhtorityLimitReached,
+
+    #[msg("the candidate is not verfied")]
+    NotVerfied,
+
+    #[msg("the candidate is blacklisted")]
+    Blacklisted,
 
 }
