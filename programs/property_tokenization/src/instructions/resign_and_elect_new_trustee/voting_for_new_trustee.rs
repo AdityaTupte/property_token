@@ -108,7 +108,6 @@ pub fn voting_for_new_trustee(
                                 .checked_add(voting_power)
                                 .ok_or(ErrorCode::MathOverflow)?;
     
-   
 
     receipt.votes.push(authority_candidate.candidate);
 

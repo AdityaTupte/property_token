@@ -3,19 +3,29 @@ use anchor_lang::prelude::*;
 use crate::common::{ProposalStatus, ProposalType};
 
 
-pub trait Governance {
-
+pub trait BaseProposal {
     fn proposal_id(&mut self) -> &mut u64;
 
-    fn start_time(&mut self) -> &mut i64; 
-
-    fn end_time(&mut self) -> &mut i64;
-
-    fn merkle_root(&mut self) -> &mut [u8;32] ;
+    fn merkle_root(&mut self) -> &mut [u8; 32];
 
     fn arbitrar_list(&mut self) -> &mut Vec<Pubkey>;
 
-    fn arbitrar_approved(&mut self)-> &mut bool;
+    fn arbitrar_approved(&mut self) -> &mut bool;
+
+    fn proposal_status(&mut self) -> &mut ProposalStatus;
+
+    fn snapshot_submitted(&mut self) -> &mut bool;
+
+    fn slot(&mut self) -> &mut u64;
+
+    fn bump(&mut self) -> &mut u8;
+}
+
+
+pub trait Governance: BaseProposal {
+    fn start_time(&mut self) -> &mut i64;
+
+    fn end_time(&mut self) -> &mut i64;
 
     fn total_voting_power(&mut self) -> &mut u64;
 
@@ -25,19 +35,57 @@ pub trait Governance {
 
     fn votes_against(&mut self) -> &mut u64;
 
-    fn proposal_status(&mut self) -> &mut ProposalStatus;
-    
-    fn snapshot_submitted(&mut self) -> &mut bool;
-
     fn proposal_type(&mut self) -> &mut ProposalType;
 
-    fn slot(&mut self) -> &mut u64;
-
     fn deadline(&mut self) -> &mut i64;
-
-    fn bump(&mut self) -> &mut u8;
-        
 }
+
+pub trait AuthorityGovernance: BaseProposal {
+    fn candidate_submission_deadline(&mut self) -> &mut i64;
+
+    fn voting_for_authority_deadline(&mut self) -> &mut i64;
+
+    fn add_new_authority_deadline(&mut self) -> &mut i64;
+
+    fn challenge_new_authority_deadline(&mut self) -> &mut i64;
+}
+
+
+// pub trait Governance {
+
+//     fn proposal_id(&mut self) -> &mut u64;
+
+//     fn start_time(&mut self) -> &mut i64; 
+
+//     fn end_time(&mut self) -> &mut i64;
+
+//     fn merkle_root(&mut self) -> &mut [u8;32] ;
+
+//     fn arbitrar_list(&mut self) -> &mut Vec<Pubkey>;
+
+//     fn arbitrar_approved(&mut self)-> &mut bool;
+
+//     fn total_voting_power(&mut self) -> &mut u64;
+
+//     fn vote_threshold(&mut self) -> &mut u64;
+
+//     fn votes_for(&mut self) -> &mut u64;
+
+//     fn votes_against(&mut self) -> &mut u64;
+
+//     fn proposal_status(&mut self) -> &mut ProposalStatus;
+    
+//     fn snapshot_submitted(&mut self) -> &mut bool;
+
+//     fn proposal_type(&mut self) -> &mut ProposalType;
+
+//     fn slot(&mut self) -> &mut u64;
+
+//     fn deadline(&mut self) -> &mut i64;
+
+//     fn bump(&mut self) -> &mut u8;
+        
+// }
 
 pub trait Receipt  {
 
@@ -52,32 +100,32 @@ pub trait Receipt  {
 }
 
 
-pub trait AuthorityGovernance {
-    fn proposal_id(&mut self) -> &mut u64;
+// pub trait AuthorityGovernance {
+//     fn proposal_id(&mut self) -> &mut u64;
 
-    fn merkle_root(&mut self) -> &mut [u8;32] ;
+//     fn merkle_root(&mut self) -> &mut [u8;32] ;
 
-    fn arbitrar_list(&mut self) -> &mut Vec<Pubkey>;
+//     fn arbitrar_list(&mut self) -> &mut Vec<Pubkey>;
 
-    fn arbitrar_approved(&mut self)-> &mut bool;
+//     fn arbitrar_approved(&mut self)-> &mut bool;
 
-    fn proposal_status(&mut self) -> &mut ProposalStatus;
+//     fn proposal_status(&mut self) -> &mut ProposalStatus;
     
-    fn snapshot_submitted(&mut self) -> &mut bool;
+//     fn snapshot_submitted(&mut self) -> &mut bool;
 
-    fn slot(&mut self) -> &mut u64;
+//     fn slot(&mut self) -> &mut u64;
 
-    fn bump(&mut self) -> &mut u8;
+//     fn bump(&mut self) -> &mut u8;
 
-    fn candidate_submission_deadline(&mut self) -> &mut i64;
+//     fn candidate_submission_deadline(&mut self) -> &mut i64;
 
-    fn voting_for_authority_deadline(&mut self) -> &mut i64;
+//     fn voting_for_authority_deadline(&mut self) -> &mut i64;
 
-    fn add_new_authority_deadline(&mut self) -> &mut i64;
+//     fn add_new_authority_deadline(&mut self) -> &mut i64;
 
-    fn challenge_new_authority_deadline(&mut self) -> &mut i64;
+//     fn challenge_new_authority_deadline(&mut self) -> &mut i64;
 
 
-}
+// }
 
 

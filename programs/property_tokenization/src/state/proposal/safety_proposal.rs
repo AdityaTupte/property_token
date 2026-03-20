@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{MAX_ARBITRATOR, ProposalStatus, ProposalType}, constant::{Governance},};
+use crate::{common::{MAX_ARBITRATOR, ProposalStatus, ProposalType}, constant::{BaseProposal, Governance},};
 
 
 #[account()]
@@ -102,72 +102,146 @@ impl SafetyProposal {
 
     }             
  }
+impl BaseProposal for SafetyProposal {
 
- impl Governance for SafetyProposal {
-
-    fn proposal_id(&mut self) ->&mut u64 {
-        return &mut self.proposal_id;
+    fn proposal_id(&mut self) -> &mut u64 {
+        &mut self.proposal_id
     }
 
-    fn start_time(&mut self) -> &mut i64 {
-        return &mut self.start_time;
-    }
-
-    fn end_time(&mut self) -> &mut i64 {
-        return &mut self.end_time;
-    }
-    fn merkle_root(&mut self) -> &mut [u8;32] {
-        return &mut self.merkle_root;
+    fn merkle_root(&mut self) -> &mut [u8; 32] {
+        &mut self.merkle_root
     }
 
     fn arbitrar_list(&mut self) -> &mut Vec<Pubkey> {
-        return  &mut self.arbitrar_approvals;
-    }
-    
-    fn arbitrar_approved(&mut self)-> &mut bool {
-        return  &mut self.is_arbitrar_approved ;
+        &mut self.arbitrar_approvals
     }
 
-    fn total_voting_power(&mut self) -> &mut u64 {
-        return &mut self.total_voting_power;
-    }
-    fn vote_threshold(&mut self) -> &mut u64 {
-        return &mut self.vote_threshold;
-    }
-
-    fn votes_for(&mut self) -> &mut u64 {
-        return &mut self.votes_for;
-    }
-
-    fn votes_against(&mut self) -> &mut u64 {
-        return &mut self.votes_against;
+    fn arbitrar_approved(&mut self) -> &mut bool {
+        &mut self.is_arbitrar_approved
     }
 
     fn proposal_status(&mut self) -> &mut ProposalStatus {
-        return &mut self.status;
+        &mut self.status
     }
 
     fn snapshot_submitted(&mut self) -> &mut bool {
-        return &mut self.snapshot_submitted;
-    }
-
-    fn proposal_type(&mut self) -> &mut ProposalType {
-        return &mut self.proposal_type;
+        &mut self.snapshot_submitted
     }
 
     fn slot(&mut self) -> &mut u64 {
-        return &mut self.slot;
-    }
-
-    fn deadline(&mut self) -> &mut i64 {
-        return &mut self.deadline;
+        &mut self.slot
     }
 
     fn bump(&mut self) -> &mut u8 {
-        return &mut self.bump;
+        &mut self.bump
+    }
+}
+
+
+impl Governance for SafetyProposal {
+
+    fn start_time(&mut self) -> &mut i64 {
+        &mut self.start_time
     }
 
+    fn end_time(&mut self) -> &mut i64 {
+        &mut self.end_time
+    }
+
+    fn total_voting_power(&mut self) -> &mut u64 {
+        &mut self.total_voting_power
+    }
+
+    fn vote_threshold(&mut self) -> &mut u64 {
+        &mut self.vote_threshold
+    }
+
+    fn votes_for(&mut self) -> &mut u64 {
+        &mut self.votes_for
+    }
+
+    fn votes_against(&mut self) -> &mut u64 {
+        &mut self.votes_against
+    }
+
+    fn proposal_type(&mut self) -> &mut ProposalType {
+        &mut self.proposal_type
+    }
+
+    fn deadline(&mut self) -> &mut i64 {
+        &mut self.deadline
+    }
 }
+
+
+
+
+
+//  impl Governance for SafetyProposal {
+
+//     fn proposal_id(&mut self) ->&mut u64 {
+//         return &mut self.proposal_id;
+//     }
+
+//     fn start_time(&mut self) -> &mut i64 {
+//         return &mut self.start_time;
+//     }
+
+//     fn end_time(&mut self) -> &mut i64 {
+//         return &mut self.end_time;
+//     }
+//     fn merkle_root(&mut self) -> &mut [u8;32] {
+//         return &mut self.merkle_root;
+//     }
+
+//     fn arbitrar_list(&mut self) -> &mut Vec<Pubkey> {
+//         return  &mut self.arbitrar_approvals;
+//     }
+    
+//     fn arbitrar_approved(&mut self)-> &mut bool {
+//         return  &mut self.is_arbitrar_approved ;
+//     }
+
+//     fn total_voting_power(&mut self) -> &mut u64 {
+//         return &mut self.total_voting_power;
+//     }
+//     fn vote_threshold(&mut self) -> &mut u64 {
+//         return &mut self.vote_threshold;
+//     }
+
+//     fn votes_for(&mut self) -> &mut u64 {
+//         return &mut self.votes_for;
+//     }
+
+//     fn votes_against(&mut self) -> &mut u64 {
+//         return &mut self.votes_against;
+//     }
+
+//     fn proposal_status(&mut self) -> &mut ProposalStatus {
+//         return &mut self.status;
+//     }
+
+//     fn snapshot_submitted(&mut self) -> &mut bool {
+//         return &mut self.snapshot_submitted;
+//     }
+
+//     fn proposal_type(&mut self) -> &mut ProposalType {
+//         return &mut self.proposal_type;
+//     }
+
+//     fn slot(&mut self) -> &mut u64 {
+//         return &mut self.slot;
+//     }
+
+//     fn deadline(&mut self) -> &mut i64 {
+//         return &mut self.deadline;
+//     }
+
+//     fn bump(&mut self) -> &mut u8 {
+//         return &mut self.bump;
+//     }
+
+// }
 
 
 

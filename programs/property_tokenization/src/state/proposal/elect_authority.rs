@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{AuthorityType, MAX_TRUSTEES, ProposalStatus}, constant::{AuthorityGovernance}};
+use crate::{common::{AuthorityType, MAX_TRUSTEES, ProposalStatus}, constant::{AuthorityGovernance, BaseProposal}};
 
 #[account()]
 pub struct ElectAuthority{
@@ -60,54 +60,108 @@ impl ElectAuthority  {
 
 }
 
-impl AuthorityGovernance for ElectAuthority {
+// impl AuthorityGovernance for ElectAuthority {
     
+//     fn proposal_id(&mut self) -> &mut u64 {
+//         return &mut self.proposal_id;
+//     }
+
+//     fn merkle_root(&mut self) -> &mut [u8;32] {
+//         return  &mut self.merkle_root;
+//     }
+
+//     fn arbitrar_list(&mut self) -> &mut Vec<Pubkey> {
+//         return &mut self.arbitrar_approvals;
+//     }
+
+//     fn arbitrar_approved(&mut self)-> &mut bool {
+//         return &mut self.is_arbitrar_approved;
+//     }
+
+//     fn proposal_status(&mut self) -> &mut ProposalStatus {
+//         return &mut self.status;
+//     }
+
+//     fn snapshot_submitted(&mut self) -> &mut bool {
+//         return &mut self.snapshot_submitted;
+//     }
+    
+//     fn slot(&mut self) -> &mut u64 {
+//         return &mut self.slot ;
+//     }
+
+//     fn add_new_authority_deadline(&mut self) -> &mut i64 {
+//         return &mut self.add_new_authority_deadline;
+//     }
+
+//     fn candidate_submission_deadline(&mut self) -> &mut i64 {
+//         return &mut self.candidate_submission_deadline;
+//     }
+
+//     fn challenge_new_authority_deadline(&mut self) -> &mut i64 {
+//         return &mut self.challenge_new_authority_deadline;
+//     }
+
+//     fn voting_for_authority_deadline(&mut self) -> &mut i64 {
+//         return &mut self.voting_for_authority_deadline;
+//     }
+
+//     fn bump(&mut self) -> &mut u8 {
+//         return &mut self.bump;
+//     }   
+
+// }
+
+impl BaseProposal for ElectAuthority {
+
     fn proposal_id(&mut self) -> &mut u64 {
-        return &mut self.proposal_id;
+        &mut self.proposal_id
     }
 
-    fn merkle_root(&mut self) -> &mut [u8;32] {
-        return  &mut self.merkle_root;
+    fn merkle_root(&mut self) -> &mut [u8; 32] {
+        &mut self.merkle_root
     }
 
     fn arbitrar_list(&mut self) -> &mut Vec<Pubkey> {
-        return &mut self.arbitrar_approvals;
+        &mut self.arbitrar_approvals
     }
 
-    fn arbitrar_approved(&mut self)-> &mut bool {
-        return &mut self.is_arbitrar_approved;
+    fn arbitrar_approved(&mut self) -> &mut bool {
+        &mut self.is_arbitrar_approved
     }
 
     fn proposal_status(&mut self) -> &mut ProposalStatus {
-        return &mut self.status;
+        &mut self.status
     }
 
     fn snapshot_submitted(&mut self) -> &mut bool {
-        return &mut self.snapshot_submitted;
+        &mut self.snapshot_submitted
     }
-    
+
     fn slot(&mut self) -> &mut u64 {
-        return &mut self.slot ;
-    }
-
-    fn add_new_authority_deadline(&mut self) -> &mut i64 {
-        return &mut self.add_new_authority_deadline;
-    }
-
-    fn candidate_submission_deadline(&mut self) -> &mut i64 {
-        return &mut self.candidate_submission_deadline;
-    }
-
-    fn challenge_new_authority_deadline(&mut self) -> &mut i64 {
-        return &mut self.challenge_new_authority_deadline;
-    }
-
-    fn voting_for_authority_deadline(&mut self) -> &mut i64 {
-        return &mut self.voting_for_authority_deadline;
+        &mut self.slot
     }
 
     fn bump(&mut self) -> &mut u8 {
-        return &mut self.bump;
-    }   
+        &mut self.bump
+    }
+}
 
+impl AuthorityGovernance for ElectAuthority {
+
+    fn add_new_authority_deadline(&mut self) -> &mut i64 {
+        &mut self.add_new_authority_deadline
+    }
+
+    fn candidate_submission_deadline(&mut self) -> &mut i64 {
+        &mut self.candidate_submission_deadline
+    }
+
+    fn challenge_new_authority_deadline(&mut self) -> &mut i64 {
+        &mut self.challenge_new_authority_deadline
+    }
+
+    fn voting_for_authority_deadline(&mut self) -> &mut i64 {
+        &mut self.voting_for_authority_deadline
+    }
 }
