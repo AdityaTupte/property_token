@@ -9,6 +9,8 @@ pub struct ElectAuthority{
 
     pub authority_to_resign : Vec<Pubkey>,
 
+    pub new_authority : Vec<Pubkey>,
+
     pub authority_type : AuthorityType,
     
     pub status:ProposalStatus,
@@ -42,6 +44,7 @@ pub struct ElectAuthority{
 impl ElectAuthority  {
         pub const SIZE:usize = 
                                 32 +
+                                4 + (32 * MAX_TRUSTEES) +
                                 4 + (32 * MAX_TRUSTEES) +
                                 1 +
                                 1 +
@@ -118,6 +121,8 @@ impl BaseProposal for ElectAuthority {
         &mut self.proposal_id
     }
 
+    
+
     fn merkle_root(&mut self) -> &mut [u8; 32] {
         &mut self.merkle_root
     }
@@ -148,6 +153,18 @@ impl BaseProposal for ElectAuthority {
 }
 
 impl AuthorityGovernance for ElectAuthority {
+
+    fn new_authority(&mut self)-> &mut Vec<Pubkey>{
+        &mut self.new_authority
+    }
+
+    fn proposal_type(&mut self) -> &mut AuthorityType {
+        &mut self.authority_type
+    }
+
+    fn authority_to_resign(&mut self) -> &mut Vec<Pubkey>{
+        &mut self.authority_to_resign
+    }
 
     fn add_new_authority_deadline(&mut self) -> &mut i64 {
         &mut self.add_new_authority_deadline

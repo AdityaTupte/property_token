@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::common::{ProposalStatus, ProposalType};
+use crate::common::{AuthorityType, ProposalStatus, ProposalType};
 
 
 pub trait BaseProposal {
@@ -41,6 +41,13 @@ pub trait Governance: BaseProposal {
 }
 
 pub trait AuthorityGovernance: BaseProposal {
+
+     fn new_authority(&mut self)-> &mut Vec<Pubkey>;
+
+    fn proposal_type(&mut self) -> &mut AuthorityType;
+
+    fn authority_to_resign(&mut self) -> &mut Vec<Pubkey>;
+
     fn candidate_submission_deadline(&mut self) -> &mut i64;
 
     fn voting_for_authority_deadline(&mut self) -> &mut i64;
@@ -50,6 +57,10 @@ pub trait AuthorityGovernance: BaseProposal {
     fn challenge_new_authority_deadline(&mut self) -> &mut i64;
 }
 
+
+pub trait AuthorityRegistry {
+     fn registry(&mut self)-> &mut Vec<Pubkey>;
+}
 
 // pub trait Governance {
 

@@ -1,6 +1,6 @@
 use anchor_lang::{ prelude::*};
 
-use crate::{common::{AUTHORITY_CANDIDATE, AUTHORITYVOTERECEIPT, AuthorityType, ELECT_TRUSTEE, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, state::{AuthorityCandidate, AuthorityVoteReceipt, ElectAuthority, PropertySystemAccount}};
+use crate::{common::{AUTHORITY_CANDIDATE, AUTHORITYVOTERECEIPT, ELECT_TRUSTEE, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, functions::voting_for_authority, state::{AuthorityCandidate, AuthorityVoteReceipt, ElectAuthority, PropertySystemAccount}};
 
 
 #[derive(Accounts)]
@@ -65,52 +65,22 @@ pub struct VotingForNewTrustee<'info>{
 pub fn voting_for_new_trustee(
     ctx:Context<VotingForNewTrustee>,
     proof: Vec<[u8; 32]>,
-    voting_power : u64
+    voting_power : u64,
 )->Result<()>{
-
-    let current_time = Clock::get()?.unix_timestamp;
-
-    let proposal = &ctx.accounts.proposal;
-
-    let authority_candidate = &mut ctx.accounts.authority_candidate;
-
-    let receipt = &mut ctx.accounts.authority_vote_receipt;
-
-
-    require!(
-        current_time <= proposal.voting_for_authority_deadline &&
-        current_time > proposal.candidate_submission_deadline,
-        ErrorCode::AuthorityVotingDeadline
-    );
-
-    require!(authority_candidate.authority_type == AuthorityType::TRUSTEE,ErrorCode::AuthotityTypeNotMatched);
-
-    //leaf check 
-
-
-    if receipt.is_initialized {
-        
-        receipt.voter = ctx.accounts.signer.key();
-
-        receipt.proposal = proposal.key();
-
-        receipt.voting_power = voting_power;
-
-        receipt.bump = ctx.bumps.authority_vote_receipt;
-
-    }
-
-    require!(proposal.authority_to_resign.len() > receipt.votes.len(),ErrorCode::VotingLimitReached);
-
-    require!(!receipt.votes.contains(&authority_candidate.candidate),ErrorCode::DuplicateAuthority);
-
-    authority_candidate.vote_gained = authority_candidate.vote_gained
-                                .checked_add(voting_power)
-                                .ok_or(ErrorCode::MathOverflow)?;
     
+    voting_for_authority(
+        ctx.accounts.proposal.key(),
+        &mut ctx.accounts.authority_candidate, 
+        &mut ctx.accounts.authority_vote_receipt, 
+        ctx.accounts.signer.key(), 
+        &mut *ctx.accounts.proposal,
+        proof, 
+        ctx.bumps.authority_vote_receipt, 
+        voting_power,
+        &ctx.accounts.property_system.governance_mint,
+    )?;
 
-    receipt.votes.push(authority_candidate.candidate);
-
+    
 
 
     Ok(())

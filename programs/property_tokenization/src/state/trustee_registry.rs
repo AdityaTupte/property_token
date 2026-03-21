@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::common::MAX_TRUSTEES;
+use crate::{common::MAX_TRUSTEES, constant::AuthorityRegistry};
 
 
 #[account]
@@ -22,5 +22,15 @@ pub bump: u8,                            // PDA bump seed for address derivation
 impl TrusteeRegistry {
     
     pub const SIZE : usize = 32 + 4 + (MAX_TRUSTEES  * 32) +  1 + 1 +1 ; 
+}
+
+impl AuthorityRegistry for TrusteeRegistry  {
+    
+    fn registry(&mut self)-> &mut Vec<Pubkey>{
+
+        &mut self.trustees
+
+    }
+
 }
 

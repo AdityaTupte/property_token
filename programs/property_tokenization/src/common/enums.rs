@@ -24,7 +24,7 @@ pub enum ProposalType {
 }
 
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone,Copy, PartialEq, Eq)]
 pub enum AuthorityType {
     TRUSTEE,
     ARBITRATOR 

@@ -15,6 +15,23 @@ pub enum ErrorCode{
     #[msg("the voter voting limit reached ")]
     VotingLimitReached,
 
+    #[msg("the time for authority adding is not started yet or deadline is reached")]
+    AuthorityAddDeadline,
+
+    #[msg("the challenge_to candidate not present in the new authority")]
+    ChallengeToNotInNewAuthority,
+
+    #[msg("the votes are less than the challenge_from")]
+    VoteGainedLess,
+
+    #[msg("both the authorities are same ")]
+    InvalidChallenge,
+
+    #[msg("authority not found")]
+    AuthorityNotFound,
+
+#[msg("the new authority and authority to resign lengths are not equal")]
+    InvalidAuthorityMapping,
     /////////
 
     #[msg("the property system counter is Invalid please check that the property system counter is correct")]

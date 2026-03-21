@@ -19,6 +19,7 @@ pub struct NewTrusteeElectionProposal<'info>{
             property_system.key().as_ref(),
         ],
         bump = resignation.bump,
+        constraint = resignation.status ==  ProposalStatus::Pending @ ErrorCode::AlreadyExecuted
     )]
     pub resignation: Account<'info,Resignation>,
 
@@ -63,26 +64,12 @@ pub fn new_trustee_election_proposal(
 
     proposal_id:u64
 
-    // candidate_submission_deadline: u8,
 
-    // voting_for_authority_deadline : u8,
-
-    // add_new_authority_deadline : u8,
-
-    // challenge_new_authority_deadline : u8,
 )->Result<()>{
 
     let  proposal = &mut ctx.accounts.proposal;
     
     
-    // require!(
-    //     candidate_submission_deadline < 30 && 
-    //     voting_for_authority_deadline < 30 && 
-    //     add_new_authority_deadline < 30 && 
-    //     challenge_new_authority_deadline < 30,
-    //     ErrorCode::DeadlineIssue,
-    // );
-
     if !proposal.is_initialized  {
 
         proposal.property_system = ctx.accounts.property_system.key();
@@ -96,6 +83,8 @@ pub fn new_trustee_election_proposal(
         proposal.bump = ctx.bumps.proposal;  
 
         proposal.is_initialized = true;
+
+
     }
 
     else {

@@ -6,7 +6,10 @@ pub mod finalize_proposal;
 pub mod delete_proposal;
 pub mod arbitrar_check_for_authority_chg;
 pub mod submit_for_authority;
-
+pub mod voting_for_authority;
+pub mod add_new_authority;
+pub mod challenge_authority;
+pub mod finalize_authority;
 
 pub use verify_proof::*;
 pub use arbitrar_check::*;
@@ -16,3 +19,7 @@ pub use finalize_proposal::*;
 pub use delete_proposal::*;
 pub use arbitrar_check_for_authority_chg::*;
 pub use submit_for_authority::*;
+pub use voting_for_authority::*;
+pub use add_new_authority::*;
+pub use challenge_authority::*;
+pub use finalize_authority::*;
