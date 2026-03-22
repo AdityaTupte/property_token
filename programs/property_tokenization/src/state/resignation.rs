@@ -9,6 +9,8 @@ pub struct Resignation{
 
     pub authority: Pubkey,
 
+    pub proposal : Pubkey,
+
     pub property_system: Pubkey,
 
     pub authority_type : AuthorityType,
@@ -24,6 +26,7 @@ pub struct Resignation{
 impl Resignation {
     
     pub const SIZE:usize = 
+                        32 +
                         32 +
                         32 +
                         1  +

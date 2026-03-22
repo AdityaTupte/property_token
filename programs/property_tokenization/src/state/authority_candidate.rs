@@ -18,6 +18,8 @@ pub struct AuthorityCandidate{
 
     pub vote_gained : u64,
 
+    pub is_finalized : bool,
+
     pub authority_type : AuthorityType,
 
     pub bump : u8,
@@ -32,6 +34,7 @@ impl AuthorityCandidate {
                             1 +
                             8 +
                             8 +
+                            1 +
                             1 +
                             1 ;
 }

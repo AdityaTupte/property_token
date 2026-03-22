@@ -64,9 +64,9 @@ pub fn challenge_new_trustee(
     challenge_authority(
         &mut *ctx.accounts.proposal,
         &ctx.accounts.challenge_from, 
-        & ctx.accounts.challenge_from.key(), 
+        & ctx.accounts.challenge_from.candidate, 
         &ctx.accounts.challenge_to, 
-        &ctx.accounts.challenge_to.key(),
+        &ctx.accounts.challenge_to.candidate,
     )?;
 
     Ok(())

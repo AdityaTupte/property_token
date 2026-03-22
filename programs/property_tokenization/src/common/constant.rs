@@ -70,7 +70,10 @@ pub const THRESHOLD_VOTE_RECEIPT : &[u8] = b"threshold_vote_receipt";
 pub const THRESHOLD :&[u8] = b"threshold";
 
 
-pub const TRUSTEE_RESIGNATION : &[u8] = b"resignation";
+pub const TRUSTEE_RESIGNATION : &[u8] = b"trustee_resignation";
+
+pub const ARBITRAR_RESIGNATION : &[u8] = b"arbitrar_resignation";
+
 
 pub const ELECT_TRUSTEE : &[u8] = b"elect_trustee";
 

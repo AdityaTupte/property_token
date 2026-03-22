@@ -133,6 +133,9 @@ pub enum ErrorCode{
     #[msg("the proposal is not active ")]
     ProposalNotActive,
 
+    #[msg("the proposal is not exceuted ")]
+    ProposalNotExecuted,
+
     #[msg("Proposal Already Passed")]
     ProposalAlreadyPassed,
 

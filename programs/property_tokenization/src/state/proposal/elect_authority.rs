@@ -35,6 +35,8 @@ pub struct ElectAuthority{
 
     pub challenge_new_authority_deadline : i64,
 
+    pub if_finalize : bool,
+
     pub slot : u64,
 
     pub bump:u8,
@@ -58,6 +60,7 @@ impl ElectAuthority  {
                                 8 +
                                 8 +
                                 8 +
+                                1 +
                                 8 +
                                 1  ;
 
@@ -156,6 +159,10 @@ impl AuthorityGovernance for ElectAuthority {
 
     fn new_authority(&mut self)-> &mut Vec<Pubkey>{
         &mut self.new_authority
+    }
+
+    fn is_finalize(&mut self) -> &mut bool{
+        &mut self.if_finalize
     }
 
     fn proposal_type(&mut self) -> &mut AuthorityType {

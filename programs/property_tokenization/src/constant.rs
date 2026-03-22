@@ -42,7 +42,9 @@ pub trait Governance: BaseProposal {
 
 pub trait AuthorityGovernance: BaseProposal {
 
-     fn new_authority(&mut self)-> &mut Vec<Pubkey>;
+    fn is_finalize(&mut self)-> &mut bool;
+
+    fn new_authority(&mut self)-> &mut Vec<Pubkey>;
 
     fn proposal_type(&mut self) -> &mut AuthorityType;
 

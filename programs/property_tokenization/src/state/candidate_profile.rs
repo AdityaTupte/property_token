@@ -12,13 +12,9 @@ pub struct CandidateProfile{
 
     pub total_applied : u16,
 
-    pub total_selected :u16,
+    pub total_selected_as_trustee :u16,
 
-    pub total_active_days : u16,
-
-    pub current_active_as_authority : u16,
-
-    pub last_update:i64,
+    pub total_selected_as_arbitrar :u16,
 
     pub is_blacklisted:bool,
 
@@ -38,8 +34,6 @@ impl CandidateProfile {
                             2 +
                             2 +
                             2 +
-                            2 +
-                            8 +
                             1 +
                             2 +
                             1 +

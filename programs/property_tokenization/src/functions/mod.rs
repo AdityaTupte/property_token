@@ -10,6 +10,7 @@ pub mod voting_for_authority;
 pub mod add_new_authority;
 pub mod challenge_authority;
 pub mod finalize_authority;
+pub mod finalize_candidate;
 
 pub use verify_proof::*;
 pub use arbitrar_check::*;
@@ -23,3 +24,4 @@ pub use voting_for_authority::*;
 pub use add_new_authority::*;
 pub use challenge_authority::*;
 pub use finalize_authority::*;
+pub use finalize_candidate::*;  

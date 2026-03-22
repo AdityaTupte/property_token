@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{ELECT_TRUSTEE, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, functions::finalize_authority, state::{ElectAuthority, PropertySystemAccount, TrusteeRegistry}};
+use crate::{common::{AuthorityType, ELECT_TRUSTEE, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEE_RESIGNATION, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, functions::finalize_authority, state::{ElectAuthority, PropertySystemAccount, Resignation, TrusteeRegistry}};
 
 #[derive(Accounts)]
 pub struct FinalizeTrustee<'info>{
@@ -40,6 +40,18 @@ pub struct FinalizeTrustee<'info>{
     )]
     pub trustee_registry: Account<'info,TrusteeRegistry>,
 
+    #[account(
+        seeds=[
+            TRUSTEE_RESIGNATION,
+            resignation.authority.as_ref(),
+            property_system.key().as_ref(),
+        ],
+        bump = resignation.bump,
+        constraint = resignation.status ==  ProposalStatus::Pending @ ErrorCode::AlreadyExecuted,
+        constraint = resignation.authority_type == AuthorityType::TRUSTEE
+    )]
+    pub resignation: Account<'info,Resignation>,
+
 }
 
 pub fn finalize_trustee(
@@ -49,7 +61,11 @@ pub fn finalize_trustee(
     finalize_authority(
         &mut *ctx.accounts.trustee_registry,
         &mut *ctx.accounts.proposal, 
+        &mut ctx.accounts.resignation,
     )?;
     
+
+
+
     Ok(())
 }

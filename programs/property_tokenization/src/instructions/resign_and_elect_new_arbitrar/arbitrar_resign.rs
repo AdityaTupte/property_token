@@ -1,16 +1,16 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{AuthorityType, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEE_RESIGNATION, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, state::{PropertySystemAccount, Resignation, TrusteeRegistry}};
+use crate::{common::{ARBITRAR_REGISTRYSEEDS, ARBITRAR_RESIGNATION, AuthorityType, PROPERTY_SYSTEM_SEEDS, ProposalStatus,}, errors::ErrorCode, state::{ArbitratorRegistry, PropertySystemAccount, Resignation, TrusteeRegistry}};
 
 
 #[derive(Accounts)]
-pub struct TrusteeResign<'info>{
+pub struct ArbitrarResign<'info>{
 
     #[account(
         mut,
-        constraint = trustee_registry.trustees.contains(&trustee.key()) @ ErrorCode::NotAuthorized
+        constraint = arbitrar_registry.arbitrator.contains(&arbitrar.key()) @ ErrorCode::NotAuthorized
     )]
-    pub trustee: Signer<'info>,
+    pub arbitrar: Signer<'info>,
 
     #[account(
         seeds=[
@@ -23,19 +23,19 @@ pub struct TrusteeResign<'info>{
 
     #[account(
         seeds=[
-            TRUSTEEREGISTRYSEEDS,
+            ARBITRAR_REGISTRYSEEDS,
             property_system.key().as_ref()
         ],
-        bump = trustee_registry.bump
+        bump = arbitrar_registry.bump
     )]
-    pub trustee_registry: Account<'info,TrusteeRegistry>,
+    pub arbitrar_registry: Account<'info,ArbitratorRegistry>,
 
     #[account(
         init,
-        payer = trustee,
+        payer = arbitrar,
         seeds=[
-            TRUSTEE_RESIGNATION,
-            trustee.key().as_ref(),
+            ARBITRAR_RESIGNATION,
+            arbitrar.key().as_ref(),
             property_system.key().as_ref(),
         ],
         bump,
@@ -47,16 +47,17 @@ pub struct TrusteeResign<'info>{
 
 }
 
-pub fn trustee_resign(ctx:Context<TrusteeResign>)->Result<()>{
+pub fn trustee_resign(ctx:Context<ArbitrarResign>)->Result<()>{
 
 
     let resignation = &mut ctx.accounts.resignation;
 
-    resignation.authority = ctx.accounts.trustee.key();
+    resignation.authority = ctx.accounts.arbitrar.key();
 
     resignation.property_system = ctx.accounts.property_system.key();
 
-    resignation.authority_type = AuthorityType::TRUSTEE;
+
+    resignation.authority_type = AuthorityType::ARBITRATOR;
 
     resignation.bump = ctx.bumps.resignation;
 

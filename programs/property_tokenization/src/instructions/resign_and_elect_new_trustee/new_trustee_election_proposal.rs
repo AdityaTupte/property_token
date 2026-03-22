@@ -69,7 +69,8 @@ pub fn new_trustee_election_proposal(
 
     let  proposal = &mut ctx.accounts.proposal;
     
-    
+    let resignation = &mut ctx.accounts.resignation;
+
     if !proposal.is_initialized  {
 
         proposal.property_system = ctx.accounts.property_system.key();
@@ -104,6 +105,7 @@ pub fn new_trustee_election_proposal(
 
     proposal.authority_to_resign.push(trustee_key);
 
+    resignation.proposal = proposal.key();
 
     Ok(())
 }

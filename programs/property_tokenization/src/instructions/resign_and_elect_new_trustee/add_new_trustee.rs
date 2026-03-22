@@ -64,7 +64,7 @@ pub fn add_new_trustee(
 
     add_new_authority(
         &mut *ctx.accounts.proposal,
-        &ctx.accounts.candidate.key(),
+        &ctx.accounts.candidate.candidate,
     )?;
 
 
