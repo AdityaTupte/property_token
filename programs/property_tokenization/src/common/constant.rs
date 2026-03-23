@@ -77,6 +77,8 @@ pub const ARBITRAR_RESIGNATION : &[u8] = b"arbitrar_resignation";
 
 pub const ELECT_TRUSTEE : &[u8] = b"elect_trustee";
 
+pub const ELECT_ARBITRAR : &[u8] = b"elect_arbitrar" ;
+
 
 pub const CANDIDATE_PROFILE : &[u8] = b"candidate_profile";
 

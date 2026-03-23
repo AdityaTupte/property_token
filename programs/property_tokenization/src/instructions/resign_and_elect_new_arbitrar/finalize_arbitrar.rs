@@ -1,16 +1,16 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{AuthorityType, ELECT_TRUSTEE, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEE_RESIGNATION, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, functions::finalize_authority, state::{ElectAuthority, PropertySystemAccount, Resignation, TrusteeRegistry}};
+use crate::{common::{ARBITRAR_REGISTRYSEEDS, ARBITRAR_RESIGNATION, AuthorityType, ELECT_ARBITRAR, PROPERTY_SYSTEM_SEEDS, ProposalStatus, }, errors::ErrorCode, functions::finalize_authority, state::{ElectAuthority, PropertySystemAccount, Resignation, TrusteeRegistry}};
 
 #[derive(Accounts)]
-pub struct FinalizeTrustee<'info>{
+pub struct FinalizeArbitrar<'info>{
 
     pub signer: Signer<'info>,
 
     #[account(
         mut,
         seeds=[
-            ELECT_TRUSTEE,
+            ELECT_ARBITRAR,
             &proposal.proposal_id.to_le_bytes(),
             property_system.key().as_ref(),
         ],
@@ -33,33 +33,33 @@ pub struct FinalizeTrustee<'info>{
     #[account(
         mut,
         seeds=[
-            TRUSTEEREGISTRYSEEDS,
+            ARBITRAR_REGISTRYSEEDS,
             property_system.key().as_ref()
         ],
-        bump = trustee_registry.bump 
+        bump = arbitrar_registry.bump 
     )]
-    pub trustee_registry: Account<'info,TrusteeRegistry>,
+    pub arbitrar_registry: Account<'info,TrusteeRegistry>,
 
     #[account(
         seeds=[
-            TRUSTEE_RESIGNATION,
+            ARBITRAR_RESIGNATION,
             resignation.authority.as_ref(),
             property_system.key().as_ref(),
         ],
         bump = resignation.bump,
         constraint = resignation.status ==  ProposalStatus::Pending @ ErrorCode::AlreadyExecuted,
-        constraint = resignation.authority_type == AuthorityType::TRUSTEE @ ErrorCode::InvalidAuthorityType
+        constraint = resignation.authority_type == AuthorityType::ARBITRATOR @  ErrorCode::InvalidAuthorityType
     )]
     pub resignation: Account<'info,Resignation>,
 
 }
 
 pub fn finalize_trustee(
-    ctx:Context<FinalizeTrustee>
+    ctx:Context<FinalizeArbitrar>
 )->Result<()>{
 
     finalize_authority(
-        &mut *ctx.accounts.trustee_registry,
+        &mut *ctx.accounts.arbitrar_registry,
         &mut *ctx.accounts.proposal, 
         &mut ctx.accounts.resignation,
     )?;

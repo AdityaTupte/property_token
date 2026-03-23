@@ -1,3 +1,21 @@
 pub mod arbitrar_resign;
+pub mod new_arbitrar_elect_proposal;
+pub  mod trustee_approve_arbitrar_election;
+pub mod submit_snapshot_for_abitrar_authority;
+pub mod submit_arbitrar_candidate;
+pub mod voting_for_new_trsutee;
+pub mod finalize_arbitrar_authority_candidate;
+pub mod challenge_new_arbitrar;
+pub mod finalize_arbitrar;
+pub mod finalize_arbitrar_resgination;
 
 pub use arbitrar_resign::*;
+pub use new_arbitrar_elect_proposal::*;
+pub use trustee_approve_arbitrar_election::*;
+pub use submit_snapshot_for_abitrar_authority::*;
+pub use submit_arbitrar_candidate::*;
+pub use voting_for_new_trsutee::*;
+pub use finalize_arbitrar_authority_candidate::*;
+pub use challenge_new_arbitrar::*;
+pub use finalize_arbitrar::*;
+pub use finalize_arbitrar_resgination::*;

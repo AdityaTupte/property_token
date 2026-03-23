@@ -18,6 +18,9 @@ pub enum ErrorCode{
     #[msg("the time for authority adding is not started yet or deadline is reached")]
     AuthorityAddDeadline,
 
+    #[msg("invalid authority type please recheck it")]
+    InvalidAuthorityType,
+
     #[msg("the challenge_to candidate not present in the new authority")]
     ChallengeToNotInNewAuthority,
 

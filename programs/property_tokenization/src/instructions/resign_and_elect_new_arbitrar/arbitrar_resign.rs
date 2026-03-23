@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{ARBITRAR_REGISTRYSEEDS, ARBITRAR_RESIGNATION, AuthorityType, PROPERTY_SYSTEM_SEEDS, ProposalStatus,}, errors::ErrorCode, state::{ArbitratorRegistry, PropertySystemAccount, Resignation, TrusteeRegistry}};
+use crate::{common::{ARBITRAR_REGISTRYSEEDS, ARBITRAR_RESIGNATION, AuthorityType, PROPERTY_SYSTEM_SEEDS, ProposalStatus,}, errors::ErrorCode, state::{ArbitratorRegistry, PropertySystemAccount, Resignation,}};
 
 
 #[derive(Accounts)]
@@ -47,7 +47,7 @@ pub struct ArbitrarResign<'info>{
 
 }
 
-pub fn trustee_resign(ctx:Context<ArbitrarResign>)->Result<()>{
+pub fn arbitrar_resign(ctx:Context<ArbitrarResign>)->Result<()>{
 
 
     let resignation = &mut ctx.accounts.resignation;
@@ -55,7 +55,6 @@ pub fn trustee_resign(ctx:Context<ArbitrarResign>)->Result<()>{
     resignation.authority = ctx.accounts.arbitrar.key();
 
     resignation.property_system = ctx.accounts.property_system.key();
-
 
     resignation.authority_type = AuthorityType::ARBITRATOR;
 
