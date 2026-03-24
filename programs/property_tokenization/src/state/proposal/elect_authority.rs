@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 use crate::{common::{AuthorityType, MAX_TRUSTEES, ProposalStatus}, constant::{AuthorityGovernance, BaseProposal}};
 
-#[account()]
+#[account]
 pub struct ElectAuthority{
 
     pub property_system: Pubkey,

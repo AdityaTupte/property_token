@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 use crate::common::AuthorityType;
 
-#[account()]
+#[account]
 
 pub struct AuthorityCandidate{
 

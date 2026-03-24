@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 use crate::common::MAX_TRUSTEES;
 
-#[account()]
+#[account]
 pub struct AuthorityVoteReceipt{
 
     pub voter:Pubkey,

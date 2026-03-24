@@ -8,6 +8,7 @@ pub mod token_transfer_proposal;
 pub mod revenue_threshold_change;
 pub mod resign_and_elect_new_trustee;
 pub mod resign_and_elect_new_arbitrar;
+pub mod challenge_against_authority;
 
 pub use create_property_system_account::*;
 pub use country_creation::*;
@@ -19,3 +20,4 @@ pub use token_transfer_proposal::*;
 pub use revenue_threshold_change::*;
 pub use resign_and_elect_new_trustee::*;
 pub use resign_and_elect_new_arbitrar::*;
+pub use challenge_against_authority::*;

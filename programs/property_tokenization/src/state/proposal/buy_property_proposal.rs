@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use crate::{common::{MAX_ARBITRATOR, ProposalStatus, ProposalType}, constant::*,};
 
-#[account()]
+#[account]
 
 pub struct PropertyBuyProposal{
 

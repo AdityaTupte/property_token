@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 use crate::common::ReasonType;
 
-#[account()]
+#[account]
 
 pub struct CandidateProfile{
 

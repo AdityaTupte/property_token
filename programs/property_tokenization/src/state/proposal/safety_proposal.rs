@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 use crate::{common::{MAX_ARBITRATOR, ProposalStatus, ProposalType}, constant::{BaseProposal, Governance},};
 
 
-#[account()]
+#[account]
 pub struct SafetyProposal{
 
     pub proposal_id : u64,
