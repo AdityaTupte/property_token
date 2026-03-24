@@ -29,7 +29,7 @@ pub struct SubmitSnapshotForArbitrarAuthority<'info>{
 }
 
 
-pub fn submit_snapshot_for_authority(
+pub fn submit_snapshot_for_arbitrar_authority(
     ctx:Context<SubmitSnapshotForArbitrarAuthority>,
 
     candidate_submission_deadline: u8,
