@@ -29,6 +29,12 @@ pub struct ChallengeProposal{
     pub status: ProposalStatus,
 
     pub merkle_root : [u8;32],
+
+    pub is_guilty : bool, 
+
+    pub merkle_root_for_result_challenge : [u8;32],
+
+    pub is_result_challenge_initialized : bool,
     
     pub created_at: i64,
     

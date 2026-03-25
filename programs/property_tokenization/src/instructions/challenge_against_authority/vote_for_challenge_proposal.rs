@@ -39,7 +39,6 @@ pub fn vote_for_challenge_proposal(
     voting_power : u64,
 )->Result<()>{
 
-    
 
     let proposal = &mut ctx.accounts.proposal;
 

@@ -18,8 +18,7 @@ pub struct SubmitSnaphotForChallengeProposal<'info>{
             &proposal.proposal_id.to_le_bytes(),
             property_system.key().as_ref(),
         ],
-        bump,
-        constraint = proposal.status == ProposalStatus::Draft @ ErrorCode::NotInDraft
+        bump = proposal.bump,
     )]
     pub proposal : Account<'info,ChallengeProposal>,
 
@@ -41,9 +40,24 @@ pub fn submit_snapshot_for_challenge_proposal(
     merkle_root : [u8;32]
 )->Result<()>{
 
+    let proposal = &mut ctx.accounts.proposal;
+    
     let current_time =  Clock::get()?.unix_timestamp;
 
-    let proposal = &mut ctx.accounts.proposal;
+    if merkle_root != [0u8; 32] {
+
+    require!(current_time > proposal.voting_deadline, ErrorCode::VotingPeriodExpired );
+
+    proposal.merkle_root_for_result_challenge = merkle_root;
+
+    proposal.is_result_challenge_initialized = true;
+
+    }
+
+   else {
+    
+    require!(proposal.status == ProposalStatus::Draft , ErrorCode::NotInDraft);
+    
 
     proposal.voting_deadline = current_time
                                     .checked_add(24*60*60*3 as i64 )
@@ -53,6 +67,7 @@ pub fn submit_snapshot_for_challenge_proposal(
 
     proposal.status = ProposalStatus::Active;
 
+   }
     Ok(())
 
 }
