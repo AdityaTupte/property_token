@@ -33,6 +33,9 @@ pub enum ErrorCode{
     #[msg("authority not found")]
     AuthorityNotFound,
 
+    #[msg("the mint is invalid for the property_system passed ")]
+    InvalidMint,
+
 #[msg("the new authority and authority to resign lengths are not equal")]
     InvalidAuthorityMapping,
     /////////

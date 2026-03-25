@@ -14,13 +14,14 @@ pub enum ProposalStatus {
     Approved,
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
+#[derive(AnchorSerialize, AnchorDeserialize,Clone, Copy, PartialEq, Eq)]
 pub enum ProposalType {
     SELLPROPERTY,
     BUYPROPERTY,
     USESAFETY,
     USEREINVESTMENT,
-    REVENUETHRESHOLDCHANGE  
+    REVENUETHRESHOLDCHANGE ,
+    CHALLLENGEAUTHORITY 
 }
 
 
