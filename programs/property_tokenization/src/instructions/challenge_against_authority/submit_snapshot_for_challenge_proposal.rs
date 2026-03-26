@@ -44,18 +44,6 @@ pub fn submit_snapshot_for_challenge_proposal(
     
     let current_time =  Clock::get()?.unix_timestamp;
 
-    if merkle_root != [0u8; 32] {
-
-    require!(current_time > proposal.voting_deadline, ErrorCode::VotingPeriodExpired );
-
-    proposal.merkle_root_for_result_challenge = merkle_root;
-
-    proposal.is_result_challenge_initialized = true;
-
-    }
-
-   else {
-    
     require!(proposal.status == ProposalStatus::Draft , ErrorCode::NotInDraft);
     
 
@@ -67,7 +55,7 @@ pub fn submit_snapshot_for_challenge_proposal(
 
     proposal.status = ProposalStatus::Active;
 
-   }
+   
     Ok(())
 
 }

@@ -33,22 +33,15 @@ pub enum AuthorityType {
 
 
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq,PartialOrd, Copy,  Eq)]
 pub enum ReasonType {
     None,
-
-    // governance related
-    Fraud,
-    Misconduct,
     Inactivity,
-    MaliciousVoting,
-
-    // system-level
-    DuplicateIdentity,
-    InvalidDocuments,
-
-    // manual/admin
-    GovernanceDecision,
-
     Other,
+    InvalidDocuments,
+    DuplicateIdentity,
+    Misconduct,
+    MaliciousVoting,
+    Fraud,
+    GovernanceDecision,
 }

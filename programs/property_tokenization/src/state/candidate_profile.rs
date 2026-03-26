@@ -8,7 +8,7 @@ pub struct CandidateProfile{
 
     pub candidate:Pubkey,
 
-    pub is_verfied : bool,
+    pub is_verified : bool,
 
     pub total_applied : u16,
 
@@ -20,7 +20,7 @@ pub struct CandidateProfile{
 
     pub removal_count : u16,
 
-    pub removal_reason_escalation_manner : ReasonType,
+    pub actions_history: ReasonType,
 
     pub metadata_hash: [u8; 32],
 

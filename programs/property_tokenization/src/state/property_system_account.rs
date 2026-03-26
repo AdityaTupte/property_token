@@ -26,11 +26,13 @@ pub struct PropertySystemAccount{
 
     pub bump : u8,
 
+    pub state : Pubkey,
+
 }
 
 impl PropertySystemAccount{
 
-pub const SIZE : usize = 8 + 32 + 32 + 32 + 32 + 8 + 8 + 2 + 8 + 32 + 1 ;
+pub const SIZE : usize = 8 + 32 + 32 + 32 + 32 + 8 + 8 + 2 + 8 + 32 + 1 +32  ;
 
 
 

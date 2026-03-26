@@ -50,7 +50,7 @@ pub struct FinalizeArbitrarAuthorityCandiate<'info>{
                 signer.key().as_ref()
         ],
         bump = candidate_profile.bump,
-        constraint = candidate_profile.is_verfied  @ ErrorCode::NotVerfied,
+        constraint = candidate_profile.is_verified  @ ErrorCode::NotVerfied,
         constraint = !candidate_profile.is_blacklisted @ ErrorCode::Blacklisted 
     )]
     pub candidate_profile : Account<'info,CandidateProfile>,

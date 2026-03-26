@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::common::{MAX_TRUSTEES, ProposalStatus, ProposalType};
+use crate::common::{MAX_TRUSTEES, ProposalStatus, ProposalType, ReasonType};
 
 
 
@@ -30,15 +30,13 @@ pub struct ChallengeProposal{
 
     pub merkle_root : [u8;32],
 
-    pub is_guilty : bool, 
+    pub guilty : ReasonType, 
 
-    pub merkle_root_for_result_challenge : [u8;32],
-
-    pub is_result_challenge_initialized : bool,
-    
     pub created_at: i64,
     
     pub voting_deadline: i64,
+
+    pub index : u8,
 
     pub bump : u8,
 
@@ -58,6 +56,9 @@ impl ChallengeProposal{
                             1 +
                             1 +
                             8 +
+                            1 +
                             8 +
+                            8 +
+                            1 +
                             1 ;
                         }

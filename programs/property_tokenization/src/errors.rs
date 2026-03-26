@@ -38,6 +38,10 @@ pub enum ErrorCode{
 
 #[msg("the new authority and authority to resign lengths are not equal")]
     InvalidAuthorityMapping,
+
+    #[msg("the candidate is finalized or the order of finalization is broke check the order")]
+    ChangeCandidateFinalization,
+
     /////////
 
     #[msg("the property system counter is Invalid please check that the property system counter is correct")]
