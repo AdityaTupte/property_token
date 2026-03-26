@@ -36,12 +36,14 @@ pub enum ErrorCode{
     #[msg("the mint is invalid for the property_system passed ")]
     InvalidMint,
 
-#[msg("the new authority and authority to resign lengths are not equal")]
+    #[msg("the new authority and authority to resign lengths are not equal")]
     InvalidAuthorityMapping,
 
     #[msg("the candidate is finalized or the order of finalization is broke check the order")]
     ChangeCandidateFinalization,
-
+    
+    #[msg("the deadline had been reached for creating voting proposal")]
+    RemovalProposalDeadline,
     /////////
 
     #[msg("the property system counter is Invalid please check that the property system counter is correct")]

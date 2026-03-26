@@ -88,3 +88,5 @@ pub const AUTHORITYVOTERECEIPT : &[u8] = b"authority_vote_receipt";
 
 pub const CHALLENGEAUTHORITY : &[u8] = b"challenge_authority";
 
+pub const REMOVEAUTHORITY : &[u8] = b"remove_authority";
+

@@ -50,6 +50,7 @@ impl ElectAuthority  {
                                 4 + (32 * MAX_TRUSTEES) +
                                 1 +
                                 1 +
+                                1 +
                                 8 +
                                 32 +
                                 4 + (32* MAX_TRUSTEES) +

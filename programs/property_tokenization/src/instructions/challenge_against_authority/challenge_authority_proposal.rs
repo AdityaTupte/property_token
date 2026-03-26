@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint, TokenAccount}};
 
-use crate::{common::{CHALLENGEAUTHORITY, PROPERTY_SYSTEM_SEEDS, ProposalStatus, ProposalType}, errors::ErrorCode, state::{ChallengeProposal, PropertySystemAccount}};
+use crate::{common::{AuthorityType, CHALLENGEAUTHORITY, PROPERTY_SYSTEM_SEEDS, ProposalStatus, ProposalType}, errors::ErrorCode, state::{ChallengeProposal, PropertySystemAccount}};
 
 
 
@@ -62,10 +62,12 @@ pub fn challenge_authority(
     evidence_hash : [u8;32],
     authorities : Vec<Pubkey>,
     proposal_id : u64,
-    
+    authority_type : AuthorityType,
 ) -> Result<()>{
 
     require!(ctx.accounts.ata.amount > 0 , ErrorCode::InsufficentBalance);
+
+    require!(authorities.len()  <= 5 as usize,ErrorCode::AuhtorityLimitReached);
 
     let proposal = &mut ctx.accounts.proposal;
 
@@ -76,6 +78,8 @@ pub fn challenge_authority(
     proposal.proposal_id = proposal_id;
 
     proposal.against = authorities;
+
+    proposal.authority_type = authority_type;   
 
     proposal.required_vote_to_active =  ((ctx.accounts.mint.supply as u128) * 10 / 100) as u64;
   

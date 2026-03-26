@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::common::{MAX_TRUSTEES, ProposalStatus, ProposalType, ReasonType};
+use crate::common::{AuthorityType, MAX_TRUSTEES, ProposalStatus, ProposalType, ReasonType};
 
 
 
@@ -13,6 +13,8 @@ pub struct ChallengeProposal{
     pub proposal_id : u64,
 
     pub property_system : Pubkey,
+
+    pub authority_type : AuthorityType,
 
     pub against:Vec<Pubkey>,
 
@@ -33,6 +35,8 @@ pub struct ChallengeProposal{
     pub guilty : ReasonType, 
 
     pub created_at: i64,
+
+    pub result_time : i64,
     
     pub voting_deadline: i64,
 
@@ -48,7 +52,7 @@ impl ChallengeProposal{
     pub const SIZE :usize = 32 +
                             8 +
                             32 +
-                            4 + (32*MAX_TRUSTEES*2) +
+                            4 + (32*MAX_TRUSTEES) +
                             8 +
                             8 +
                             8 +
@@ -57,6 +61,7 @@ impl ChallengeProposal{
                             1 +
                             8 +
                             1 +
+                            8 +
                             8 +
                             8 +
                             1 +

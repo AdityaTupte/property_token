@@ -68,6 +68,8 @@ pub fn outcome_of_proposal(
 
     proposal.status = ProposalStatus::Executed;
 
-Ok(())
+    proposal.result_time = Clock::get()?.unix_timestamp;
+
+    Ok(())
 
 }
