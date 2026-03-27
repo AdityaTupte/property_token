@@ -11,7 +11,7 @@ pub fn finalize_candidate<T:AuthorityGovernance>(
 )->Result<()>{
 
     require!(
-        ! *item.is_finalize() && 
+         *item.is_finalize() &&
         ! authority_candidate.is_finalized ,
         ErrorCode::AlreadyFinalized
     );

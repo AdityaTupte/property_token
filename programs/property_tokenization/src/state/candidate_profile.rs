@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::common::ReasonType;
+use crate::{common::ReasonType};
 
 #[account]
 
@@ -40,3 +40,5 @@ impl CandidateProfile {
                             32 +
                             1 ;
 }
+
+

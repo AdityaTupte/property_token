@@ -57,12 +57,15 @@ pub trait AuthorityGovernance: BaseProposal {
     fn add_new_authority_deadline(&mut self) -> &mut i64;
 
     fn challenge_new_authority_deadline(&mut self) -> &mut i64;
+
+    fn index_for_removal(&mut self) ->  &mut u8 ;
 }
 
 
 pub trait AuthorityRegistry {
      fn registry(&mut self)-> &mut Vec<Pubkey>;
 }
+
 
 // pub trait Governance {
 

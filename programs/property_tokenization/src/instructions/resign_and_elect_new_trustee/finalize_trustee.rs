@@ -61,11 +61,12 @@ pub fn finalize_trustee(
     finalize_authority(
         &mut *ctx.accounts.trustee_registry,
         &mut *ctx.accounts.proposal, 
-        &mut ctx.accounts.resignation,
+        
     )?;
     
+    let resignation = &mut ctx.accounts.resignation; 
 
-
+     resignation.status = ProposalStatus::Executed;
 
     Ok(())
 }

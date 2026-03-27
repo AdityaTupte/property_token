@@ -26,7 +26,7 @@ pub struct ExecuteReinvestment<'info>{
         constraint = proposal.status == ProposalStatus::Passed @ ErrorCode::ProposalNotPassed,
        // constraint = proposal.property_system == property_system.key() @ ErrorCode::InvalidProposal,
     )]
-    pub proposal: Account<'info,UseReinvestmentProposal>,
+    pub proposal: Box<Account<'info,UseReinvestmentProposal>>,
 
     #[account(
         seeds=[
@@ -35,12 +35,12 @@ pub struct ExecuteReinvestment<'info>{
         ],
         bump = property_system.bump
     )]
-    pub property_system: Account<'info,PropertySystemAccount>,
+    pub property_system: Box<Account<'info,PropertySystemAccount>>,
 
     #[account(
          constraint =  property_system.trustee_registry == trustee_registry.key() @ ErrorCode::InvalidTrusteeRegsitry
     )]
-    pub trustee_registry : Account<'info,TrusteeRegistry>,
+    pub trustee_registry : Box<Account<'info,TrusteeRegistry>>,
 
 
     #[account(
@@ -50,7 +50,7 @@ pub struct ExecuteReinvestment<'info>{
         ],
         bump = reinvestment_treasury.bump,
     )]
-    pub reinvestment_treasury: Account<'info,ReinvestmentPda>,
+    pub reinvestment_treasury: Box<Account<'info,ReinvestmentPda>>,
 
     #[account(
         mut,

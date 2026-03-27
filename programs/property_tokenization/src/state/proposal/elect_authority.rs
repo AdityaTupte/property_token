@@ -37,6 +37,8 @@ pub struct ElectAuthority{
 
     pub if_finalize : bool,
 
+    pub index_for_removal : u8,
+
     pub slot : u64,
 
     pub bump:u8,
@@ -61,6 +63,7 @@ impl ElectAuthority  {
                                 8 +
                                 8 +
                                 8 +
+                                1 +
                                 1 +
                                 8 +
                                 1  ;
@@ -125,8 +128,6 @@ impl BaseProposal for ElectAuthority {
         &mut self.proposal_id
     }
 
-    
-
     fn merkle_root(&mut self) -> &mut [u8; 32] {
         &mut self.merkle_root
     }
@@ -188,5 +189,9 @@ impl AuthorityGovernance for ElectAuthority {
 
     fn voting_for_authority_deadline(&mut self) -> &mut i64 {
         &mut self.voting_for_authority_deadline
+    }
+
+    fn index_for_removal(&mut self) ->  &mut u8 {
+        &mut self.index_for_removal
     }
 }

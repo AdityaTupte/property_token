@@ -26,7 +26,7 @@ pub struct ExecuteSafety<'info>{
         constraint = proposal.status == ProposalStatus::Passed @ ErrorCode::ProposalNotPassed,
         constraint = proposal.property_system == property_system.key() @ ErrorCode::InvalidProposal,
     )]
-    pub proposal: Account<'info,SafetyProposal>,
+    pub proposal: Box<Account<'info,SafetyProposal>>,
 
     #[account(
         seeds=[
@@ -35,17 +35,13 @@ pub struct ExecuteSafety<'info>{
         ],
         bump = property_system.bump
     )]
-    pub property_system: Account<'info,PropertySystemAccount>,
+    pub property_system: Box<Account<'info,PropertySystemAccount>>,
 
     #[account(
          constraint =  property_system.trustee_registry == trustee_registry.key() @ ErrorCode::InvalidTrusteeRegsitry
     )]
-    pub trustee_registry : Account<'info,TrusteeRegistry>,
+    pub trustee_registry : Box<Account<'info,TrusteeRegistry>>,
 
-    // #[account(
-    //     constraint = property_system.treasury == treasury.key() @ ErrorCode::InvalidTreasury,
-    // )]
-    // pub treasury : Account<'info,TreasuryPda>,
 
     #[account(
         seeds=[
@@ -54,7 +50,7 @@ pub struct ExecuteSafety<'info>{
         ],
         bump = safety_treasury.bump,
     )]
-    pub safety_treasury: Account<'info,SafetyPda>,
+    pub safety_treasury: Box<Account<'info,SafetyPda>>,
 
     #[account(
         associated_token::mint = mint,

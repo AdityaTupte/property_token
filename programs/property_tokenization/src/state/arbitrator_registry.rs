@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::common::MAX_ARBITRATOR;
+use crate::{common::MAX_ARBITRATOR, constant::AuthorityRegistry};
 
 
 #[account]
@@ -23,5 +23,15 @@ pub bump: u8,                              // PDA bump seed for address derivati
 impl ArbitratorRegistry {
     
     pub const SIZE : usize = 32 + 4 + (MAX_ARBITRATOR  * 32) +  1 + 1 +1 ; 
+}
+
+impl AuthorityRegistry for ArbitratorRegistry  {
+    
+    fn registry(&mut self)-> &mut Vec<Pubkey>{
+
+        &mut self.arbitrator
+
+    }
+
 }
 

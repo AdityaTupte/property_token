@@ -1,13 +1,12 @@
 
 use anchor_lang::prelude::*;
 
-use crate::{common::ProposalStatus, constant::{AuthorityGovernance, AuthorityRegistry}, errors::ErrorCode, state::Resignation};
+use crate::{common::ProposalStatus, constant::{AuthorityGovernance, AuthorityRegistry}, errors::ErrorCode,};
 
 
 pub fn finalize_authority<T:AuthorityRegistry,U:AuthorityGovernance>(
     registry:&mut T,
     proposal: &mut U,
-    resignation: &mut Resignation,
 )->Result<()>{
 
     require!( 
@@ -48,7 +47,7 @@ let resign_auth = proposal.authority_to_resign().clone();
     *proposal.is_finalize() = true;
 
     
-    resignation.status = ProposalStatus::Executed;
+   
 
 
     Ok(())

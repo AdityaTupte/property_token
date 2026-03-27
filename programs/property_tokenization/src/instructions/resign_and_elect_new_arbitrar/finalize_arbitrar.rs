@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{ARBITRAR_REGISTRYSEEDS, ARBITRAR_RESIGNATION, AuthorityType, ELECT_ARBITRAR, PROPERTY_SYSTEM_SEEDS, ProposalStatus, }, errors::ErrorCode, functions::finalize_authority, state::{ElectAuthority, PropertySystemAccount, Resignation, TrusteeRegistry}};
+use crate::{common::{ARBITRAR_REGISTRYSEEDS, ARBITRAR_RESIGNATION, AuthorityType, ELECT_ARBITRAR, PROPERTY_SYSTEM_SEEDS, ProposalStatus, }, errors::ErrorCode, functions::finalize_authority, state::{ArbitratorRegistry, ElectAuthority, PropertySystemAccount, Resignation}};
 
 #[derive(Accounts)]
 pub struct FinalizeArbitrar<'info>{
@@ -38,7 +38,7 @@ pub struct FinalizeArbitrar<'info>{
         ],
         bump = arbitrar_registry.bump 
     )]
-    pub arbitrar_registry: Account<'info,TrusteeRegistry>,
+    pub arbitrar_registry: Account<'info,ArbitratorRegistry>,
 
     #[account(
         seeds=[
@@ -54,17 +54,19 @@ pub struct FinalizeArbitrar<'info>{
 
 }
 
-pub fn finalize_trustee(
+pub fn finalize_arbitrar(
     ctx:Context<FinalizeArbitrar>
 )->Result<()>{
 
     finalize_authority(
         &mut *ctx.accounts.arbitrar_registry,
         &mut *ctx.accounts.proposal, 
-        &mut ctx.accounts.resignation,
     )?;
     
 
+let resignation = &mut ctx.accounts.resignation; 
+
+     resignation.status = ProposalStatus::Executed;
 
 
     Ok(())
