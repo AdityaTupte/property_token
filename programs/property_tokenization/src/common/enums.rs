@@ -45,3 +45,12 @@ pub enum ReasonType {
     Fraud,
     GovernanceDecision,
 }
+
+
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq,PartialOrd, Copy,  Eq)]
+pub enum LeaseStatus {
+    Active,
+    Terminated,
+    Expired,
+}

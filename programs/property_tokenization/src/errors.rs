@@ -44,7 +44,23 @@ pub enum ErrorCode{
     
     #[msg("the deadline had been reached for creating voting proposal")]
     RemovalProposalDeadline,
+
+    #[msg("the deadline is reached")]
+    DeadlineReached,
+
+    #[msg("the lease is already activated")]
+    LeaseActivated,
+
+
+    #[msg("the lease is not activated")]
+    LeaseNotActivated,
+
+    #[msg("the lease period is not over yet")]
+    LeaseEndTimeNotReached,
     /////////
+    /// 
+     #[msg("the lease period is  over ")]
+    LeaseEndTimeReached,
 
     #[msg("the property system counter is Invalid please check that the property system counter is correct")]
     PropertyCounterInvalid,

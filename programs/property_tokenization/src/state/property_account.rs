@@ -6,6 +6,7 @@ use anchor_lang::prelude::*;
 pub struct PropertyAccount{
 
     pub property_id: u64,
+    pub is_leased : bool,
     pub property_system: Pubkey,
     pub page_number : u16,
     pub state_id: u16,
@@ -20,6 +21,6 @@ pub struct PropertyAccount{
 
 
 impl PropertyAccount {
-    pub const SIZE: usize = 8 + 32 + 2  + 2 + 32 + 2 + 32 + 8 + 32 + 32 + 1   ;
+    pub const SIZE: usize = 8 + 1 + 32 + 2  + 2 + 32 + 2 + 32 + 8 + 32 + 32 + 1   ;
     
 }

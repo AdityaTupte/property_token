@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{AuthorityType, CHALLENGEAUTHORITY, ELECT_TRUSTEE, PROPERTY_SYSTEM_SEEDS, ProposalStatus, REMOVEAUTHORITY, TRUSTEE_RESIGNATION, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, functions::finalize_authority, state::{ChallengeProposal, ElectAuthority, PropertySystemAccount, Resignation, TrusteeRegistry}};
+use crate::{common::{AuthorityType, CHALLENGEAUTHORITY, PROPERTY_SYSTEM_SEEDS, ProposalStatus, REMOVEAUTHORITY, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, functions::finalize_authority, state::{ChallengeProposal, ElectAuthority, PropertySystemAccount, TrusteeRegistry}};
 
 #[derive(Accounts)]
 pub struct RmFinalizeTrustee<'info>{

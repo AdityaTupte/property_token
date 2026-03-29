@@ -90,3 +90,7 @@ pub const CHALLENGEAUTHORITY : &[u8] = b"challenge_authority";
 
 pub const REMOVEAUTHORITY : &[u8] = b"remove_authority";
 
+pub const LEASE_PROPERTY_PROPOSAL : &[u8] = b" lease_property_proposal";
+
+pub const LEASE_PROPERTY : &[u8] = b" lease_property";
+

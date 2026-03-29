@@ -19,12 +19,15 @@ pub mod authority_candidate;
 pub mod candidate_profile;
 pub mod authority_vote_receipt;
 pub mod challengeproposal;
+pub mod lease_property_proposal;
+pub mod lease_property;
 
 pub mod funds;
 pub use funds::*;
 
 
-
+pub use lease_property::*;
+pub use lease_property_proposal::*;
 pub use challengeproposal::*;
 pub use authority_vote_receipt::*;
 pub use authority_candidate::*;

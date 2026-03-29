@@ -9,6 +9,7 @@ pub mod revenue_threshold_change;
 pub mod resign_and_elect_new_trustee;
 pub mod resign_and_elect_new_arbitrar;
 pub mod challenge_against_authority;
+pub mod lease_propoerty;
 
 pub use create_property_system_account::*;
 pub use country_creation::*;
@@ -21,3 +22,4 @@ pub use revenue_threshold_change::*;
 pub use resign_and_elect_new_trustee::*;
 pub use resign_and_elect_new_arbitrar::*;
 pub use challenge_against_authority::*;
+pub use lease_propoerty::*;
