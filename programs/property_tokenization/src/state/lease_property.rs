@@ -4,7 +4,7 @@ use crate::common::{LeaseStatus};
 
 #[account]
 
-pub struct LeaseProperty{
+pub struct  LeaseProperty{
 
 
     pub property_system : Pubkey,
@@ -21,6 +21,12 @@ pub struct LeaseProperty{
 
     pub security_deposit : u64,
 
+    pub periodic_pay : i64,
+
+    pub next_payment : i64,
+
+    pub late_payment_fee_per_day : u64,
+
     pub last_payement : i64,
 
     pub agreemenbt_hash : [u8;32],
@@ -36,5 +42,5 @@ pub struct LeaseProperty{
 }
 
 impl LeaseProperty  {
-    pub const SIZE : usize = 32 + 8 + 32+ 32 + 1 +8 +8 +8 +32 +8 +8 +32 +1 ;
+    pub const SIZE : usize = 32 + 8 + 32+ 32 + 1+ 1 +8 + 8 +8 + 8  +8 +32 +8 +8 +32 +1 ;
 }

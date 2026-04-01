@@ -50,6 +50,8 @@ pub const ARBITRAR_REGISTRYSEEDS : &[u8] = b"arbitrar_registry";
 
 pub const TREASURYSEEDS : &[u8] = b"treasury";
 
+pub const DIVIDENDSEEDS : &[u8] = b"dividend";
+
 
 
 pub const HARDCODED_PUBKEY: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");

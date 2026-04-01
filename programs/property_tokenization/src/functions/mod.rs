@@ -11,6 +11,7 @@ pub mod add_new_authority;
 pub mod challenge_authority;
 pub mod finalize_authority;
 pub mod finalize_candidate;
+pub mod treasury_distribution;
 
 
 
@@ -27,3 +28,4 @@ pub use add_new_authority::*;
 pub use challenge_authority::*;
 pub use finalize_authority::*;
 pub use finalize_candidate::*;  
+pub use treasury_distribution::*;

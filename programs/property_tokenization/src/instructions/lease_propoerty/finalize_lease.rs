@@ -26,7 +26,7 @@ pub struct FinalizeLease<'info>{
         bump = lease.bump,
         constraint = lease.status == LeaseStatus::Active @ ErrorCode::LeaseNotActivated,
     )]
-    pub lease: Account<'info,LeaseProperty>,
+    pub lease: Box<Account<'info,LeaseProperty>>,
 
      #[account(
         associated_token::mint = mint,
@@ -46,7 +46,7 @@ pub struct FinalizeLease<'info>{
             constraint = property.is_leased @ ErrorCode::LeaseNotActivated
            
     )]
-    pub property:Account<'info,PropertyAccount>,
+    pub property:Box<Account<'info,PropertyAccount>>,
 
     #[account(
         seeds = [

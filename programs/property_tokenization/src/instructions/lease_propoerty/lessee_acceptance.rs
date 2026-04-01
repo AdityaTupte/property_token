@@ -153,6 +153,10 @@ pub fn lessee_acceptance(
 
     proposal.status = ProposalStatus::Executed;
 
+    lease.late_payment_fee_per_day = proposal.late_payment_fee_per_day  ;
+
+    lease.periodic_pay = proposal.periodic_pay  ;
+
     let decimals = ctx.accounts.mint.decimals;
 
 
@@ -173,6 +177,8 @@ pub fn lessee_acceptance(
         
 
     transfer_checked(ctx1, lease.rent_amount,decimals )?;
+
+    lease.last_payement = now;
 
 
     let cpi_accounts2  = TransferChecked{

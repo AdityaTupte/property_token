@@ -21,6 +21,10 @@ pub struct LeaseProposal{
 
     pub lessee : Pubkey,
 
+    pub periodic_pay : i64,
+
+    pub late_payment_fee_per_day : u64,
+
     pub status : ProposalStatus,
 
     pub rent_amount : u64,
@@ -42,7 +46,7 @@ pub struct LeaseProposal{
 }
 
 impl LeaseProposal{
-    pub const SIZE : usize = 32 + 8 + 1 + 4+ (32*MAX_ARBITRATOR) + 8 + 32 +32 +1 + 8  +8 +32 + 8 +8 +8 +32 +1;
+    pub const SIZE : usize = 32 + 8 + 1 + 4+ (32*MAX_ARBITRATOR) + 8 + 32 +32 + 8 +8 +1 + 8  +8 +32 + 8 +8 +8 +32 +1;
 }
 
 

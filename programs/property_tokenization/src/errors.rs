@@ -2,6 +2,8 @@ use anchor_lang::prelude::*;
 
 #[error_code]
 pub enum ErrorCode{
+    #[msg("time for distributing funds not reached yet")]
+    DistributionTimeNotReached,
 
     #[msg("the candidate submission is not started yet or deadline is reached")]
     CandidateSubmissionDeadline,
@@ -51,12 +53,18 @@ pub enum ErrorCode{
     #[msg("the lease is already activated")]
     LeaseActivated,
 
+    #[msg("the payment time is not reached yet")]
+    BillNotGenrated,
+
 
     #[msg("the lease is not activated")]
     LeaseNotActivated,
 
     #[msg("the lease period is not over yet")]
     LeaseEndTimeNotReached,
+
+    #[msg("the rent is paid of the lease period")]
+    RentPaid,
     /////////
     /// 
      #[msg("the lease period is  over ")]

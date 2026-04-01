@@ -83,6 +83,8 @@ pub fn initialize_lease_proposal(
     security_deposit:u64,
     agreement_hash :[u8;32],
     end_time_in_days : u32,
+    late_payment_fee_per_day : u64,
+    periodic_pay : i64,
 )->Result<()>{
 
 
@@ -106,6 +108,10 @@ pub fn initialize_lease_proposal(
                                 .checked_mul(24*60*60)
                                 .ok_or(ErrorCode::MathOverflow)?;
                    
+    lease_proposal.periodic_pay = periodic_pay;
+
+    lease_proposal.late_payment_fee_per_day = late_payment_fee_per_day;
+
     lease_proposal.status = ProposalStatus::Draft;
 
     Ok(())

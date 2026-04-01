@@ -93,18 +93,6 @@ pub struct PropertySystem<'info>{
 
     pub dividend_pda :Box<Account<'info,DividendPda>>,
 
-    #[account(
-        init,
-        payer = creator,
-        seeds = [
-            b"rent",
-            property_system_acc.key().as_ref()
-        ],
-        bump,
-        space = 8 + DividendPda::SIZE,
-    )]
-
-    pub rent_pda :Box<Account<'info,DividendPda>>,
 
     #[account(
         init,
@@ -193,7 +181,7 @@ pub fn create(
 
     let threshold=&mut ctx.accounts.threshold;
 
-    let rent = &mut ctx.accounts.rent_pda;
+    
     
 
     
@@ -274,10 +262,6 @@ pub fn create(
 
     dividend_pda.bump = ctx.bumps.dividend_pda;
 
-    //
-    rent.property_system = property_system_acc.key();
-
-    rent.bump = ctx.bumps.rent_pda;
 
     // trusteeregistry
 
