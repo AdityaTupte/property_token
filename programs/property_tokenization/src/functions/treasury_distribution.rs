@@ -5,7 +5,7 @@ use anchor_spl::{token_interface::{Mint,TransferChecked, transfer_checked, Token
 use crate::state::TreasuryPda;
 
 
-pub fn transfer_from_treasury<'info>(
+pub fn transfer_fro_treasury<'info>(
     amount: u64,
     from: &InterfaceAccount<'info, TokenAccount>,
     to: &InterfaceAccount<'info, TokenAccount>,

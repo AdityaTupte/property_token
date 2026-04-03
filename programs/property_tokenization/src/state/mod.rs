@@ -21,11 +21,13 @@ pub mod authority_vote_receipt;
 pub mod challengeproposal;
 pub mod lease_property_proposal;
 pub mod lease_property;
+pub mod salary_pda;
 
 pub mod funds;
 pub use funds::*;
 
 
+pub use salary_pda::*;
 pub use lease_property::*;
 pub use lease_property_proposal::*;
 pub use challengeproposal::*;

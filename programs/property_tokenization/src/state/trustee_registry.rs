@@ -15,13 +15,15 @@ pub total_trustees: u8,                  // Number of active trustees in the lis
 
 pub vote_threshold: u8,                       // Minimum approvals required for a valid decision
 
+pub claim_deadline_ts : i64,
+
 pub bump: u8,                            // PDA bump seed for address derivation
 
 }
 
 impl TrusteeRegistry {
     
-    pub const SIZE : usize = 32 + 4 + (MAX_TRUSTEES  * 32) +  1 + 1 +1 ; 
+    pub const SIZE : usize = 32 + 4 + (MAX_TRUSTEES  * 32) +  1 + 1 + 8 + 1 ; 
 }
 
 impl AuthorityRegistry for TrusteeRegistry  {

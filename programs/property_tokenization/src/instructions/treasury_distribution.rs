@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint, TokenAccount, TokenInterface}};
 
-use crate::{common::{ARBITRAR_REGISTRYSEEDS, DIVIDENDSEEDS, PROPERTY_SYSTEM_SEEDS, REINVESTMENTPDA, SAFETYPDA, THRESHOLD, TREASURYSEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, functions::transfer_from_treasury, state::{ArbitratorRegistry, DividendPda, PropertySystemAccount, ReinvestmentPda, SafetyPda, Threshold, TreasuryPda, TrusteeRegistry}};
+use crate::{common::{ARBITRAR_REGISTRYSEEDS, DIVIDENDSEEDS, PROPERTY_SYSTEM_SEEDS, REINVESTMENTPDA, SAFETYPDA, THRESHOLD, TREASURYSEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, functions::{ transfer_fro_treasury}, state::{ArbitratorRegistry, DividendPda, PropertySystemAccount, ReinvestmentPda, SafetyPda, Threshold, TreasuryPda, TrusteeRegistry}};
 
 #[derive(Accounts)]
 pub struct TreasuryDistribution<'info>{
@@ -205,8 +205,14 @@ pub fn treasury_distribution(
 
     treasury.last_distribution_ts = now;
 
+    let salary_claim_deadline = now.checked_add(30*60*60*24).ok_or(ErrorCode::MathOverflow)?; 
+
+    ctx.accounts.trustee_pda.claim_deadline_ts = salary_claim_deadline;
+
+    ctx.accounts.arbitrar_pda.claim_deadline_ts = salary_claim_deadline;
+
     //for trusteee
-   transfer_from_treasury(
+   transfer_fro_treasury(
         amount_for_trustee,
         &ctx.accounts.treasury_ata, 
         &ctx.accounts.trustee_ata, 
@@ -217,7 +223,7 @@ pub fn treasury_distribution(
 
     
     //for arbitrar
-    transfer_from_treasury(
+    transfer_fro_treasury(
         amount_for_arbitrar,
         &ctx.accounts.treasury_ata, 
         &ctx.accounts.arbitrar_ata, 
@@ -227,7 +233,7 @@ pub fn treasury_distribution(
         signer_seeds)?;
 
     //for reinvestment
-    transfer_from_treasury(
+    transfer_fro_treasury(
         amount_for_reinvestment,
         &ctx.accounts.treasury_ata, 
         &ctx.accounts.reinvestment_ata, 
@@ -237,7 +243,7 @@ pub fn treasury_distribution(
         signer_seeds)?;
 
     //for safety
-    transfer_from_treasury(
+    transfer_fro_treasury(
         amount_for_safety,
         &ctx.accounts.treasury_ata, 
         &ctx.accounts.safety_ata, 
@@ -247,7 +253,7 @@ pub fn treasury_distribution(
         signer_seeds)?;
 
     //for dividend
-   transfer_from_treasury(
+   transfer_fro_treasury(
         amount_for_dividend,
         &ctx.accounts.treasury_ata, 
         &ctx.accounts.dividend_ata, 

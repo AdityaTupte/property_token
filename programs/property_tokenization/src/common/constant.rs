@@ -96,3 +96,9 @@ pub const LEASE_PROPERTY_PROPOSAL : &[u8] = b" lease_property_proposal";
 
 pub const LEASE_PROPERTY : &[u8] = b" lease_property";
 
+
+pub const TRUSTEE_SALARY : &[u8] = b"trustee_salary";
+
+pub const ARBITRAR_SALARY : &[u8] = b"arbitrar_salary";
+
+    
