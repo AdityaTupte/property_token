@@ -5,7 +5,7 @@ use crate::events::*;
 use crate::errors::ErrorCode;
 
 #[derive(Accounts)]
-#[instruction(decimal:u8 ,system_id : u64 )]
+#[instruction(system_id : u64,decimal:u8 , )]
 pub struct PropertySystem<'info>{
 
 
@@ -18,7 +18,7 @@ pub struct PropertySystem<'info>{
         payer = creator,
         seeds = [ 
             PROPERTY_SYSTEM_SEEDS,
-            &system_id.to_le_bytes(),
+            system_id.to_le_bytes().as_ref(),
         ],
         bump,
         space = 8 + PropertySystemAccount::SIZE
@@ -122,6 +122,11 @@ pub struct PropertySystem<'info>{
     #[account(
         init,
         payer = creator,
+         seeds = [
+        b"mint",
+        property_system_acc.key().as_ref()
+        ],
+        bump,
         mint::decimals = decimal,
         mint::authority = property_system_acc.key(),
         mint::freeze_authority = property_system_acc.key(),
@@ -218,6 +223,8 @@ pub fn create(
     property_system_acc.max_page = 0;
 
     property_system_acc.created_at = current_time;
+
+    property_system_acc.total_token_supply = number_of_tokens;
 
     property_system_acc.creator = ctx.accounts.creator.key();
 

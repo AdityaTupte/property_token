@@ -6,7 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-peoperty_tokenization = "8PRrAQa9Y4ZVxcdNXP4Q8CiQzAyiWoyJT64t7FUmrN4L"
+property_tokenization = "BD4CURALcvWKHuLrcx74iaJaaUrKbRogXYXcNBPfqFRR"
 
 [registry]
 url = "https://api.apr.dev"
