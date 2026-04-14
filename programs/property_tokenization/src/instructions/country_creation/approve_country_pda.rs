@@ -1,15 +1,20 @@
 
 use anchor_lang::prelude::*;
 
-use crate::{common::{ COUNTRY_APPROVE_AUTHORITY_SEEDS}, errors::ErrorCode, state::*};
+use crate::{common::{ COUNTRY_APPROVE_AUTHORITY_SEEDS, COUNTRY_CREATION_AUHTORITY, COUNTRY_PROPOSAL_SEEDS}, errors::ErrorCode, state::*};
 
 
 #[derive(Accounts)]
-
-pub struct ApproveCountryId<'info>{
+#[instruction(country_name:String)]
+pub struct ApproveCountry<'info>{
 
    #[account(
     mut,
+    seeds=[
+        COUNTRY_PROPOSAL_SEEDS,
+        country_name.as_ref(),
+    ],
+    bump,
     constraint = !proposal.approved @ ErrorCode::AlreadyApproved
    )]
     pub proposal : Account<'info,ProposalCountryPda>,
@@ -23,30 +28,58 @@ pub struct ApproveCountryId<'info>{
     pub authority: Account<'info,ApproveCountryAuthority>,
 
     #[account(
+        init,
+        payer=signer,
+        seeds=[
+            COUNTRY_CREATION_AUHTORITY,
+            proposal.key().as_ref(),
+            signer.key().as_ref()
+        ],
+        bump,
+        space = 8 + ApproveCountryAuthorityReceipt::SIZE
+    )]
+    pub authority_recipt : Account<'info,ApproveCountryAuthorityReceipt>,
+
+    #[account(
         mut,
         constraint = authority.authority.contains(&signer.key()) @ ErrorCode::NotAuthorized,
-        
     )]
 
     pub signer: Signer<'info>,
 
+    pub system_program:Program<'info,System>,
+
 }
 
 pub fn approve_country(
-    ctx:Context<ApproveCountryId>,
+    ctx:Context<ApproveCountry>,
+    _country_name:String
 )->Result<()>{
 
     let proposal = &mut ctx.accounts.proposal;
     let authority = &mut ctx.accounts.authority;
-    let signer  = &mut ctx.accounts.signer;
+    
+    let authority_recipt = &mut ctx.accounts.authority_recipt;
 
-    require!(!proposal.approvals.contains(&signer.key()), ErrorCode::AuthorityApproved );
+    authority_recipt.country_proposal = proposal.key() ;
 
-    proposal.approvals.push(signer.key());
+    authority_recipt.bump = ctx.bumps.authority_recipt;
 
-    if proposal.approvals.len() >= authority.threshold as usize {
+    proposal.approvals += 1;
+
+    if proposal.approvals >= authority.threshold {
+
         proposal.approved = true;
-    }
+
+    } 
+
+    // require!(!proposal.approvals.contains(&signer.key()), ErrorCode::AuthorityApproved );
+
+    // proposal.approvals.push(signer.key());
+
+    // if proposal.approvals.len() >= authority.threshold as usize {
+    //     proposal.approved = true;
+    // }
 
     Ok(())
 }

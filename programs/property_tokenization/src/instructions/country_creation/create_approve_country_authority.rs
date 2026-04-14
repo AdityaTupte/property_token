@@ -1,9 +1,8 @@
-use std::collections::BTreeSet;
 
 use anchor_lang::prelude::*;
 
-use crate::{common::COUNTRY_APPROVE_AUTHORITY_SEEDS, errors::ErrorCode, state::ApproveCountryAuthority};
-const HARDCODED_PUBKEY: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+use crate::{common::COUNTRY_APPROVE_AUTHORITY_SEEDS, errors::ErrorCode, functions::assert_unique_owners, state::ApproveCountryAuthority};
+const HARDCODED_PUBKEY: Pubkey = pubkey!("EezSke1hYxfEZuCrxDAgGe1nb7i2DoqJnaFJQPBPRpJs");
 #[derive(Accounts)]
 
 pub struct CreateApproveCountryAuthority<'info>{
@@ -43,9 +42,9 @@ pub fn create_approve_country_authority(
 
     let approve_authority = &mut ctx.accounts.authority;
     
-    let unique: BTreeSet<Pubkey> = authority.iter().cloned().collect();
+    assert_unique_owners(&authority)?;
 
-    require!( unique.len() == authority.len(),ErrorCode::DuplicateAuthority);
+    require!( authority.len() == authority.len(),ErrorCode::DuplicateAuthority);
 
     approve_authority.threshold = threshold;
 

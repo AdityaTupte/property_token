@@ -2,6 +2,13 @@ use anchor_lang::prelude::*;
 
 #[error_code]
 pub enum ErrorCode{
+
+
+#[msg("not is uppercase")]
+NotInUppercase,
+    #[msg("the authority not initialized")]
+    AuhtorityNotInitialized,
+
     #[msg("time for distributing funds not reached yet")]
     DistributionTimeNotReached,
 

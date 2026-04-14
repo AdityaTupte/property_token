@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::common::{MAX_COUNTRY_AUTHORITY, MAX_COUNTRY_NAME};
+use crate::common::{ MAX_COUNTRY_NAME};
 
 
 #[account]
@@ -11,14 +11,34 @@ pub struct Country{
 
     pub country_name: String,
 
-    pub threshold : u8,
-    
-    pub authority: Vec<Pubkey>,          
+    pub threshold : u8,    
+
+    pub total_authority : u8, 
 
     pub bump: u8,
 
 }
 
 impl Country {
-     pub const SIZE: usize  = 2 + (4  + MAX_COUNTRY_NAME) + 1  + (4 + (32 * MAX_COUNTRY_AUTHORITY)) + 1 + 1 ;
+     pub const SIZE: usize  = 2 + (4  + MAX_COUNTRY_NAME) + 1  +1 +  1 ;
 }
+
+
+
+#[account]
+
+pub struct CountryAuthority{
+
+    pub country_pda: Pubkey,
+
+    pub bump:u8,
+
+
+}
+
+
+impl CountryAuthority{
+
+    pub const SIZE:usize = 32 +1 ; 
+}
+

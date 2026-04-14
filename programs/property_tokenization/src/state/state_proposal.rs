@@ -32,16 +32,24 @@ pub struct  StateProposalPda{
 
 impl StateProposalPda {
     pub const SIZE: usize = 
-                    2 +    
-                    4 + 
-                    MAX_STATE_NAME + 
-                    4 + (MAX_STATE_AUTHORITIES * 32 ) + 
-                    1 + 
-                    2 +
-                    32 + 
-                    4 + (32 * MAX_COUNTRY_AUTHORITY) +
-                    1 +
-                    1 +
-                    1 ;  
+                    2 +  // state_id (u16)
+
+        4 + MAX_STATE_NAME +  // String (length prefix + data)
+
+        4 + (32 * MAX_STATE_AUTHORITIES) + // Vec<Pubkey>
+
+        1 +  // threshold (u8)
+
+        2 +  // country_id (u16)
+
+        32 + // country_pubkey
+
+        4 + (32 * MAX_COUNTRY_AUTHORITY) + // Vec<Pubkey>
+
+        1 +  // approved (bool)
+
+        1 +  // executed (bool)
+
+        1;   // bump (u8)
     
 }

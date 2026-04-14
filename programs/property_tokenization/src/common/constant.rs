@@ -2,6 +2,10 @@ use anchor_lang::prelude::*;
 pub const MAX_TRUSTEES: usize = 5 ;
 pub const MAX_ARBITRATOR: usize = 5 ;
 
+pub const COUNTRY_AUTHORITY :&[u8] = b"country_authority_recepit";
+
+pub const COUNTRY_CREATION_AUHTORITY : &[u8] = b"authority";
+
 
 pub const COUNTRY_APPROVE_AUTHORITY_SEEDS: &[u8] = b"AuthorityForApprovingCountry";
 pub const MAX_COUNTRY_APPROVE_AUTHORITY :usize = 10;

@@ -15,18 +15,20 @@ pub struct ProposalCountryPda{
 
     pub country_pda_threshold : u8,
 
-    pub authority:  Vec<Pubkey>, 
-    
-    pub approvals:  Vec<Pubkey>,
+    pub approvals:  u8,
 
     pub approved : bool,
 
-    pub executed: bool,           
+    pub executed: bool,
+
+    pub total_authority: u8,
+
+    pub initialize_authority_count : u8,  
 
     pub bump: u8,
 
-}
+} 
 
 impl ProposalCountryPda {
-     pub const SIZE: usize  = 2 + (4 + MAX_COUNTRY_NAME) + (4 + (32 * MAX_COUNTRY_AUTHORITY)) +  (4 + (32 * MAX_COUNTRY_APPROVE_AUTHORITY)) + 1 + 1 + 1 ;
+     pub const SIZE: usize  = 2 + (4 + MAX_COUNTRY_NAME) + 1  + 1 + 1 + 1 + 1+ 1 + 1 ;
 }

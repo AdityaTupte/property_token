@@ -1,16 +1,19 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::COUNTRY_SEED, errors::ErrorCode, state::{Country, ProposalCountryPda}};
+use crate::{common::{COUNTRY_PROPOSAL_SEEDS, COUNTRY_SEED}, errors::ErrorCode, state::{Country, ProposalCountryPda}};
 
 #[derive(Accounts)]
-
+#[instruction(country_name:String)]
 pub struct ExecuteCountryPda<'info>{
 
     #[account(
         mut,
+        seeds=[
+        COUNTRY_PROPOSAL_SEEDS,
+        country_name.as_ref(),
+    ],
+    bump,
         constraint = proposal.approved @ ErrorCode::ProposalNotApproved,
-        constraint = proposal.approvals.contains(&signer.key())  @ ErrorCode::NotAuthorized,
-        close = signer
     )]
     pub proposal : Account<'info,ProposalCountryPda>,
 
@@ -22,7 +25,7 @@ pub struct ExecuteCountryPda<'info>{
         payer = signer,
         seeds = [
             COUNTRY_SEED,
-            &proposal.country_id.to_le_bytes(),
+            proposal.country_name.as_ref(),
         ],
         bump,
         space = 8 +  Country::SIZE
@@ -37,6 +40,7 @@ pub struct ExecuteCountryPda<'info>{
 
 pub fn execute_country_propsal(
     ctx:Context<ExecuteCountryPda>,
+    _country_name:String
 )->Result<()>{
 
     let proposal = &mut ctx.accounts.proposal;
@@ -47,9 +51,11 @@ pub fn execute_country_propsal(
     
     country.country_name = proposal.country_name.clone();
 
-    country.authority = proposal.authority.clone();
+    // country.total_authority = proposal.total_authority;
 
     country.threshold = proposal.country_pda_threshold;
+
+    country.bump = ctx.bumps.country_pda;
 
     Ok(())
 

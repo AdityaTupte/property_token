@@ -12,6 +12,7 @@ pub mod challenge_authority;
 pub mod finalize_authority;
 pub mod finalize_candidate;
 pub mod treasury_distribution;
+pub mod check_duplicate_owners;
 
 
 
@@ -29,3 +30,4 @@ pub use challenge_authority::*;
 pub use finalize_authority::*;
 pub use finalize_candidate::*;  
 pub use treasury_distribution::*;
+pub use check_duplicate_owners::*;

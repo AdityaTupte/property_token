@@ -1,19 +1,20 @@
-use std::collections::BTreeSet;
+
 
 use anchor_lang::prelude::*;
 
 use crate::common::{COUNTRY_SEED, STATE_PROPOSAL_SEEDS};
+use crate::functions::assert_unique_owners;
 use crate::state::{Country, StateProposalPda};
 use crate::errors::ErrorCode;
 
 #[derive(Accounts)]
-#[instruction(state_id : u16)]
+#[instruction(state_name:String,country_name: String)]
 pub struct StateProposal<'info>{
 
     #[account(
         seeds = [
             COUNTRY_SEED,
-            &country.country_id.to_le_bytes()
+            country_name.as_ref()
             ],
         bump = country.bump
     )]
@@ -31,7 +32,7 @@ pub struct StateProposal<'info>{
         payer = signer,
         seeds = [
             STATE_PROPOSAL_SEEDS,
-            &state_id.to_le_bytes(),
+            state_name.as_ref(),
             country.key().as_ref(),
         ],
         bump,
@@ -50,15 +51,17 @@ pub fn create_state_proposal(
     state_name: String,
     state_authorities : Vec<Pubkey>,
     state_authority_threshold: u8,
+    _country_name: String,
 )->Result<()>{
 
     require!(state_name.len() > 0 && state_name.len() <= 32,ErrorCode::StateNameInvalid);
     require!( state_authorities.len() == 10 ,ErrorCode::StateAuthorityInvalid );
     require!(state_authority_threshold > 0 && state_authority_threshold <=10 , ErrorCode::StateThresholdInvalid);
+    require!(state_name.to_uppercase() == state_name, ErrorCode::NotInUppercase);
 
-    let unique: BTreeSet<Pubkey> = state_authorities.iter().cloned().collect();
+    assert_unique_owners(&state_authorities)?;
     
-    require!(unique.len()  == 10 , ErrorCode::DuplicateAuthority);
+    require!(state_authorities.len()  == 10 , ErrorCode::DuplicateAuthority);
 
     let proposal = &mut ctx.accounts.state_proposal;
 
@@ -66,7 +69,7 @@ pub fn create_state_proposal(
 
     proposal.state_id = state_id;
 
-    proposal.state_name = state_name.to_uppercase();
+    proposal.state_name = state_name;
 
     proposal.state_authorities = state_authorities;
 
