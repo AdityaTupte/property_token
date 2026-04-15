@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 use crate::{common::{COUNTRY_APPROVE_AUTHORITY_SEEDS, COUNTRY_AUTHORITY, COUNTRY_PROPOSAL_SEEDS, COUNTRY_SEED}, errors::ErrorCode, state::{ApproveCountryAuthority, Country, CountryAuthority, ProposalCountryPda}};
 
 #[derive(Accounts)]
-#[instruction(country_name:String)]
+#[instruction(country_name: [u8;32])]
 pub struct AddCountryAuthority<'info>{
 
      #[account(
@@ -63,7 +63,7 @@ pub struct AddCountryAuthority<'info>{
 
 
 
-pub fn add_country_authority(ctx:Context<AddCountryAuthority>,_country_name:String)->Result<()>{
+pub fn add_country_authority(ctx:Context<AddCountryAuthority>,_country_name: [u8;32],)->Result<()>{
 
 
     let country_receipt = &mut ctx.accounts.country_receipt;

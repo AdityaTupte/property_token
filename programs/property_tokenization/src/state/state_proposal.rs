@@ -10,9 +10,11 @@ pub struct  StateProposalPda{
 
     pub state_id : u16,
 
-    pub state_name: String,
+    pub state_name: [u8;32],
 
-    pub state_authorities : Vec<Pubkey>,
+    pub state_total_authorities : u8,
+
+    // pub state_authorities : Vec<Pubkey>,
 
     pub state_authority_threshold: u8,
 
@@ -20,7 +22,8 @@ pub struct  StateProposalPda{
 
     pub country_pubkey : Pubkey,
 
-    pub approval:Vec<Pubkey>,
+    // pub approval:Vec<Pubkey>,
+     pub approval:u8,
 
     pub approved: bool,
 
@@ -31,25 +34,32 @@ pub struct  StateProposalPda{
 }
 
 impl StateProposalPda {
-    pub const SIZE: usize = 
-                    2 +  // state_id (u16)
+    pub const SIZE: usize =
+        2 +   // state_id (u16)
+        32 +  // state_name [u8;32]
+        1 +   // total_authorities
+        1 +   // threshold
+        2 +   // country_id
+        32 +  // country_pubkey
+        1 +   // approval
+        1 +   // approved
+        1 +   // executed
+        1;    // bump
+}
 
-        4 + MAX_STATE_NAME +  // String (length prefix + data)
+#[account]
+pub struct  StateProposalAprroveReceipt{
 
-        4 + (32 * MAX_STATE_AUTHORITIES) + // Vec<Pubkey>
+    pub proposal:Pubkey,
 
-        1 +  // threshold (u8)
+    pub bump :u8,
 
-        2 +  // country_id (u16)
+}
 
-        32 + // country_pubkey
+impl StateProposalAprroveReceipt{
 
-        4 + (32 * MAX_COUNTRY_AUTHORITY) + // Vec<Pubkey>
 
-        1 +  // approved (bool)
+    pub const SIZE:usize = 32 +1 ;
 
-        1 +  // executed (bool)
 
-        1;   // bump (u8)
-    
 }

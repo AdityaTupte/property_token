@@ -1,6 +1,6 @@
 use anchor_lang:: prelude::*;
 
-use crate::{common::STATE_PROPOSAL_SEEDS, errors::ErrorCode, state::{Country, StateProposalPda}};
+use crate::{common::{COUNTRY_AUTHORITY, STATE_APPROVE_RECEIPT, STATE_PROPOSAL_SEEDS}, errors::ErrorCode, state::{Country, CountryAuthority, StateProposalAprroveReceipt, StateProposalPda}};
 
 
 #[derive(Accounts)]
@@ -24,10 +24,35 @@ pub struct ApproveState<'info>{
     pub country: Account<'info,Country>,
     
     #[account(
-        constraint = country.authority.contains(&signer.key())
+       mut,
     )]
     pub signer: Signer<'info>,
-    
+
+
+    #[account(
+        seeds=[
+            COUNTRY_AUTHORITY,
+            country.key().as_ref(),
+            signer.key().as_ref()
+        ],
+        bump,
+    )]
+    pub country_authority:Account<'info,CountryAuthority>,
+
+    #[account(
+        init,
+        payer= signer,
+        seeds=[
+            STATE_APPROVE_RECEIPT,
+            proposal.key().as_ref(),
+            signer.key().as_ref()
+        ],
+        bump,
+        space = 8 + StateProposalAprroveReceipt::SIZE
+    )]
+    pub state_creation_recepit : Account<'info,StateProposalAprroveReceipt>,
+
+    pub system_program:Program<'info,System>,
 }
 
 
@@ -39,17 +64,28 @@ pub fn approve_state(
 
     let country = &mut ctx.accounts.country;
 
-    let signer = & ctx.accounts.signer;
+    let state_creation_recepit = &mut ctx.accounts.state_creation_recepit;
+    
+    state_creation_recepit.proposal = proposal.key();
 
-    require!(!proposal.approval.contains(&signer.key()) , ErrorCode::AuthorityApproved );
+    state_creation_recepit.bump = ctx.bumps.state_creation_recepit;
 
-    proposal.approval.push(signer.key());
+    proposal.approval += 1;
 
-    if proposal.approval.len() >= country.threshold as usize {
+    if proposal.approval >= country.threshold {
 
         proposal.approved = true;
 
-    }
+    } 
+    // require!(!proposal.approval.contains(&signer.key()) , ErrorCode::AuthorityApproved );
+
+    // proposal.approval.push(signer.key());
+
+    // if proposal.approval.len() >= country.threshold as usize {
+
+    //     proposal.approved = true;
+
+    
 
     Ok(())
 }

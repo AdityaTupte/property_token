@@ -5,7 +5,7 @@ use crate::{common::{ COUNTRY_APPROVE_AUTHORITY_SEEDS, COUNTRY_CREATION_AUHTORIT
 
 
 #[derive(Accounts)]
-#[instruction(country_name:String)]
+#[instruction(country_name:[u8;32])]
 pub struct ApproveCountry<'info>{
 
    #[account(
@@ -53,7 +53,7 @@ pub struct ApproveCountry<'info>{
 
 pub fn approve_country(
     ctx:Context<ApproveCountry>,
-    _country_name:String
+    _country_name:[u8;32]
 )->Result<()>{
 
     let proposal = &mut ctx.accounts.proposal;

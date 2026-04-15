@@ -104,7 +104,7 @@ NotInUppercase,
     #[msg("the given  suthotiry already approved proposal  ")]
     AuthorityApproved,
     
-    #[msg("country name must be between 0 to 32 as uszie")]
+    #[msg("country name cannot be empty")]
     CountryNameInvalid,
 
     #[msg("state name must be between 0 to 32 as uszie")]

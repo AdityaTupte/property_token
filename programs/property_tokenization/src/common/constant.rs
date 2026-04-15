@@ -4,6 +4,8 @@ pub const MAX_ARBITRATOR: usize = 5 ;
 
 pub const COUNTRY_AUTHORITY :&[u8] = b"country_authority_recepit";
 
+pub const STATE_APPROVE_RECEIPT:&[u8] = b"state_approve_receipt";
+
 pub const COUNTRY_CREATION_AUHTORITY : &[u8] = b"authority";
 
 
@@ -23,7 +25,7 @@ pub const MAX_COUNTRY_AUTHORITY: usize = 10;
 pub const STATE_PROPOSAL_SEEDS: &[u8] = b"state_proposal";
 pub const STATE_SEEDS : &[u8] = b"state";
 
-pub const MAX_STATE_NAME: usize = 50;
+pub const MAX_STATE_NAME: usize = 32;
 pub const MAX_STATE_AUTHORITIES: usize = 10;
 
 

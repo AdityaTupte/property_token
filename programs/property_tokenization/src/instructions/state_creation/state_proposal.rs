@@ -2,13 +2,14 @@
 
 use anchor_lang::prelude::*;
 
-use crate::common::{COUNTRY_SEED, STATE_PROPOSAL_SEEDS};
-use crate::functions::assert_unique_owners;
-use crate::state::{Country, StateProposalPda};
+use crate::common::{COUNTRY_AUTHORITY, COUNTRY_SEED, STATE_PROPOSAL_SEEDS};
+use crate::state::{Country, CountryAuthority, StateProposalPda};
 use crate::errors::ErrorCode;
 
 #[derive(Accounts)]
-#[instruction(state_name:String,country_name: String)]
+#[instruction(
+    state_name:[u8;32],
+    country_name:[u8;32])]
 pub struct StateProposal<'info>{
 
     #[account(
@@ -22,10 +23,19 @@ pub struct StateProposal<'info>{
 
     #[account(
         mut,
-        constraint = country.authority.contains(&signer.key()) @ ErrorCode::NotAuthorized
     )]
 
-    pub signer : Signer<'info>,    
+    pub signer : Signer<'info>,  
+
+    #[account(
+        seeds=[
+            COUNTRY_AUTHORITY,
+            country.key().as_ref(),
+            signer.key().as_ref(),
+        ],
+        bump=country_authority.bump
+    )] 
+    pub country_authority : Account<'info,CountryAuthority>,
 
     #[account(
         init,
@@ -36,7 +46,7 @@ pub struct StateProposal<'info>{
             country.key().as_ref(),
         ],
         bump,
-        space = 8 + StateProposalPda::SIZE,
+        space = 8 + StateProposalPda::SIZE
     )]
 
     pub state_proposal: Account<'info,StateProposalPda>,
@@ -47,21 +57,29 @@ pub struct StateProposal<'info>{
 
 pub fn create_state_proposal(
     ctx:Context<StateProposal>,
+    state_name: [u8;32],
+    _country_name: [u8;32],
     state_id : u16,
-    state_name: String,
-    state_authorities : Vec<Pubkey>,
+    state_total_authorities :u8,
     state_authority_threshold: u8,
-    _country_name: String,
+    
 )->Result<()>{
 
     require!(state_name.len() > 0 && state_name.len() <= 32,ErrorCode::StateNameInvalid);
-    require!( state_authorities.len() == 10 ,ErrorCode::StateAuthorityInvalid );
+   
     require!(state_authority_threshold > 0 && state_authority_threshold <=10 , ErrorCode::StateThresholdInvalid);
-    require!(state_name.to_uppercase() == state_name, ErrorCode::NotInUppercase);
+    require!(
+        state_name.iter().any(|&c| c != 0),
+        ErrorCode::CountryNameInvalid
+    );
+    require!(
+        state_name.iter().all(|&c| c == 0 || (c >= b'A' && c <= b'Z')),
+        ErrorCode::NotInUppercase
+    );
 
-    assert_unique_owners(&state_authorities)?;
+    // assert_unique_owners(&state_authorities)?;
     
-    require!(state_authorities.len()  == 10 , ErrorCode::DuplicateAuthority);
+    //require!(state_authorities.len()  == 10 , ErrorCode::DuplicateAuthority);
 
     let proposal = &mut ctx.accounts.state_proposal;
 
@@ -71,7 +89,9 @@ pub fn create_state_proposal(
 
     proposal.state_name = state_name;
 
-    proposal.state_authorities = state_authorities;
+    // proposal.state_authorities = state_authorities;
+
+    proposal.state_total_authorities = state_total_authorities;
 
     proposal.state_authority_threshold = state_authority_threshold;
 

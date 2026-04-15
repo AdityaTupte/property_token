@@ -11,7 +11,7 @@ pub struct ProposalCountryPda{
 
     pub country_id: u16,
 
-    pub country_name: String,
+    pub country_name: [u8;32],
 
     pub country_pda_threshold : u8,
 
@@ -30,5 +30,13 @@ pub struct ProposalCountryPda{
 } 
 
 impl ProposalCountryPda {
-     pub const SIZE: usize  = 2 + (4 + MAX_COUNTRY_NAME) + 1  + 1 + 1 + 1 + 1+ 1 + 1 ;
+     pub const SIZE: usize  =   2 +   // country_id
+        32 +  // country_name
+        1 +   // threshold
+        1 +   // approvals
+        1 +   // approved
+        1 +   // executed
+        1 +   // total_authority
+        1 +   // initialize_authority_count
+        1;    // bump
 }

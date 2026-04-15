@@ -7,7 +7,7 @@ use crate::{common::COUNTRY_PROPOSAL_SEEDS, errors::ErrorCode, state::ProposalCo
 
 
 #[derive(Accounts)]
-#[instruction(country_id:u16,country_name:String)]
+#[instruction(country_name:[u8;32])]
 pub struct ProposeCountry<'info>{
 
     #[account(mut)]
@@ -33,24 +33,27 @@ pub struct ProposeCountry<'info>{
 
 pub fn create_country_proposal(
     ctx:Context<ProposeCountry>,
+    country_name: [u8;32],
     country_id: u16,
-    country_name: String,
     total_authority:u8,
-    // authority: Vec<Pubkey>,
     country_pda_threshold: u8,
 ) -> Result<()>{
 
-        // require_eq!(10,authority.len(), ErrorCode::ApproveAuthorityInvalid);
-
+        
+           
         require!(country_name.len() > 0 && country_name.len() <= 32,ErrorCode::CountryNameInvalid);
 
         require!( country_pda_threshold > 1 && country_pda_threshold <= 10 , ErrorCode::CountryPdaThresholdInvalid);
        
-        // assert_unique_owners(&authority)?;
-
-        // require!( authority.len() == authority.len(),ErrorCode::DuplicateAuthority);
-
-        require!(country_name.to_uppercase() == country_name , ErrorCode::NotInUppercase);
+        require!(
+        country_name.iter().any(|&c| c != 0),
+        ErrorCode::CountryNameInvalid
+    );
+    require!(
+        country_name.iter().all(|&c| c == 0 || (c >= b'A' && c <= b'Z')),
+        ErrorCode::NotInUppercase
+    );
+      
         
         let proposalcountry  = &mut ctx.accounts.country_acc;
 
@@ -58,7 +61,6 @@ pub fn create_country_proposal(
 
         proposalcountry.country_name = country_name;
         
-        // proposalcountry.authority = authority;
         proposalcountry.total_authority = total_authority;
 
         proposalcountry.country_pda_threshold = country_pda_threshold;
@@ -71,5 +73,4 @@ pub fn create_country_proposal(
 
     Ok(())
 }
-
 

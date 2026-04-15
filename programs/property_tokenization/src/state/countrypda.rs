@@ -9,7 +9,7 @@ pub struct Country{
 
     pub country_id: u16,
 
-    pub country_name: String,
+    pub country_name: [u8;32],
 
     pub threshold : u8,    
 

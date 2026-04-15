@@ -57,23 +57,25 @@ pub mod property_tokenization {
     }
 
             
-              //  COUNTRYCREATION
+    //           //  COUNTRYCREATION
     pub fn create_country_proposal(
     ctx:Context<ProposeCountry>,
+    country_name: [u8;32],
     country_id: u16,
-    country_name: String,
+    
     total_authority:u8,
+    
     //authority: Vec<Pubkey>,
     country_pda_threshold: u8,
     )->Result<()>{
 
-        country_creation::create_country_proposal(ctx, country_id, country_name, total_authority, country_pda_threshold)?;
+        country_creation::create_country_proposal(ctx, country_name, country_id, total_authority, country_pda_threshold)?;
         Ok(())
     }
 
     pub fn approve_country(
         ctx:Context<ApproveCountry>,
-        country_name:String
+        country_name: [u8;32],
     )->Result<()>{
 
         country_creation::approve_country(ctx, country_name)?;
@@ -82,7 +84,7 @@ pub mod property_tokenization {
 
     pub fn execute_country_propsal( 
         ctx:Context<ExecuteCountryPda>,
-        country_name:String,
+        country_name: [u8;32],
     )->Result<()>{
 
         country_creation::execute_country_propsal(ctx, country_name)?;
@@ -91,28 +93,33 @@ pub mod property_tokenization {
 
 
     pub fn add_country_authority(
-        ctx:Context<AddCountryAuthority>,country_name:String,
+        ctx:Context<AddCountryAuthority>,country_name: [u8;32],
     )->Result<()>{
         country_creation::add_country_authority(ctx,country_name)?;
         Ok(())
     }
 
-    //             //STATECREATION
+    // //             //STATECREATION
 
 
-    // pub fn create_state_proposal(
-    // ctx:Context<StateProposal>,
-    // state_id : u16,
-    // state_name: String,
-    // state_authorities : Vec<Pubkey>,
-    // state_authority_threshold: u8,
-    // country_name: String
-    // )->Result<()>{
+    pub fn state_creation_proposal(
+            ctx:Context<StateProposal>,
+             state_name: [u8;32],
+              country_name: [u8;32],
+    state_id : u16,
+   
+    //state__total_authorities : Vec<Pubkey>,
+    state_total_authorities :u8,
+    state_authority_threshold: u8,
+   
+    )->Result<()>{
 
-    //     state_creation::create_state_proposal(ctx, state_id, state_name, state_authorities, state_authority_threshold,country_name)?;
-    //     Ok(())
-    // }
+        state_creation::create_state_proposal(ctx, state_name, country_name, state_id, state_total_authorities, state_authority_threshold)?;
 
+        Ok(())
+
+
+    }
 
 
 }

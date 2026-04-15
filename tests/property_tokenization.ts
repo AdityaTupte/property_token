@@ -65,6 +65,12 @@ const systemId = new anchor.BN(1);
    
 ];
 
+function toFixed32(str: string) {
+  const buf = Buffer.alloc(32); // fills with 0s
+  buf.write(str);
+  return buf;
+}
+
   let vec1 = [
   auth1,
   auth2,
@@ -326,33 +332,38 @@ it("Create 10 pubkeyt for authority belongs to approve country", async()=>{
 
 
               //  COUNTRYCREATION
-            
+  const countryName = toFixed32("INDIA");
+              const cou = [...countryName];         
 it("create a country_proposal",async()=>{
 
+  
+  
+  const [countryAccPda] = anchor.web3.PublicKey.findProgramAddressSync(
+    [Buffer.from("country_proposal"), countryName],
+    program.programId
+  );
 
-  try{
-    const create_proposal = await program.methods.createCountryProposal(
-    1,
-    "INDIA",
-    5,
-    3
-  ).accounts(
-    wallet.payer
-  ).rpc()
+  await program.methods.createCountryProposal(
+    cou,
+    1,5,3
+  ).accounts({
+    signer: wallet.publicKey,
+    
+  }).signers([wallet.payer]).rpc()
 
  const [country_proposal] = anchor.web3.PublicKey.findProgramAddressSync(
   [
     Buffer.from("country_proposal"),
-    Buffer.from("INDIA"),
+    toFixed32("INDIA"),
   ],
   program.programId
 );
 
-console.log("pubkey",country_proposal)
+// console.log("pubkey",country_proposal)
  
-// const countryp = await program.account.proposalCountryPda.fetch(country_proposal);
+const countryp = await program.account.proposalCountryPda.fetch(country_proposal);
 
-// console.log(countryp);
+console.log(countryp);
 
   //  const create_proposal2 = await program.methods.createCountryProposal(
   //   2,
@@ -362,17 +373,6 @@ console.log("pubkey",country_proposal)
   // ).accounts(
   //   wallet.payer
   // ).rpc()
-
-
-
-  }
-  catch(e){
-    console.log(e);
-  }
-
-
-
-
 })
 
 
@@ -380,20 +380,20 @@ it("approve country_proposal",async()=>{
 
 for(let i = 0; i < 9; i++){await connection.requestAirdrop(vec1[i].publicKey, 1e9); // 1 SOL
 
-await new Promise(resolve => setTimeout(resolve, 500));}
+await new Promise(resolve => setTimeout(resolve, 100));}
 
-//  const [country_proposal] = anchor.web3.PublicKey.findProgramAddressSync(
-//   [
-//     Buffer.from("country_proposal"),
-//     Buffer.from("INDIA"),
-//   ],
-//   program.programId
-// );
+ const [country_proposal] = anchor.web3.PublicKey.findProgramAddressSync(
+  [
+    Buffer.from("country_proposal"),
+    countryName,
+  ],
+  program.programId
+);
 
 try {
-  for(let i = 0; i < 4; i++){
+  for(let i = 0; i < 5; i++){
   const tx = await program.methods.approveCountry(
-   "INDIA",
+    cou
   )
 .accounts({          
   signer: vec1[i].publicKey,          
@@ -405,59 +405,63 @@ try {
   console.log(error);
 }
 
+const countryp = await program.account.proposalCountryPda.fetch(country_proposal);
+
+console.log(countryp);
+
 })
 
 
-it("exceute_country_proposal",async()=>{
+ it("exceute_country_proposal",async()=>{
 
-  const [country_proposal] = anchor.web3.PublicKey.findProgramAddressSync(
-  [
-    Buffer.from("country_proposal"),
-    Buffer.from("INDIA"),
-  ],
-  program.programId
-);
+//    const [country_proposal] = anchor.web3.PublicKey.findProgramAddressSync(
+//    [
+//      Buffer.from("country_proposal"),
+//      countryName,
+//    ],
+//    program.programId
+//  );
 
-await connection.requestAirdrop(auth1.publicKey, 1e9); // 1 SOL
+ await connection.requestAirdrop(auth1.publicKey, 1e9); // 1 SOL
 
-await new Promise(resolve => setTimeout(resolve, 1000));
+ await new Promise(resolve => setTimeout(resolve, 1000));
 
-  try {
-    const exceute = await program.methods.executeCountryPropsal(
-      "INDIA"
-    ).accounts(
-     {
-      signer:auth1.publicKey
-      }
-  ).signers([auth1]).rpc();
+   try {
+     const exceute = await program.methods.executeCountryPropsal(
+      cou,
+     ).accounts(
+      {
+       signer:auth1.publicKey
+       }
+   ).signers([auth1]).rpc();
 
 
-  } catch (error) {
-    console.log(error)
-  }
+   } catch (error) {
+     console.log(error)
+   }
   
-  const [country] = anchor.web3.PublicKey.findProgramAddressSync(
-  [
-    Buffer.from("country"),
-    Buffer.from("INDIA"),
-  ],
-  program.programId
-);
+   const [country] = anchor.web3.PublicKey.findProgramAddressSync(
+   [
+     Buffer.from("country"),
+     countryName,
+   ],
+   program.programId
+ );
 
-  const acc = await program.account.country.fetch(country);
+   const acc = await program.account.country.fetch(country);
 
-  console.log(acc);
+   console.log(acc);
 
-})
+ })
 
 it("add country authorities",async()=>{
 
 
 try {
-  for(let i =0;i<6;i++){
+  for(let i =0;i<7;i++){
 
   const tx = await program.methods.addCountryAuthority(
-    "INDIA",
+    cou,
   ).accounts(
     {
       signer:auth1.publicKey,
@@ -468,7 +472,7 @@ try {
   const [country] = anchor.web3.PublicKey.findProgramAddressSync(
   [
     Buffer.from("country"),
-    Buffer.from("INDIA"),
+    countryName,
   ],
   program.programId
 );
@@ -485,36 +489,59 @@ console.log(error);
 
 })
 
-            //STATECREATION
+//             STATECREATION
 
-// it("create a state_proposal",async()=>{
+const stateName = toFixed32("MAHARASHTRA");
+              const sta = [...stateName]; 
+
+it("create a state_proposal",async()=>{
+
+for(let i = 0; i < 9; i++){await connection.requestAirdrop(country_auth_vec[i].publicKey, 1e9); // 1 SOL
+
+await new Promise(resolve => setTimeout(resolve, 100));}
+
+ const [country] = anchor.web3.PublicKey.findProgramAddressSync(
+  [
+    Buffer.from("country"),
+    countryName
+  ],
+  program.programId
+);
+
+ try {
+   const state_proposal = await program.methods.stateCreationProposal(
+    sta,
+    cou,
+    1,5,3
+   ).accounts(
+    {
+      signer:country_auth1.publicKey
+    }
+   ).signers([country_auth1]).rpc()
 
 
-//  const [country] = anchor.web3.PublicKey.findProgramAddressSync(
-//   [
-//     Buffer.from("country"),
-//     Buffer.from("INDIA"),
-//   ],
-//   program.programId
-// );
+ 
 
-//  try {
-//    const state_proposal = await program.methods.createStateProposal(
-//     1,
-//     "MAHARASHTRA",
-//     country_auth_vec,
-//     2,
-//     "INDIA"
-//   ).accounts({ 
-//     signer:auth1.publicKey,
-//   }).signers([auth1]).rpc()
+ } catch (error) {
+console.log(error);  
+ }
 
-//  } catch (error) {
-// console.log(error);  
-//  }
+ const [state_proposal_account] =  anchor.web3.PublicKey.findProgramAddressSync(
+          [
+            Buffer.from("state_proposal"),
+            stateName,
+            country.toBytes(),
+          ],
+          program.programId
+        );
+
+  const proposal = await program.account.stateProposalPda.fetch(state_proposal_account);
+
+  console.log(proposal);
+  
 
 
-// })
+})
 
 
 

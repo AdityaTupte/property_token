@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 use crate::{common::{COUNTRY_PROPOSAL_SEEDS, COUNTRY_SEED}, errors::ErrorCode, state::{Country, ProposalCountryPda}};
 
 #[derive(Accounts)]
-#[instruction(country_name:String)]
+#[instruction(country_name:[u8;32])]
 pub struct ExecuteCountryPda<'info>{
 
     #[account(
@@ -40,7 +40,7 @@ pub struct ExecuteCountryPda<'info>{
 
 pub fn execute_country_propsal(
     ctx:Context<ExecuteCountryPda>,
-    _country_name:String
+    _country_name:[u8;32]
 )->Result<()>{
 
     let proposal = &mut ctx.accounts.proposal;
@@ -49,9 +49,7 @@ pub fn execute_country_propsal(
 
     country.country_id = proposal.country_id;
     
-    country.country_name = proposal.country_name.clone();
-
-    // country.total_authority = proposal.total_authority;
+    country.country_name = proposal.country_name;
 
     country.threshold = proposal.country_pda_threshold;
 
