@@ -4,6 +4,8 @@ pub const MAX_ARBITRATOR: usize = 5 ;
 
 pub const COUNTRY_AUTHORITY :&[u8] = b"country_authority_recepit";
 
+pub const STATE_AUTHORITY :&[u8] = b"state_authority_recepit";
+
 pub const STATE_APPROVE_RECEIPT:&[u8] = b"state_approve_receipt";
 
 pub const COUNTRY_CREATION_AUHTORITY : &[u8] = b"authority";
@@ -32,7 +34,7 @@ pub const MAX_STATE_AUTHORITIES: usize = 10;
 pub const PROPERTY_SYSTEM_SEEDS : &[u8] =  b"property_system_account";
 pub const PROPERTY_PAGE_SEEDS : &[u8] = b"property_page";
 
-
+pub const PROPERTY_APPROVAL_RECEIPT : &[u8] = b"property_approval_receipt";
 
 pub const PROPERTY_PROPOSAL_SEEDS: &[u8] = b"property_proposal";
 pub const PROPERTY_SEED : &[u8] = b"property";

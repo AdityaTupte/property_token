@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use anchor_spl::associated_token::spl_associated_token_account::solana_program::nonce::state;
 
 pub const MAX_STATE_NAME :usize = 64;
 pub  const MAX_STATE_ACUTHORITY : usize = 10;
@@ -7,13 +8,13 @@ pub struct State{
 
     pub state_id : u16,
 
-    pub state_name: String,
+    pub state_name: [u8;32],
 
     pub country_id : u16,
 
     pub country_pubkey : Pubkey,
 
-    pub authorities : Vec<Pubkey>,
+    pub total_authorities : u8,
 
     pub threshold : u8,
 
@@ -25,12 +26,26 @@ impl State {
 
     pub const SIZE: usize =
 
-        8 +
-        4 + MAX_STATE_NAME +
+        2 +
+        32+
         2 +
         32 +
-        4  + (32 * MAX_STATE_ACUTHORITY) +
+        1+
         1 + 
         1 ;
+}
+
+
+#[account]
+pub struct StateAuthority{
+
+    pub state_pubkey : Pubkey,
+
+    pub bump : u8,
+}
+
+impl StateAuthority {
+
+   pub const SIZE : usize =  32 +1 ;
 }
 

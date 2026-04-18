@@ -14,7 +14,8 @@ import {
   createTransferCheckedWithTransferHookInstruction,
   getExtraAccountMetas,
   getMint,
-  getAccount
+  getAccount,
+  approve
 } from "@solana/spl-token";
 
 import {
@@ -108,6 +109,13 @@ function toFixed32(str: string) {
         country_auth9,
          country_auth10,
    ] 
+   const [propertySystemPda] = anchor.web3.PublicKey.findProgramAddressSync(
+  [
+    Buffer.from("property_system_account"),
+    systemId.toArrayLike(Buffer, "le", 8),
+  ],
+  program.programId
+);
 
 
   it("create the property_token account and verfiy it",async() =>{
@@ -144,13 +152,7 @@ console.log("Expected PDA:", pda.toBase58());
 
   
 //property_system
-const [propertySystemPda] = anchor.web3.PublicKey.findProgramAddressSync(
-  [
-    Buffer.from("property_system_account"),
-    systemId.toArrayLike(Buffer, "le", 8),
-  ],
-  program.programId
-);
+
 const account = await program.account.propertySystemAccount.fetch(propertySystemPda);
 console.log("PDA:", propertySystemPda.toBase58());
 assert.equal(account.propertySystemId.toString(), "1");
@@ -469,7 +471,15 @@ try {
     }
   ).signers([auth1]).rpc();
 
-  const [country] = anchor.web3.PublicKey.findProgramAddressSync(
+ 
+
+}
+
+} catch (error) {
+console.log(error);  
+}
+
+ const [country] = anchor.web3.PublicKey.findProgramAddressSync(
   [
     Buffer.from("country"),
     countryName,
@@ -481,12 +491,6 @@ try {
 
   console.log(acc);
 
-}
-
-} catch (error) {
-console.log(error);  
-}
-
 })
 
 //             STATECREATION
@@ -494,19 +498,31 @@ console.log(error);
 const stateName = toFixed32("MAHARASHTRA");
               const sta = [...stateName]; 
 
-it("create a state_proposal",async()=>{
-
-for(let i = 0; i < 9; i++){await connection.requestAirdrop(country_auth_vec[i].publicKey, 1e9); // 1 SOL
-
-await new Promise(resolve => setTimeout(resolve, 100));}
-
- const [country] = anchor.web3.PublicKey.findProgramAddressSync(
+const [country] = anchor.web3.PublicKey.findProgramAddressSync(
   [
     Buffer.from("country"),
     countryName
   ],
   program.programId
 );
+
+// const countryName2 = toFixed32("USA");
+
+// const [country2] = anchor.web3.PublicKey.findProgramAddressSync(
+//   [
+//     Buffer.from("country"),
+//     countryName2
+//   ],
+//   program.programId
+// );
+
+it("create a state_proposal",async()=>{
+
+for(let i = 0; i < 9; i++){await connection.requestAirdrop(country_auth_vec[i].publicKey, 1e9); // 1 SOL
+
+await new Promise(resolve => setTimeout(resolve, 100));}
+
+
 
  try {
    const state_proposal = await program.methods.stateCreationProposal(
@@ -530,7 +546,7 @@ console.log(error);
           [
             Buffer.from("state_proposal"),
             stateName,
-            country.toBytes(),
+            country.toBuffer(),
           ],
           program.programId
         );
@@ -540,11 +556,261 @@ console.log(error);
   console.log(proposal);
   
 
+})
+ 
+it("approve state",async() => {
+
+
+   
+
+try {
+   for(let i= 0;i<4;i++){
+
+    const [approve] = await program.methods.stateProposalApproval(
+    sta,
+    cou
+  ).accounts({
+    signer:(country_auth_vec[i]).publicKey,
+  
+  }).signers([country_auth_vec[i]]).rpc()
+  }
+} catch (error) {
+  console.log(error);
+  
+}
+
+  
+const [state_proposal_account] =  anchor.web3.PublicKey.findProgramAddressSync(
+          [
+            Buffer.from("state_proposal"),
+            stateName,
+            country.toBytes(),
+          ],
+          program.programId
+        );
+
+  const proposal = await program.account.stateProposalPda.fetch(state_proposal_account);
+
+  console.log(proposal);
+  
+})
+
+
+it("execute state proposal",async()=>{
+
+  const exceute = await program.methods.stateProposalExecute(
+    sta,
+    cou
+  ).accounts(
+    wallet.payer
+  ).rpc();
+
+  const [state_pda_key] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("state"),
+      stateName,
+      country.toBuffer(),
+    ],
+    program.programId,
+  );
+  console.log("STATE_ACCOUNT PDA",state_pda_key);
+
+
+  const state_account = await program.account.state.fetch(state_pda_key);
+
+  console.log(state_account);
 
 })
 
 
+const state_auth1 = Keypair.generate();
+const state_auth2= Keypair.generate();
+const state_auth3 = Keypair.generate();
+const state_auth4 = Keypair.generate();
+const state_auth5 = Keypair.generate();
+const state_auth6 = Keypair.generate();
 
+const state_auth = [
+  state_auth1,
+  state_auth2,
+  state_auth3,
+  state_auth4,
+  state_auth5,
+  state_auth6,
+
+]
+const [state_pda_key] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("state"),
+      stateName,
+      country.toBuffer(),
+    ],
+    program.programId,
+  );
+
+
+it("add state authority",async()=>{
+
+
+try {
+  for(let i =0;i<6;i++){
+
+  const tx = await program.methods.addStateAuhtority(
+    cou,
+    sta,
+  ).accounts(
+    {
+      signer:country_auth1.publicKey,
+      stateAuthority:state_auth[i].publicKey,
+    }
+  ).signers([country_auth1]).rpc();
+
+}
+
+} catch (error) {
+console.log(error);  
+}
+
+
+  console.log("STATE_ACCOUNT PDA",state_pda_key);
+
+
+  const state_account = await program.account.state.fetch(state_pda_key);
+
+  console.log(state_account);
+
+
+})
+
+let legal_doc_hash =  [...toFixed32("abc")];
+
+it("create property_proposal",async()=>{
+
+  for(let i = 0; i < 6; i++){await connection.requestAirdrop(state_auth[i].publicKey, 1e9); // 1 SOL
+
+  await new Promise(resolve => setTimeout(resolve, 100));}
+
+  const property_proposal = await program.methods.createPropertyProposal(
+    country,
+    sta,
+    new anchor.BN(1),
+    legal_doc_hash,
+  ).accounts(
+    {
+      signer:state_auth1.publicKey,
+      
+    }
+  ).signers([state_auth1]).rpc();
+
+// const propertyId = new anchor.BN(1);
+
+//   const [property_proposal_key] =  anchor.web3.PublicKey.findProgramAddressSync(
+//     [
+//       Buffer.from("property_proposal"),
+//       propertyId.toArrayLike(Buffer, "le", 8),
+//       state_pda_key.toBuffer()
+//     ],
+//     program.programId
+//   ) ;
+
+//   const acc = await program.account.propertyProposal.fetch(property_proposal_key);
+
+//   console.log(acc);
+
+
+})
+const propertyId = new anchor.BN(1);
+
+it("approve property proposal",async()=>{
+
+  for (let element = 0; element<3 ;element++) {
+      const tx = await program.methods.approvePropertyProposal(
+    country,
+    sta,
+    new anchor.BN(1)
+  ).accounts(
+    {signer:state_auth[element].publicKey}
+  ).signers([state_auth[element]]).rpc()
+  }
+
+  
+
+  const [property_proposal_key] =  anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("property_proposal"),
+      propertyId.toArrayLike(Buffer, "le", 8),
+      state_pda_key.toBuffer()
+    ],
+    program.programId
+  ) ;
+
+  const acc = await program.account.propertyProposal.fetch(property_proposal_key);
+
+  console.log(acc);
+
+  
+  
+  });
+
+
+  it("execute property",async()=>{
+
+    const tx = await program.methods.executePropertyPropsal(
+      country,
+      sta,
+      new anchor.BN(1),
+      new anchor.BN(1),
+       propertySystemPda
+    ).accounts({
+      signer:state_auth1.publicKey
+    }).signers([state_auth1]).rpc();
+
+
+const [property_key] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("property"),
+      propertyId.toArrayLike(Buffer, "le", 8),
+      state_pda_key.toBuffer()
+    ],
+    program.programId,
+  )
+
+
+const acc = await program.account.propertyAccount.fetch(property_key);
+
+console.log(acc);
+
+
+
+const [property_proposal_key] =  anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("property_proposal"),
+      propertyId.toArrayLike(Buffer, "le", 8),
+      state_pda_key.toBuffer()
+    ],
+    program.programId
+  ) ;
+
+  const acc2 = await program.account.propertyProposal.fetch(property_proposal_key);
+
+  console.log(acc2);
+
+  const [meta_key] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("property_metadata"),
+      property_key.toBuffer()
+    ],
+    program.programId,
+  )
+
+
+const meta = await program.account.propertyAccountMetadata.fetch(meta_key);
+
+console.log(meta);
+
+  })
+
+  
 
 
 });

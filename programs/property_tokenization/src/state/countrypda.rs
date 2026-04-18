@@ -20,7 +20,7 @@ pub struct Country{
 }
 
 impl Country {
-     pub const SIZE: usize  = 2 + (4  + MAX_COUNTRY_NAME) + 1  +1 +  1 ;
+     pub const SIZE: usize  = 2 + 32+ 1  +1 +  1 ;
 }
 
 

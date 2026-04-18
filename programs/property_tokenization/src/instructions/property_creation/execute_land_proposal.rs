@@ -1,70 +1,81 @@
     use anchor_lang::prelude::*;
 
-    use crate::common::{PROPERTY_METADATA_SEEDS, PROPERTY_PAGE_SEEDS, PROPERTY_PROPOSAL_SEEDS, PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, STATE_SEEDS};
-    use crate::state::{ PropertyAccount, PropertyAccountMetadata, PropertyPage, PropertyProposal, PropertySystemAccount, State};
+    use crate::common::{PROPERTY_METADATA_SEEDS, PROPERTY_PAGE_SEEDS, PROPERTY_PROPOSAL_SEEDS, PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, STATE_AUTHORITY, STATE_SEEDS};
+    use crate::state::{ PropertyAccount, PropertyAccountMetadata, PropertyPage, PropertyProposal, PropertySystemAccount, State, StateAuthority};
 
     use crate::errors::ErrorCode::{self};
 
     #[derive(Accounts)]
-
+#[instruction(country_key:Pubkey,state_name:[u8;32],property_id:u64,property_system_id:u64)]
     pub struct ExecutePropertyProposal<'info>{
 
         #[account(
             mut,
             seeds = [ 
                 PROPERTY_SYSTEM_SEEDS,
-                &property_system_account.property_system_id.to_le_bytes(),
+                &property_system_id.to_le_bytes(),
             ],
-            bump,
+            bump= property_system_account.bump,
         )]
         pub property_system_account : Account<'info,PropertySystemAccount>,
 
 
-        #[account(
-            mut,
-            seeds = [
-                PROPERTY_PAGE_SEEDS,
-                &property_page.page.to_le_bytes(),
-                property_system_account.key().as_ref()
-            ],
-            bump = property_page.bump,
-            constraint = property_page.property_system == property_system_account.key() @ ErrorCode::PropertySystemInvalid
-        )]
+        // #[account(
+        //     mut,
+        //     seeds = [
+        //         PROPERTY_PAGE_SEEDS,
+        //         &page.to_le_bytes(),
+        //         property_system_account.key().as_ref()
+        //     ],
+        //     bump = property_page.bump,
+        //     constraint = property_page.property_system == property_system_account.key() @ ErrorCode::PropertySystemInvalid
+        // )]
 
-        pub property_page : Account<'info,PropertyPage>,
+        // pub property_page : Account<'info,PropertyPage>,
 
 
-        #[account(
-            seeds = [
-                STATE_SEEDS,
-                &state.state_id.to_le_bytes(),
-                state.country_pubkey.as_ref(),
-            ],
-            bump = state.bump,
-        )]
-        pub state: Account<'info,State>,
+         #[account(
+        seeds=[
+            STATE_SEEDS,
+            state_name.as_ref(),
+            country_key.as_ref(),
+        ],
+        bump = state.bump,
+       constraint =  country_key == state.country_pubkey @ ErrorCode::InvalidCountry
+    )]
+    pub state: Account<'info,State>,
+
 
         #[account(
             mut,
             seeds=[
                 PROPERTY_PROPOSAL_SEEDS,
-                &property_proposal.property_id.to_le_bytes(),
+                &property_id.to_le_bytes(),
                 state.key().as_ref(),
             ],
             bump = property_proposal.bump,
             constraint = property_proposal.approved @ ErrorCode::ProposalNotApproved,
+            constraint = !property_proposal.executed @ ErrorCode::ProposalAlreadyExexuted,
             constraint = property_proposal.state_pubkey == state.key() @ ErrorCode::InvalidProperty,
-            close = signer
         )]
 
         pub property_proposal: Account<'info,PropertyProposal>,
 
         #[account(
-            mut,
-            constraint = state.authorities.contains(&signer.key()) @ ErrorCode::NotAuthorized
+            mut
         )]
 
         pub signer: Signer<'info>,
+
+        #[account(
+        seeds=[
+            STATE_AUTHORITY,
+            country_key.as_ref(),
+            signer.key().as_ref()
+        ],
+        bump= state_authority_receipt.bump,
+    )]
+    pub state_authority_receipt : Account<'info,StateAuthority>,
 
         #[account(
             init,
@@ -97,7 +108,8 @@
     }
 
     pub fn execute(
-        ctx:Context<ExecutePropertyProposal>
+        ctx:Context<ExecutePropertyProposal>,
+        _country_key:Pubkey,_state_name:[u8;32],_property_id:u64,_property_system_id:u64,property_system_pubkey:Pubkey,
     )->Result<()>{
 
         let proposal = &mut ctx.accounts.property_proposal ;
@@ -106,22 +118,24 @@
 
         let metadata = &mut ctx.accounts.property_metadata;
 
-        let property_page  = &mut ctx.accounts.property_page;
+        require!(property_system_pubkey == ctx.accounts.property_system_account.key() ,ErrorCode::PropertySystemInvalid);
+
+        // let property_page  = &mut ctx.accounts.property_page;
 
         let state = & ctx.accounts.state;
 
         let current_time = Clock::get()?.unix_timestamp;
         
-        require!(property_page.land.len() < 100 , ErrorCode::PageFull);
+        // require!(property_page.land.len() < 100 , ErrorCode::PageFull);
         require!(!proposal.executed, ErrorCode::AlreadyExecuted);
 
-        property_page.land.push(property_acc.key());
+        // property_page.land.push(property_acc.key());
 
         property_acc.property_id = proposal.property_id;
 
         property_acc.property_system = ctx.accounts.property_system_account.key();
 
-        property_acc.page_number = property_page.page;
+        // property_acc.page_number = property_page.page;
     
         property_acc.state_id = state.state_id;
 

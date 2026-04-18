@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::common::MAX_STATE_AUTHORITIES;
+
 
 pub const MAX_APPROVAL:usize =10 ;
 #[account]
@@ -21,7 +21,7 @@ pub struct PropertyProposal{
 
     pub issued_by : Pubkey,
 
-    pub approval : Vec<Pubkey>,
+    pub approval_count :u8,
 
     pub approved : bool,
 
@@ -39,8 +39,22 @@ impl PropertyProposal {
                 32 +
                 32 +
                 32 +
-                4 + (32 * MAX_STATE_AUTHORITIES) + 
+               8 + 
                 1 +
                 1 +
                 1 ;
+}
+
+
+#[account]
+pub struct PropertyProposalReceipt {
+
+    pub proposal_pubkey : Pubkey,
+
+    pub bump : u8,
+
+}
+
+impl PropertyProposalReceipt {
+  pub  const SIZE:usize = 32 +1 ;
 }

@@ -116,6 +116,9 @@ NotInUppercase,
     #[msg("the proposal is not approved yet by the authorities")]
     ProposalNotApproved,
 
+    #[msg("the propsal is already passed")]
+    ProposalAlreadyExexuted,
+
     #[msg("the threshold must be between 1  to  10")]
     CountryPdaThresholdInvalid,
 

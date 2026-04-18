@@ -1,5 +1,4 @@
 use anchor_lang::prelude::*;
-
 pub mod instructions;
 pub mod state;
 pub mod events;
@@ -55,20 +54,15 @@ pub mod property_tokenization {
         Ok(())
 
     }
-
-            
+   
     //           //  COUNTRYCREATION
     pub fn create_country_proposal(
     ctx:Context<ProposeCountry>,
     country_name: [u8;32],
     country_id: u16,
-    
     total_authority:u8,
-    
-    //authority: Vec<Pubkey>,
     country_pda_threshold: u8,
     )->Result<()>{
-
         country_creation::create_country_proposal(ctx, country_name, country_id, total_authority, country_pda_threshold)?;
         Ok(())
     }
@@ -77,7 +71,6 @@ pub mod property_tokenization {
         ctx:Context<ApproveCountry>,
         country_name: [u8;32],
     )->Result<()>{
-
         country_creation::approve_country(ctx, country_name)?;
         Ok(())
     }
@@ -86,7 +79,6 @@ pub mod property_tokenization {
         ctx:Context<ExecuteCountryPda>,
         country_name: [u8;32],
     )->Result<()>{
-
         country_creation::execute_country_propsal(ctx, country_name)?;
         Ok(())
     }
@@ -103,15 +95,12 @@ pub mod property_tokenization {
 
 
     pub fn state_creation_proposal(
-            ctx:Context<StateProposal>,
-             state_name: [u8;32],
-              country_name: [u8;32],
+    ctx:Context<StateProposal>,
+    state_name: [u8;32],
+    country_name: [u8;32],
     state_id : u16,
-   
-    //state__total_authorities : Vec<Pubkey>,
     state_total_authorities :u8,
     state_authority_threshold: u8,
-   
     )->Result<()>{
 
         state_creation::create_state_proposal(ctx, state_name, country_name, state_id, state_total_authorities, state_authority_threshold)?;
@@ -121,5 +110,70 @@ pub mod property_tokenization {
 
     }
 
+    pub fn state_proposal_approval(
+        ctx:Context<ApproveState>,
+         state_name:[u8;32],
+    country_name:[u8;32]
+    )->Result<()>{
+
+        state_creation::approve_state(ctx, state_name, country_name)?;
+
+        Ok(())
+    }
+
+
+    pub fn state_proposal_execute(
+        ctx:Context<ExecuteStatePda>,
+         state_name:[u8;32],
+    country_name:[u8;32]
+    )->Result<()>{
+        state_creation::execute_state_proposal(ctx, state_name, country_name)?;
+
+        Ok(())
+    }
+
+
+    pub fn add_state_auhtority(
+         ctx:Context<AddStateAuthority>,
+         country_name:[u8;32],
+          state_name:[u8;32],
+    )->Result<()>{
+
+
+        state_creation::add_state_authority(ctx, country_name, state_name)?;
+
+            Ok(())
+    }
+
+    pub fn create_property_proposal(
+        ctx:Context<CreatePropertyProposal>,
+        country_key:Pubkey,
+        state_name:[u8;32],
+        property_id : u64,
+        legal_doc_hash: [u8; 32],
+    )->Result<()>{
+        property_creation::create_proposal(ctx, country_key, state_name, property_id, legal_doc_hash)?;
+            Ok(())
+    }
+
+    pub fn approve_property_proposal(
+        ctx:Context<ApproveLand>,
+        country_key:Pubkey,state_name:[u8;32],property_id:u64,
+    )->Result<()>{
+
+        property_creation::approve(ctx, country_key, state_name, property_id)?;
+            Ok(())
+
+    }
+
+    pub fn execute_property_propsal(
+        ctx:Context<ExecutePropertyProposal>,
+        country_key:Pubkey,state_name:[u8;32],property_id:u64,property_system_id:u64,property_system_pubkey:Pubkey,
+    )->Result<()>{
+
+        property_creation::execute(ctx, country_key, state_name, property_id, property_system_id,property_system_pubkey)?;
+        Ok(())
+
+    }
 
 }

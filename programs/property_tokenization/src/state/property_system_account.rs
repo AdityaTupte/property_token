@@ -26,7 +26,6 @@ pub struct PropertySystemAccount{
 
     pub bump : u8,
 
-    // pub state : Pubkey,
 
 }
 

@@ -1,16 +1,19 @@
 use anchor_lang:: prelude::*;
 
-use crate::{common::{COUNTRY_AUTHORITY, STATE_APPROVE_RECEIPT, STATE_PROPOSAL_SEEDS}, errors::ErrorCode, state::{Country, CountryAuthority, StateProposalAprroveReceipt, StateProposalPda}};
+use crate::{common::{COUNTRY_AUTHORITY, COUNTRY_SEED, STATE_APPROVE_RECEIPT, STATE_PROPOSAL_SEEDS}, errors::ErrorCode, state::{Country, CountryAuthority, StateProposalAprroveReceipt, StateProposalPda}};
 
 
 #[derive(Accounts)]
+#[instruction(
+    state_name:[u8;32],
+    country_name:[u8;32])]
 pub struct ApproveState<'info>{
 
     #[account(
         mut,
         seeds =[
             STATE_PROPOSAL_SEEDS,
-            &proposal.state_id.to_le_bytes(),
+            state_name.as_ref(),
             country.key().as_ref(),
         ],
         bump = proposal.bump,
@@ -19,7 +22,12 @@ pub struct ApproveState<'info>{
     pub proposal: Account<'info,StateProposalPda>,
     
     #[account(
-        constraint = proposal.country_id == country.country_id @ ErrorCode::InvalidCountry
+        seeds = [
+            COUNTRY_SEED,
+            country_name.as_ref()
+            ],
+        bump = country.bump,
+        constraint = proposal.country_pubkey == country.key() @ ErrorCode::InvalidCountry
     )]
     pub country: Account<'info,Country>,
     
@@ -57,7 +65,9 @@ pub struct ApproveState<'info>{
 
 
 pub fn approve_state(
-    ctx:Context<ApproveState>
+    ctx:Context<ApproveState>,
+    _state_name:[u8;32],
+    _country_name:[u8;32]
 )->Result<()>{
 
     let proposal = &mut ctx.accounts.proposal;
