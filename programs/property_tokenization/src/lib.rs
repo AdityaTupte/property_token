@@ -24,23 +24,42 @@ pub mod property_tokenization {
         arbitrator_salary_threshold:u8,
         dividend_threshold:u8,
         reinvestment_threshold:u8,
+        total_trustees:u8,
+        trustee_vote_threshold:u8,
+        total_arbitrar:u8,
+        arbitrar_vote_threshold:u8,
     )->Result<()>{
 
-        create_property_system_account::create(
-            ctx,
-            system_id,
-            decimal, 
-            number_of_tokens, 
-            safety_threshold, 
-            trustee_salary_threshold, 
-            arbitrator_salary_threshold, 
-            dividend_threshold, 
-            reinvestment_threshold
-        )?;
+        property_system::create(ctx, system_id, decimal, number_of_tokens, safety_threshold, trustee_salary_threshold, arbitrator_salary_threshold, dividend_threshold, reinvestment_threshold, total_trustees, trustee_vote_threshold, total_arbitrar, arbitrar_vote_threshold)?;
 
 
         Ok(())
     }
+   
+                    //ADD TRUSTEE
+
+    pub fn add_trustee(ctx: Context<AddTrustee>, system_id:u64) -> Result<()> {
+
+        property_system::add_trustee(ctx, system_id)?;
+
+        Ok(())
+    }
+
+
+
+
+                    //ADD ARBITRATOR
+
+
+    pub fn add_arbitrator(ctx: Context<AddArbitrator>, system_id:u64) -> Result<()> {
+
+        property_system::add_arbitrator(ctx, system_id)?;
+
+        Ok(())
+    }
+    
+
+
                  //COUNTRYCREATIONAUTHORIY
     pub fn create_approve_country_authority(
         ctx:Context<CreateApproveCountryAuthority>,
@@ -150,9 +169,10 @@ pub mod property_tokenization {
         country_key:Pubkey,
         state_name:[u8;32],
         property_id : u64,
+        property_system_id:u64,
         legal_doc_hash: [u8; 32],
     )->Result<()>{
-        property_creation::create_proposal(ctx, country_key, state_name, property_id, legal_doc_hash)?;
+        property_creation::create_proposal(ctx, country_key, state_name, property_id, property_system_id, legal_doc_hash)?;
             Ok(())
     }
 
@@ -166,14 +186,37 @@ pub mod property_tokenization {
 
     }
 
-    pub fn execute_property_propsal(
+    pub fn execute_property_proposal(
         ctx:Context<ExecutePropertyProposal>,
-        country_key:Pubkey,state_name:[u8;32],property_id:u64,property_system_id:u64,property_system_pubkey:Pubkey,
+        country_key:Pubkey,state_name:[u8;32],property_id:u64,property_system_id:u64,
     )->Result<()>{
 
-        property_creation::execute(ctx, country_key, state_name, property_id, property_system_id,property_system_pubkey)?;
+        property_creation::execute(ctx, country_key, state_name, property_id, property_system_id,)?;
         Ok(())
 
+    }
+
+
+            // SELL PROPERTY
+
+    pub fn create_sell_proposal(
+        ctx:Context<SellLandProposal>,
+        proposal_id: u64,
+        property_id:u64,
+        property_system_id:u64,
+        state_pubkey:Pubkey,
+        sale_price:u64
+    )->Result<()>{
+
+        sell_property_proposal::create_sell_proposal(ctx, proposal_id, property_id, property_system_id, state_pubkey, sale_price)?;
+        Ok(())
+    }
+
+
+    pub fn sell_proposal_arbitrar_vote(ctx:Context<ArbitrarApproval>,proposal_id: u64,property_system_id:u64 )->Result<()>{
+        
+        sell_proposal_arbitrar_vote::sell_proposal_arbitrar_vote(ctx, proposal_id, property_system_id)?;
+        Ok(())
     }
 
 }

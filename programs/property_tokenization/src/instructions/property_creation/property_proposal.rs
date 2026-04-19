@@ -1,22 +1,23 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{ COUNTRY_SEED, PROPERTY_PROPOSAL_SEEDS, STATE_AUTHORITY, STATE_SEEDS}, errors::ErrorCode, state::{ Country, PropertyProposal, State, StateAuthority}};
+use crate::{common::{ COUNTRY_SEED, PROPERTY_PROPOSAL_SEEDS, PROPERTY_SYSTEM_SEEDS, STATE_AUTHORITY, STATE_SEEDS}, errors::ErrorCode, state::{ Country, PropertyProposal, PropertySystemAccount, State, StateAuthority}};
 
 
 
 #[derive(Accounts)]
-#[instruction(country_key:Pubkey,state_name:[u8;32],property_id:u64,)]
+#[instruction(country_key:Pubkey,state_name:[u8;32],property_id:u64,property_system_id:u64)]
 pub struct CreatePropertyProposal<'info>{
 
-//    #[account(
-//         seeds = [
-//             COUNTRY_SEED,
-//             country_name.as_ref()
-//             ],
-//         bump = country.bump
-//     )]
-//     pub country : Account<'info,Country>,
-
+        #[account(
+            mut,
+            seeds = [ 
+                PROPERTY_SYSTEM_SEEDS,
+                &property_system_id.to_le_bytes(),
+            ],
+            bump= property_system.bump,
+            constraint = property_system.ready_for_listing @ ErrorCode::PropertySystemReadyForListing
+        )]
+        pub property_system : Account<'info,PropertySystemAccount>,
     #[account(
         seeds=[
             STATE_SEEDS,
@@ -65,6 +66,7 @@ pub fn create_proposal(
     _country_key:Pubkey,
     _state_name:[u8;32],
     property_id : u64,
+    _property_system_id:u64,
     legal_doc_hash: [u8; 32],
 )->Result<()>{
 
@@ -72,6 +74,7 @@ pub fn create_proposal(
 
         let state = & ctx.accounts.state;
 
+        proposal.property_system_pubkey = ctx.accounts.property_system.key();
 
         proposal.property_id = property_id;
 

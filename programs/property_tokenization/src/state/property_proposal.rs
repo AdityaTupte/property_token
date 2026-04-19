@@ -9,6 +9,8 @@ pub struct PropertyProposal{
 
     pub property_id : u64,
 
+    pub property_system_pubkey : Pubkey,
+
     pub state_id : u16,
 
     pub state_pubkey : Pubkey,
@@ -33,6 +35,7 @@ pub struct PropertyProposal{
 impl PropertyProposal {
     pub const SIZE:usize = 
                 8 +
+                32+
                 2 +
                 32 +
                 2 + 

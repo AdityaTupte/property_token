@@ -1,17 +1,16 @@
 use anchor_lang::prelude::*;
-use crate::common::{ProposalStatus, SELLPROPERTY};
+use crate::common::{HARDCODED_PUBKEY, ProposalStatus, SELLPROPERTY};
 
 use crate::errors::ErrorCode;
 use crate::functions::submit;
 use crate::state::{PropertySellProposal};
 
 #[derive(Accounts)]
-
+#[instruction(property_system_account:Pubkey,proposal_id:u64)]
 pub struct SubmitSnapshot<'info>{
 
     #[account(
-        constraint = proposal.arbitrar_approvals.contains(&signer.key()) @ ErrorCode::NotAuthorized,
-        constraint = proposal.is_arbitrar_approved @ ErrorCode::ProposalNotApproved
+        address = HARDCODED_PUBKEY
     )]
     pub signer: Signer<'info>,
 
@@ -19,20 +18,22 @@ pub struct SubmitSnapshot<'info>{
         mut,
         seeds=[
             SELLPROPERTY,
-            proposal.property_system_account.as_ref(),
-            &proposal.proposal_id.to_le_bytes(),
+            property_system_account.as_ref(),
+            &proposal_id.to_le_bytes(),
         ],
         bump = proposal.bump,
         constraint = !proposal.snapshot_submitted @ ErrorCode::SnapshotAlreadySubmitted,
-        constraint = proposal.status == ProposalStatus::Draft @ ErrorCode::NotInDraft
+        constraint = proposal.status == ProposalStatus::Approved @ ErrorCode::NotInDraft,
+        constraint = proposal.is_arbitrar_approved @ ErrorCode::ProposalNotApproved
     )]
-
     pub proposal : Account<'info,PropertySellProposal>,
 
 }
 
 pub fn sell_submit_snapshot(
     ctx:Context<SubmitSnapshot>,
+    _property_system_account:Pubkey,
+    _proposal_id:u64,
     merkle_root : [u8;32],
     closing_days_gap : u8,
     transfer_deadline_days : u8 ,

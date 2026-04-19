@@ -1,7 +1,7 @@
     use anchor_lang::prelude::*;
 
-    use crate::common::{PROPERTY_METADATA_SEEDS, PROPERTY_PAGE_SEEDS, PROPERTY_PROPOSAL_SEEDS, PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, STATE_AUTHORITY, STATE_SEEDS};
-    use crate::state::{ PropertyAccount, PropertyAccountMetadata, PropertyPage, PropertyProposal, PropertySystemAccount, State, StateAuthority};
+    use crate::common::{PROPERTY_METADATA_SEEDS, PROPERTY_PROPOSAL_SEEDS, PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, STATE_AUTHORITY, STATE_SEEDS};
+    use crate::state::{ PropertyAccount, PropertyAccountMetadata, PropertyProposal, PropertySystemAccount, State, StateAuthority};
 
     use crate::errors::ErrorCode::{self};
 
@@ -16,6 +16,7 @@
                 &property_system_id.to_le_bytes(),
             ],
             bump= property_system_account.bump,
+            constraint = property_system_account.ready_for_listing @ ErrorCode::PropertySystemReadyForListing
         )]
         pub property_system_account : Account<'info,PropertySystemAccount>,
 
@@ -109,7 +110,7 @@
 
     pub fn execute(
         ctx:Context<ExecutePropertyProposal>,
-        _country_key:Pubkey,_state_name:[u8;32],_property_id:u64,_property_system_id:u64,property_system_pubkey:Pubkey,
+        _country_key:Pubkey,_state_name:[u8;32],_property_id:u64,_property_system_id:u64,
     )->Result<()>{
 
         let proposal = &mut ctx.accounts.property_proposal ;
@@ -118,7 +119,7 @@
 
         let metadata = &mut ctx.accounts.property_metadata;
 
-        require!(property_system_pubkey == ctx.accounts.property_system_account.key() ,ErrorCode::PropertySystemInvalid);
+        require!(proposal.property_system_pubkey == ctx.accounts.property_system_account.key() ,ErrorCode::PropertySystemInvalid);
 
         // let property_page  = &mut ctx.accounts.property_page;
 

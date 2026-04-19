@@ -18,7 +18,7 @@ pub struct PropertySellProposal{
 
     pub merkle_root: [u8; 32],
 
-    pub arbitrar_approvals: Vec<Pubkey>,
+    pub arbitrar_approvals_count: u8,
 
     pub is_arbitrar_approved : bool,
 
@@ -52,26 +52,26 @@ pub struct PropertySellProposal{
 
 impl PropertySellProposal {
     pub const SIZE :usize = 
-                    8 +
-                    32 + 
-                    8 +
-                    32 +
-                    32 +
-                    32 +
-                    4 + (32 * MAX_ARBITRATOR) +
-                    1 +
-                    8 +
-                    8 +
-                    8 +
-                    8 +
-                    8 +
-                    8 +
-                    8 +
-                    1 +
-                    1 +
-                    1 +
-                    8 +
-                    1 ;
+        8 + // proposal_id
+        32 + // property_account
+        8 + // sale_price
+        32 + // property_system_account
+        32 + // deposit_account_pda
+        32 + // merkle_root
+        1 + // arbitrar_approvals_count
+        1 + // is_arbitrar_approved
+        8 + // total_voting_power
+        8 + // votes_for
+        8 + // votes_against
+        8 + // vote_threshold
+        8 + // start_time
+        8 + // end_time
+        8 + // transfer_deadline
+        1 + // status
+        1 + // snapshot_submitted
+        1 + // proposal_type
+        8 + // slot
+        1;   // bump
 
 
      pub fn initialize(
@@ -109,9 +109,9 @@ impl BaseProposal for PropertySellProposal {
         &mut self.merkle_root
     }
 
-    fn arbitrar_list(&mut self) -> &mut Vec<Pubkey> {
-        &mut self.arbitrar_approvals
-    }
+    // fn arbitrar_list(&mut self) -> &mut Vec<Pubkey> {
+    //     &mut self.arbitrar_approvals
+    // }
 
     fn arbitrar_approved(&mut self) -> &mut bool {
         &mut self.is_arbitrar_approved

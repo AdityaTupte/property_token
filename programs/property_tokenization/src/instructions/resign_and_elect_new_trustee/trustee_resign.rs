@@ -8,9 +8,10 @@ pub struct TrusteeResign<'info>{
 
     #[account(
         mut,
-        constraint = trustee_registry.trustees.contains(&trustee.key()) @ ErrorCode::NotAuthorized
     )]
     pub trustee: Signer<'info>,
+
+    
 
     #[account(
         seeds=[

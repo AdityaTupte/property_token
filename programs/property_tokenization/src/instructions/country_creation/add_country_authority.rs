@@ -74,7 +74,7 @@ pub fn add_country_authority(ctx:Context<AddCountryAuthority>,_country_name: [u8
 
     country_receipt.bump = ctx.bumps.country_receipt;
 
-    require!(country.total_authority < ctx.accounts.proposal.total_authority,ErrorCode::AuhtorityLimitReached);
+    require!(country.total_authority < ctx.accounts.proposal.total_authority,ErrorCode::AuthorityLimitReached);
 
     country.total_authority = country.total_authority + 1; 
 

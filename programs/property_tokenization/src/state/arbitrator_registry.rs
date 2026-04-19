@@ -9,11 +9,11 @@ pub struct ArbitratorRegistry{
 
 pub property_system_account: Pubkey,        // Property system this arbitrator registry belongs to
 
-pub arbitrator:  Vec<Pubkey>,  // Fixed list of arbitrator public keys
+pub current_number_of_arbitrators: u8,             // Current number of arbitrators in the list
 
-pub total_arbitrator: u8,                  // Number of active arbitrators
+pub total_arbitrators: u8,                  // Number of active arbitrators
 
-pub threshold: u8,                         // Minimum approvals required for arbitration decisions
+pub vote_threshold: u8,                         // Minimum approvals required for arbitration decisions
 
 pub claim_deadline_ts : i64,
 
@@ -24,16 +24,17 @@ pub bump: u8,                              // PDA bump seed for address derivati
 
 impl ArbitratorRegistry {
     
-    pub const SIZE : usize = 32 + 4 + (MAX_ARBITRATOR  * 32) +  1 + 1 + 8 +1 ; 
+    // pub const SIZE : usize = 32 + 4 + (MAX_ARBITRATOR  * 32) +  1 + 1 + 8 +1 ; 
+    pub const SIZE : usize = 32 +  1 + 1  +1 + 8 +1 ; 
 }
 
-impl AuthorityRegistry for ArbitratorRegistry  {
+// impl AuthorityRegistry for ArbitratorRegistry  {
     
-    fn registry(&mut self)-> &mut Vec<Pubkey>{
+//     fn registry(&mut self)-> &mut Vec<Pubkey>{
 
-        &mut self.arbitrator
+//         &mut self.arbitrator
 
-    }
+//     }
 
-}
+// }
 

@@ -4,8 +4,22 @@ use anchor_lang::prelude::*;
 pub enum ErrorCode{
 
 
-#[msg("not is uppercase")]
-NotInUppercase,
+
+    #[msg("the land is currently leased you cannot sell the land until the lease is end")]
+    LandCurrentlyLeased,
+
+    #[msg("the trustee limit is not reached yet")]
+    TrusteeLimitNotReached,
+
+    #[msg("the property system is ready for listing ")]
+    PropertySystemReadyForListing,
+
+    #[msg("the numbers of authority must greater than 0 and less than 200")]
+    AuthorityNumberInvalid,
+
+    #[msg("not is uppercase")]
+    NotInUppercase,
+
     #[msg("the authority not initialized")]
     AuhtorityNotInitialized,
 
@@ -135,7 +149,7 @@ NotInUppercase,
     InvalidProperty,
 
     #[msg("the trusteeRegistry is Invalid")]
-    InvalidTrusteeRegsitry,
+    InvalidTrusteeRegistry,
 
     #[msg("the the land does not belong to source property_system")]
     InvalidLandForSource,
@@ -288,7 +302,7 @@ NotInUppercase,
     DeadlineIssue,
 
     #[msg("authority limit reached")]
-    AuhtorityLimitReached,
+    AuthorityLimitReached,
 
     #[msg("the candidate is not verfied")]
     NotVerfied,

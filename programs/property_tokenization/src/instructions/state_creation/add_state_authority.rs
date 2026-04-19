@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{COUNTRY_APPROVE_AUTHORITY_SEEDS, COUNTRY_AUTHORITY, COUNTRY_PROPOSAL_SEEDS, COUNTRY_SEED, STATE_AUTHORITY, STATE_PROPOSAL_SEEDS, STATE_SEEDS}, errors::ErrorCode, state::{ApproveCountryAuthority, Country, CountryAuthority, ProposalCountryPda, State, StateAuthority, StateProposalPda}};
+use crate::{common::{COUNTRY_APPROVE_AUTHORITY_SEEDS, COUNTRY_AUTHORITY, COUNTRY_PROPOSAL_SEEDS, COUNTRY_SEED, STATE_AUTHORITY, STATE_PROPOSAL_SEEDS, STATE_SEEDS}, errors::ErrorCode, state::{ApproveCountryAuthority, Country, CountryAuthority, State, StateAuthority, StateProposalPda}};
 
 #[derive(Accounts)]
 #[instruction(country_name: [u8;32],state_name: [u8;32])]
@@ -85,7 +85,7 @@ pub fn add_state_authority(ctx:Context<AddStateAuthority>,_country_name: [u8;32]
 
     state_receipt.bump = ctx.bumps.state_authority_receipt;
 
-    require!(state.total_authorities < ctx.accounts.proposal.state_total_authorities,ErrorCode::AuhtorityLimitReached);
+    require!(state.total_authorities < ctx.accounts.proposal.state_total_authorities,ErrorCode::AuthorityLimitReached);
 
     state.total_authorities = state.total_authorities + 1; 
 

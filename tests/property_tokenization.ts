@@ -15,7 +15,9 @@ import {
   getExtraAccountMetas,
   getMint,
   getAccount,
-  approve
+  approve,
+  getAssociatedTokenAddress,
+  createTransferInstruction
 } from "@solana/spl-token";
 
 import {
@@ -38,6 +40,26 @@ describe("property_tokenization", () => {
   const wallet = provider.wallet as anchor.Wallet;
   
   const connection = provider.connection;
+
+    const pro1 = Keypair.generate();
+    const pro2 = Keypair.generate();
+    const pro3 = Keypair.generate();
+    const pro4 = Keypair.generate();
+    const pro5 = Keypair.generate();
+    const pro6 = Keypair.generate();
+
+    let pro_vec = [
+  pro1,
+  pro2,
+  pro3,
+  pro4,
+  pro5,
+  pro6,
+
+    ];
+
+
+
 // system_id used in instruction
 const systemId = new anchor.BN(1);
 
@@ -120,24 +142,28 @@ function toFixed32(str: string) {
 
   it("create the property_token account and verfiy it",async() =>{
     
-    const [pda] = PublicKey.findProgramAddressSync(
-  [
-    Buffer.from("property_system_account"),
-    new anchor.BN(1).toArrayLike(Buffer, "le", 8),
-  ],
-  program.programId
-);
+//     const [pda] = PublicKey.findProgramAddressSync(
+//   [
+//     Buffer.from("property_system_account"),
+//     new anchor.BN(1).toArrayLike(Buffer, "le", 8),
+//   ],
+//   program.programId
+// );
 
-console.log("Expected PDA:", pda.toBase58());
+// console.log("Expected PDA:", pda.toBase58());
     try{const create_property_system = await program.methods.createPropertySystem(
-                                            new anchor.BN(1),   // systemId (u64)
-                                            1,                  // decimal (u8)
-                                            new anchor.BN(1000),// numberOfTokens (u64)
-                                            10,                  // safetyThreshold (u8)
-                                            10,                  // trusteeSalaryThreshold (u8)
-                                            10,                 // param6
-                                            10,                 // param7
-                                            60   
+                                            new anchor.BN(1),   
+                                            1,                  
+                                            new anchor.BN(1000),
+                                            10,                 
+                                            10,                  
+                                            10,                 
+                                            10,                 
+                                            60,
+                                            5,
+                                            3,
+                                            4,
+                                            2   
                                           )
                                           .accounts({
                                         creator: wallet.publicKey,
@@ -154,12 +180,12 @@ console.log("Expected PDA:", pda.toBase58());
 //property_system
 
 const account = await program.account.propertySystemAccount.fetch(propertySystemPda);
-console.log("PDA:", propertySystemPda.toBase58());
+// console.log("PDA:", propertySystemPda.toBase58());
 assert.equal(account.propertySystemId.toString(), "1");
-console.log(account);
+// console.log(account);
 
 
-/////// governance mint
+// /////// governance mint
 
 const [governanceMint] = anchor.web3.PublicKey.findProgramAddressSync(
   [
@@ -185,9 +211,9 @@ const [thresholdPda] = PublicKey.findProgramAddressSync(
     TOKEN_2022_PROGRAM_ID
   );
 
-  console.log("✅ Mint exists");
-  console.log("Decimals:", mintData.decimals);
-  console.log("token supply :", mintData.supply);
+  // console.log("✅ Mint exists");
+  // console.log("Decimals:", mintData.decimals);
+  // console.log("token supply :", mintData.supply);
   assert.equal(account.totalTokenSupply.toString(), mintData.supply.toString());
 
   ///threshold
@@ -304,6 +330,90 @@ const ataInfo =  getAssociatedTokenAddressSync(
 
 })
 
+
+it("add trustee authority",async()=>{
+
+
+  // const account = await program.account.propertySystemAccount.fetch(propertySystemPda);
+  // console.log(account);
+
+for(let i = 0; i < 6; i++){await connection.requestAirdrop(pro_vec[i].publicKey, 1e9); // 1 SOL
+
+await new Promise(resolve => setTimeout(resolve, 100));}
+
+for(let i = 0; i < 5; i++){
+
+   try {
+    const tx = await program.methods.addTrustee(
+    new anchor.BN(1),
+  ).accounts(
+    {authority:wallet.publicKey,
+    newTrustee: pro_vec[i].publicKey,
+    }
+  ).signers([wallet.payer, pro_vec[i]]).rpc();
+   } catch (error) {
+    console.log(error);
+    
+   }
+
+
+}
+
+const [trustee_registry] = PublicKey.findProgramAddressSync(
+  [
+    Buffer.from("trustee_registry"),
+    propertySystemPda.toBuffer(),
+  ],
+  program.programId
+);
+const trustee_registry_pda = await program.account.trusteeRegistry.fetch(trustee_registry);
+
+// console.log(trustee_registry_pda);
+})
+
+
+
+it("add arbitrator authority",async()=>{
+
+for(let i = 0; i <4; i++){
+
+   try {
+    const tx = await program.methods.addArbitrator(
+    new anchor.BN(1),
+  ).accounts(
+    {authority:wallet.publicKey,
+    newArbitrator: pro_vec[i].publicKey,
+    }
+  ).signers([wallet.payer, pro_vec[i]]).rpc();
+   } catch (error) {
+    console.log(error);
+    
+   }
+
+
+}
+
+const [arbitrator_registry] = PublicKey.findProgramAddressSync(
+  [
+    Buffer.from("arbitrator_registry"),
+    propertySystemPda.toBuffer(),
+  ],
+  program.programId
+);
+const arbitrator_registry_pda = await program.account.arbitratorRegistry.fetch(arbitrator_registry);
+
+console.log(arbitrator_registry_pda);
+
+ const account = await program.account.propertySystemAccount.fetch(propertySystemPda);
+  console.log(account);
+})
+
+
+
+
+
+
+
               //COUNTRYCREATIONAUTHORIY
 
 
@@ -393,7 +503,7 @@ await new Promise(resolve => setTimeout(resolve, 100));}
 );
 
 try {
-  for(let i = 0; i < 5; i++){
+  for(let i = 0; i < 4; i++){
   const tx = await program.methods.approveCountry(
     cou
   )
@@ -460,7 +570,7 @@ it("add country authorities",async()=>{
 
 
 try {
-  for(let i =0;i<7;i++){
+  for(let i =0;i<5;i++){
 
   const tx = await program.methods.addCountryAuthority(
     cou,
@@ -564,7 +674,7 @@ it("approve state",async() => {
    
 
 try {
-   for(let i= 0;i<4;i++){
+   for(let i= 0;i<3;i++){
 
     const [approve] = await program.methods.stateProposalApproval(
     sta,
@@ -653,7 +763,7 @@ it("add state authority",async()=>{
 
 
 try {
-  for(let i =0;i<6;i++){
+  for(let i =0;i<5;i++){
 
   const tx = await program.methods.addStateAuhtority(
     cou,
@@ -686,13 +796,14 @@ let legal_doc_hash =  [...toFixed32("abc")];
 
 it("create property_proposal",async()=>{
 
-  for(let i = 0; i < 6; i++){await connection.requestAirdrop(state_auth[i].publicKey, 1e9); // 1 SOL
+  for(let i = 0; i < 5; i++){await connection.requestAirdrop(state_auth[i].publicKey, 1e9); // 1 SOL
 
   await new Promise(resolve => setTimeout(resolve, 100));}
 
   const property_proposal = await program.methods.createPropertyProposal(
     country,
     sta,
+    new anchor.BN(1),
     new anchor.BN(1),
     legal_doc_hash,
   ).accounts(
@@ -755,12 +866,11 @@ it("approve property proposal",async()=>{
 
   it("execute property",async()=>{
 
-    const tx = await program.methods.executePropertyPropsal(
+    const tx = await program.methods.executePropertyProposal(
       country,
       sta,
       new anchor.BN(1),
       new anchor.BN(1),
-       propertySystemPda
     ).accounts({
       signer:state_auth1.publicKey
     }).signers([state_auth1]).rpc();
@@ -810,7 +920,178 @@ console.log(meta);
 
   })
 
+    ///SELL PROPERTY
+
+
+it("create sell proposal",async()=>{
+
+
+  const tx = await program.methods.createSellProposal(
+    new anchor.BN(1),
+    new anchor.BN(1),
+    new anchor.BN(1),
+    state_pda_key,
+    new anchor.BN(1000)
+  ).accounts(
+    {trustee:pro_vec[0].publicKey,}
+  ).signers([pro_vec[0]]).rpc();
+
+  // const [sell_proposal_key] = anchor.web3.PublicKey.findProgramAddressSync(
+  //   [
+  //     Buffer.from("SELLPROPERTY"),
+  //     propertySystemPda.toBuffer(),
+  //     propertyId.toArrayLike(Buffer, "le", 8),
+  //   ],
+  //   program.programId
+  // )
+
+  // const acc = await program.account.propertySellProposal.fetch(sell_proposal_key);
+
+  // console.log(acc);
+
+})
   
+  // APPROVE SELL PROPOSAL BY ARBITRATOR
+
+  it("approve sell proposal by arbitrator",async()=>{
+
+    for(let i = 0; i < 4; i++){await connection.requestAirdrop(pro_vec[i].publicKey, 1e9); // 1 SOL
+
+    await new Promise(resolve => setTimeout(resolve, 100));}
+
+//     const listener = program.addEventListener(
+//   "snapshotRequested",
+//   (event, slot) => {
+//     console.log("Event:", event);
+//     console.log("Slot:", slot);
+//   }
+// );
+
+    for(let i = 0; i < 2; i++){
+      
+    const tx = await program.methods.sellProposalArbitrarVote(
+      new anchor.BN(1),
+      new anchor.BN(1),
+    ).accounts(
+      {
+        arbitrar:pro_vec[i].publicKey,
+        
+      }
+    ).signers([pro_vec[i]]).rpc();
+  
+    }
+   
+
+    const [sell_proposal_key] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        Buffer.from("SELLPROPERTY"),
+        propertySystemPda.toBuffer(),
+        propertyId.toArrayLike(Buffer, "le", 8),
+      ],
+      program.programId
+    )
+
+    const acc = await program.account.propertySellProposal.fetch(sell_proposal_key);
+
+    console.log(acc);
+  
+  })
+
+  let receiver1 = Keypair.generate();
+  let receiver2 = Keypair.generate();
+  let receiver3 = Keypair.generate();
+
+const [governanceMint] = anchor.web3.PublicKey.findProgramAddressSync(
+  [
+   Buffer.from("mint"),
+  propertySystemPda.toBuffer(),
+  ],
+  program.programId
+);
+
+ it("split token in 3 accounts", async () => {
+
+  const senderAta = getAssociatedTokenAddressSync(
+    governanceMint,
+    wallet.publicKey,
+    false,
+    TOKEN_2022_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
+  const receivers = [receiver1, receiver2, receiver3];
+
+  const tx = new Transaction();
+
+  for (const r of receivers) {
+    const receiverAta = await getAssociatedTokenAddress(
+      governanceMint,
+      r.publicKey,
+      false,
+      TOKEN_2022_PROGRAM_ID,
+      ASSOCIATED_TOKEN_PROGRAM_ID
+    );
+
+    const ataInfo = await provider.connection.getAccountInfo(receiverAta);
+
+    if (!ataInfo) {
+      tx.add(
+        createAssociatedTokenAccountInstruction(
+          wallet.publicKey,
+          receiverAta,
+          r.publicKey,
+          governanceMint,
+          TOKEN_2022_PROGRAM_ID,
+          ASSOCIATED_TOKEN_PROGRAM_ID
+        )
+      );
+    }
+
+    tx.add(
+      createTransferInstruction(
+        senderAta,
+        receiverAta,
+        wallet.publicKey,
+        30,
+        [],
+        TOKEN_2022_PROGRAM_ID
+      )
+    );
+  }
+
+  await provider.sendAndConfirm(tx);
+
+  console.log("Tokens transferred to receivers");
+  
+  for (const r of receivers) {
+    const receiverAta = await getAssociatedTokenAddress(
+      governanceMint,
+      r.publicKey,
+      false,
+      TOKEN_2022_PROGRAM_ID,
+      ASSOCIATED_TOKEN_PROGRAM_ID
+    );
+
+    const accountInfo = await provider.connection.getAccountInfo(receiverAta);
+
+    if (accountInfo) {
+      const accountData = Buffer.from(accountInfo.data);
+      const amount = accountData.readBigUInt64LE(64); // amount is at offset 64
+      console.log(`Receiver ${r.publicKey.toBase58()} has ${amount} tokens`);
+    } else {
+      console.log(`Receiver ${r.publicKey.toBase58()} does not have an associated token account`);
+    }
 
 
-});
+  }
+
+})
+
+
+
+
+
+
+
+    
+  });

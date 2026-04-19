@@ -54,7 +54,17 @@ pub const USEREINVESTMENTOKEN :&[u8] = b"use_reinvestment_token";
 
 
 pub const TRUSTEEREGISTRYSEEDS : &[u8] = b"trustee_registry";
-pub const ARBITRAR_REGISTRYSEEDS : &[u8] = b"arbitrar_registry";
+
+pub const TRUSTEE_RECEIPT_SEEDS : &[u8] = b"trustee_recepit";
+
+pub const TRUSTEE_SELL_PROPOSAL_VOTE_RECEIPT_SEEDS : &[u8] = b"trustee_sell_proposal_vote_receipt";
+
+
+pub const ARBITRAR_REGISTRYSEEDS : &[u8] = b"arbitrator_registry";
+
+pub const ARBITRAR_RECEIPT_SEEDS : &[u8] = b"arbitrator_recepit";
+
+pub const ARBITRAR_SELL_PROPOSAL_VOTE_RECEIPT_SEEDS : &[u8] = b"ArbitrarSellProposalReceipt";
 
 pub const TREASURYSEEDS : &[u8] = b"treasury";
 

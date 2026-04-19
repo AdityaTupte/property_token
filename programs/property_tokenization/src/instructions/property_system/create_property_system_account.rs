@@ -161,10 +161,21 @@ pub fn create(
         arbitrator_salary_threshold:u8,
         dividend_threshold:u8,
         reinvestment_threshold:u8,
+        total_trustees:u8,
+        trustee_vote_threshold:u8,
+        total_arbitrators:u8,
+        arbitrator_vote_threshold:u8,
     )->Result<()>{
 
     require_eq!(safety_threshold + trustee_salary_threshold + arbitrator_salary_threshold + dividend_threshold + reinvestment_threshold , 100, ErrorCode::ThresholdInvalid );
 
+    require!(total_trustees <= 200 && total_trustees > 0 , ErrorCode::AuthorityNumberInvalid);
+
+    require!(trustee_vote_threshold < total_trustees && trustee_vote_threshold >=1,ErrorCode::InvalidVotingThreshold);
+
+    require!(total_arbitrators <= 200 && total_arbitrators > 0 , ErrorCode::AuthorityNumberInvalid);
+    
+    require!(arbitrator_vote_threshold < total_arbitrators && arbitrator_vote_threshold >=1,ErrorCode::InvalidVotingThreshold);
     
     let property_system_acc = &mut ctx.accounts.property_system_acc;
 
@@ -220,7 +231,7 @@ pub fn create(
 
     property_system_acc.total_properties = 0;
 
-    property_system_acc.max_page = 0;
+    
 
     property_system_acc.created_at = current_time;
 
@@ -274,12 +285,20 @@ pub fn create(
 
     trustee_registry.property_system_account = property_system_acc.key();
 
+    trustee_registry.total_trustees = total_trustees;
+
+    trustee_registry.vote_threshold = trustee_vote_threshold;
+
     trustee_registry.bump = ctx.bumps.trustee_registry;
 
 
     //arbitrator_registry
 
     arbitrator_registry.property_system_account = property_system_acc.key();
+
+    arbitrator_registry.total_arbitrators = total_arbitrators;
+
+    arbitrator_registry.vote_threshold = arbitrator_vote_threshold;
 
     arbitrator_registry.bump = ctx.bumps.arbitrator_registry;
 

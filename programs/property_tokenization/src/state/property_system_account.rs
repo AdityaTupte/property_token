@@ -18,11 +18,11 @@ pub struct PropertySystemAccount{
 
     pub total_token_supply :u64,         // Global counter (land_id source)
 
-    pub max_page: u16,                  // Page size for indexing (pagination)
-
     pub created_at: i64,                // Timestamp of system creation
 
     pub creator: Pubkey,                // Genesis initializer (NOT governance)
+
+    pub ready_for_listing: bool,             // Flag indicating if system is ready for property listing
 
     pub bump : u8,
 
@@ -31,7 +31,7 @@ pub struct PropertySystemAccount{
 
 impl PropertySystemAccount{
 
-pub const SIZE : usize = 8 + 32 + 32 + 32 + 32 + 8 + 8 + 2 + 8 + 32 + 1 +32  ;
+pub const SIZE : usize = 8 + 32 + 32 + 32 + 32 + 8 + 8 + 8 + 32 + 1 +1  ;
 
 
 
