@@ -72,7 +72,7 @@ pub const DIVIDENDSEEDS : &[u8] = b"dividend";
 
 
 
-pub const HARDCODED_PUBKEY: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+pub const HARDCODED_PUBKEY: Pubkey = pubkey!("EezSke1hYxfEZuCrxDAgGe1nb7i2DoqJnaFJQPBPRpJs");
 
 pub const TRANSFERPROPOSAL : &[u8] = b"transferproposal";
 

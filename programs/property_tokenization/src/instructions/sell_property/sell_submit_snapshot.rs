@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use crate::common::{HARDCODED_PUBKEY, ProposalStatus, SELLPROPERTY};
+use crate::common::{ProposalStatus, SELLPROPERTY};
 
 use crate::errors::ErrorCode;
 use crate::functions::submit;
@@ -9,9 +9,6 @@ use crate::state::{PropertySellProposal};
 #[instruction(property_system_account:Pubkey,proposal_id:u64)]
 pub struct SubmitSnapshot<'info>{
 
-    #[account(
-        address = HARDCODED_PUBKEY
-    )]
     pub signer: Signer<'info>,
 
     #[account(

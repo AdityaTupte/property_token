@@ -1,8 +1,9 @@
 use anchor_lang::{ prelude::*};
 
-use crate::{common::{ProposalStatus, SELLPROPERTY, VOTERRECIEPT}, errors::ErrorCode, functions::voting, state::{PropertySellProposal, PropertySystemAccount, VoterReciept}};
+use crate::{common::{PROPERTY_SYSTEM_SEEDS, ProposalStatus, SELLPROPERTY, VOTERRECIEPT}, errors::ErrorCode, functions::voting, state::{PropertySellProposal, PropertySystemAccount, VoterReciept}};
 
 #[derive(Accounts)]
+#[instruction(proposal_id:u64,property_system_id:u64)]
 pub struct Voting<'info>{
 
     #[account(mut)]
@@ -12,8 +13,8 @@ pub struct Voting<'info>{
         mut,
         seeds=[
             SELLPROPERTY,
-            &proposal.proposal_id.to_le_bytes(),
             property_system.key().as_ref(),
+            &proposal_id.to_le_bytes(),
         ],
         bump = proposal.bump,
          constraint = proposal.snapshot_submitted @ ErrorCode::SnapshotNotSubmitted,
@@ -25,6 +26,12 @@ pub struct Voting<'info>{
 
 
     #[account(
+        seeds=[
+            PROPERTY_SYSTEM_SEEDS,
+            &property_system_id.to_le_bytes()
+        ],
+        bump= property_system.bump,
+
         constraint = proposal.property_system_account == property_system.key() @ ErrorCode::InvalidProposal
     )]
     pub property_system: Account<'info,PropertySystemAccount>,
@@ -41,7 +48,7 @@ pub struct Voting<'info>{
         space =  8 + VoterReciept::SIZE
     )]
 
-    pub voter_receipt : Account<'info,VoterReciept>,
+    pub token_holder_voter_receipt : Account<'info,VoterReciept>,
 
     pub system_program : Program<'info,System>,
 
@@ -49,6 +56,8 @@ pub struct Voting<'info>{
 
     pub fn vote(
         ctx:Context<Voting>,
+        _proposal_id:u64,
+        _property_system_id:u64,
         proof: Vec<[u8; 32]>,
         voting_power : u64,
         yes_or_no : bool,
@@ -62,13 +71,15 @@ pub struct Voting<'info>{
 
     let property_system = &ctx.accounts.property_system;
     
-    let receipt = &mut *ctx.accounts.voter_receipt;
+    let receipt = &mut *ctx.accounts.token_holder_voter_receipt;
 
-    let recepit_bump = ctx.bumps.voter_receipt;
+    let recepit_bump = ctx.bumps.token_holder_voter_receipt;
     
     let current_time = Clock::get()?.unix_timestamp;
     
-    require!(current_time >= proposal.start_time  && current_time <= proposal.end_time , ErrorCode::VotingPeriodExpired);
+    require!(current_time >= proposal.start_time  , ErrorCode::VotingPeriodExpired);
+
+    require!(current_time <= proposal.end_time ,ErrorCode::VotingLimitReached);
 
     require!(voting_power > 0, ErrorCode::VotingPowerInvalid);
 

@@ -1,45 +1,310 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
+import { LiteSVM } from "litesvm";
 import { PropertyTokenization } from "../target/types/property_tokenization";
 import {
-  ExtensionType,
   TOKEN_2022_PROGRAM_ID,
-  getMintLen,
-  createInitializeMintInstruction,
-  createInitializeTransferHookInstruction,
   ASSOCIATED_TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction,
-  createMintToInstruction,
   getAssociatedTokenAddressSync,
-  createTransferCheckedWithTransferHookInstruction,
-  getExtraAccountMetas,
   getMint,
   getAccount,
-  approve,
   getAssociatedTokenAddress,
   createTransferInstruction
 } from "@solana/spl-token";
 
 import {
   PublicKey,
-  SystemProgram,
   Transaction,
-  sendAndConfirmTransaction,
   Keypair,
 } from "@solana/web3.js";
+import { getTransactionDecoder } from "@solana/transactions";
+import { keccak_256 } from "@noble/hashes/sha3";
 import { assert } from "chai";
+import fs from "fs";
+import os from "os";
+import path from "path";
+
+const idl = require("../target/idl/property_tokenization.json");
+
+class LiteSvmConnection {
+  commitment = "processed";
+  private readonly svm: LiteSVM;
+
+  constructor(svm: LiteSVM) {
+    this.svm = svm;
+  }
+
+  private currentSlot(): number {
+    return Number(this.svm.getClock().slot);
+  }
+
+  private toAccountInfo(encodedAccount: any) {
+    if (!encodedAccount?.exists) {
+      return null;
+    }
+
+    return {
+      data: Buffer.from(encodedAccount.data),
+      executable: encodedAccount.executable,
+      lamports: Number(encodedAccount.lamports),
+      owner: new PublicKey(encodedAccount.programAddress),
+      rentEpoch: 0,
+    };
+  }
+
+  private decodeAndSend(rawTx: Buffer | Uint8Array) {
+    const result = this.svm.sendTransaction(getTransactionDecoder().decode(rawTx));
+
+    if (typeof (result as any).err === "function") {
+      const error: any = new Error(`LiteSVM transaction failed: ${(result as any).toString()}`);
+      error.logs = (result as any).meta().logs();
+      throw error;
+    }
+
+    return result as any;
+  }
+
+  async getLatestBlockhash() {
+    return {
+      blockhash: this.svm.latestBlockhash().toString(),
+      lastValidBlockHeight: 0,
+    };
+  }
+
+  async sendRawTransaction(rawTx: Buffer | Uint8Array) {
+    const result = this.decodeAndSend(rawTx);
+    return anchor.utils.bytes.bs58.encode(result.signature());
+  }
+
+  async confirmTransaction(_strategy?: any, _commitment?: any) {
+    return {
+      context: { slot: this.currentSlot() },
+      value: { err: null },
+    };
+  }
+
+  async getTransaction() {
+    return null;
+  }
+
+  async getAccountInfo(address: PublicKey) {
+    return this.toAccountInfo(this.svm.getAccount(address.toBase58() as any));
+  }
+
+  async getAccountInfoAndContext(address: PublicKey) {
+    return {
+      context: { slot: this.currentSlot() },
+      value: await this.getAccountInfo(address),
+    };
+  }
+
+  async getMultipleAccountsInfo(addresses: PublicKey[]) {
+    return Promise.all(addresses.map((address) => this.getAccountInfo(address)));
+  }
+
+  async getBalance(address: PublicKey) {
+    return Number(this.svm.getBalance(address.toBase58() as any) ?? 0n);
+  }
+
+  async getMinimumBalanceForRentExemption(dataLen: number) {
+    return Number(this.svm.minimumBalanceForRentExemption(BigInt(dataLen)));
+  }
+
+  async requestAirdrop(address: PublicKey, lamports: number) {
+    this.svm.airdrop(address.toBase58() as any, BigInt(lamports) as any);
+    return Keypair.generate().publicKey.toBase58();
+  }
+
+}
+
+class LiteSvmWallet {
+  readonly payer: Keypair;
+  readonly publicKey: PublicKey;
+
+  constructor() {
+    const walletPath = path.join(os.homedir(), ".config/solana/id.json");
+    const secretKey = Uint8Array.from(JSON.parse(fs.readFileSync(walletPath, "utf8")));
+    this.payer = Keypair.fromSecretKey(secretKey);
+    this.publicKey = this.payer.publicKey;
+  }
+
+  async signTransaction<T extends Transaction>(tx: T): Promise<T> {
+    tx.partialSign(this.payer);
+    return tx;
+  }
+
+  async signAllTransactions<T extends Transaction[]>(txs: T): Promise<T> {
+    txs.forEach((tx) => tx.partialSign(this.payer));
+    return txs;
+  }
+}
+
+class LiteSvmProvider {
+  readonly publicKey: PublicKey;
+  readonly connection: LiteSvmConnection;
+  readonly wallet: LiteSvmWallet;
+  readonly opts: any;
+
+  constructor(connection: LiteSvmConnection, wallet: LiteSvmWallet, opts = anchor.AnchorProvider.defaultOptions()) {
+    this.connection = connection;
+    this.wallet = wallet;
+    this.opts = opts;
+    this.publicKey = wallet.publicKey;
+  }
+
+  async sendAndConfirm(tx: Transaction, signers: Keypair[] = []) {
+    tx.feePayer = tx.feePayer ?? this.wallet.publicKey;
+    tx.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
+
+    signers.forEach((signer) => tx.partialSign(signer));
+    await this.wallet.signTransaction(tx);
+
+    return this.connection.sendRawTransaction(tx.serialize());
+  }
+}
+
+function advanceClockBy(svm: LiteSVM, seconds: bigint) {
+  const clock = svm.getClock();
+  clock.unixTimestamp = clock.unixTimestamp + seconds;
+  clock.slot = clock.slot + seconds;
+  svm.setClock(clock);
+}
+
+
+
+function toU64LeBuffer(value: number | bigint | anchor.BN): Buffer {
+  if (value instanceof anchor.BN) {
+    return value.toArrayLike(Buffer, "le", 8);
+  }
+
+  const buffer = Buffer.alloc(8);
+  buffer.writeBigUInt64LE(BigInt(value));
+  return buffer;
+}
+
+function keccakBuffer(parts: ReadonlyArray<Buffer | Uint8Array>): Buffer {
+  return Buffer.from(keccak_256(Buffer.concat(parts.map((part) => Buffer.from(part)))));
+}
+
+function buildMerkleRoot(leaves: ReadonlyArray<Buffer | Uint8Array>): number[] {
+  if (leaves.length === 0) {
+    throw new Error("Cannot build a Merkle root from zero leaves");
+  }
+
+  let level: Uint8Array[] = leaves.map((leaf) => Uint8Array.from(leaf));
+
+  while (level.length > 1) {
+    if (level.length % 2 === 1) {
+      level.push(level[level.length - 1]);
+    }
+
+    const nextLevel: Uint8Array[] = [];
+
+    for (let i = 0; i < level.length; i += 2) {
+      const left = Buffer.from(level[i]);
+      const right = Buffer.from(level[i + 1]);
+      const [first, second] = Buffer.compare(left, right) <= 0 ? [left, right] : [right, left];
+
+      nextLevel.push(keccakBuffer([first, second]));
+    }
+
+    level = nextLevel;
+  }
+
+  return Array.from(level[0]);
+}
+
+function buildMerkleProof(
+  leaves: ReadonlyArray<Buffer | Uint8Array>,
+  index: number
+): number[][] {
+  if (leaves.length === 0) {
+    throw new Error("Cannot build a Merkle proof from zero leaves");
+  }
+
+  if (index < 0 || index >= leaves.length) {
+    throw new Error(`Leaf index ${index} is out of range`);
+  }
+
+  const proof: number[][] = [];
+  let currentIndex = index;
+  let level: Uint8Array[] = leaves.map((leaf) => Uint8Array.from(leaf));
+
+  while (level.length > 1) {
+    if (level.length % 2 === 1) {
+      level.push(level[level.length - 1]);
+    }
+
+    const siblingIndex = currentIndex % 2 === 0 ? currentIndex + 1 : currentIndex - 1;
+    proof.push(Array.from(level[siblingIndex]));
+
+    const nextLevel: Uint8Array[] = [];
+
+    for (let i = 0; i < level.length; i += 2) {
+      const left = Buffer.from(level[i]);
+      const right = Buffer.from(level[i + 1]);
+      const [first, second] = Buffer.compare(left, right) <= 0 ? [left, right] : [right, left];
+
+      nextLevel.push(keccakBuffer([first, second]));
+    }
+
+    level = nextLevel;
+    currentIndex = Math.floor(currentIndex / 2);
+  }
+
+  return proof;
+}
+
+function buildSellProposalLeaf(
+  voter: PublicKey,
+  proposal: PublicKey,
+  governanceMint: PublicKey,
+  votingPower: number | bigint | anchor.BN
+): Buffer {
+  return keccakBuffer([
+    Buffer.from("SELLPROPERTY"),
+    voter.toBuffer(),
+    proposal.toBuffer(),
+    governanceMint.toBuffer(),
+    toU64LeBuffer(votingPower),
+  ]);
+}
+
+function buildSellProposalProof(
+  entries: ReadonlyArray<{
+    voter: PublicKey;
+    votingPower: number | bigint | anchor.BN;
+  }>,
+  targetIndex: number,
+  proposal: PublicKey,
+  governanceMint: PublicKey
+): number[][] {
+  const leaves = entries.map((entry) =>
+    buildSellProposalLeaf(entry.voter, proposal, governanceMint, entry.votingPower)
+  );
+
+  return buildMerkleProof(leaves, targetIndex);
+}
 
 
 
 describe("property_tokenization", () => {
-  // Configure the client to use the local cluster.
-  const provider = anchor.AnchorProvider.env();
-  anchor.setProvider(provider);
-  const program = anchor.workspace.propertyTokenization as Program<PropertyTokenization>;
+  const svm = new LiteSVM();
+  const programId = new PublicKey(idl.address);
+  svm.addProgramFromFile(
+    programId.toBase58() as any,
+    path.resolve(__dirname, "../target/deploy/property_tokenization.so")
+  );
+
+  const provider = new LiteSvmProvider(new LiteSvmConnection(svm), new LiteSvmWallet());
+  svm.airdrop(provider.wallet.publicKey.toBase58() as any, 100_000_000_000n as any);
+  anchor.setProvider(provider as any);
+  const program = new Program(idl as PropertyTokenization, provider as any) as Program<PropertyTokenization>;
 
   const wallet = provider.wallet as anchor.Wallet;
   
-  const connection = provider.connection;
+  const connection = provider.connection as any;
 
     const pro1 = Keypair.generate();
     const pro2 = Keypair.generate();
@@ -205,7 +470,7 @@ const [thresholdPda] = PublicKey.findProgramAddressSync(
 
  
   const mintData = await getMint(
-    provider.connection,
+    provider.connection as any,
     governanceMint,
     undefined,
     TOKEN_2022_PROGRAM_ID
@@ -314,7 +579,7 @@ const ataInfo =  getAssociatedTokenAddressSync(
 );
 
  const ataData = await getAccount(
-    provider.connection,
+    provider.connection as any,
     ataInfo,
     undefined,
     TOKEN_2022_PROGRAM_ID
@@ -407,9 +672,6 @@ console.log(arbitrator_registry_pda);
  const account = await program.account.propertySystemAccount.fetch(propertySystemPda);
   console.log(account);
 })
-
-
-
 
 
 
@@ -1052,7 +1314,7 @@ const [governanceMint] = anchor.web3.PublicKey.findProgramAddressSync(
         senderAta,
         receiverAta,
         wallet.publicKey,
-        30,
+        200,
         [],
         TOKEN_2022_PROGRAM_ID
       )
@@ -1086,6 +1348,310 @@ const [governanceMint] = anchor.web3.PublicKey.findProgramAddressSync(
   }
 
 })
+
+
+
+// it("delete sell proposal",async()=>{
+
+
+//   const proposalId = new anchor.BN(1)
+
+//    const [sellProposalKey] = anchor.web3.PublicKey.findProgramAddressSync(
+//     [
+//       Buffer.from("SELLPROPERTY"),
+//       propertySystemPda.toBuffer(),
+//       proposalId.toArrayLike(Buffer, "le", 8),
+//     ],
+//     program.programId
+//   );
+
+//   const acc2 = await program.account.propertySellProposal.fetch(sellProposalKey);
+
+//   console.log(acc2);
+  
+
+
+//   const tx = await program.methods.deleteSell(
+//     new anchor.BN(1),
+//     new anchor.BN(1)
+//   ).accounts({
+//     trustee:pro1.publicKey
+//   }).signers([pro1]).rpc();
+
+
+//   const acc = await program.account.propertySellProposal.fetch(sellProposalKey);
+
+//   console.log(acc);
+
+// })
+
+let starttime;
+
+it("submit snapshot request", async () => {
+  const proposalId = new anchor.BN(1);
+
+  const [sellProposalKey] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("SELLPROPERTY"),
+      propertySystemPda.toBuffer(),
+      proposalId.toArrayLike(Buffer, "le", 8),
+    ],
+    program.programId
+  );
+
+  const merkleRoot = buildMerkleRoot([
+    buildSellProposalLeaf(receiver1.publicKey, sellProposalKey, governanceMint, 200),
+    buildSellProposalLeaf(receiver2.publicKey, sellProposalKey, governanceMint, 200),
+    buildSellProposalLeaf(receiver3.publicKey, sellProposalKey, governanceMint, 200),
+  ]);
+
+ // console.log("pubkey", wallet.publicKey);
+  const tx = await program.methods.submitSnapshotForSellProposal(
+    propertySystemPda,
+    proposalId,
+    merkleRoot,
+    2,
+    2,
+    new anchor.BN(500)
+  ).accounts(
+    [wallet.publicKey]
+  ).signers([wallet.payer]).rpc()
+
+  const [sell_proposal_key] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        Buffer.from("SELLPROPERTY"),
+        propertySystemPda.toBuffer(),
+        propertyId.toArrayLike(Buffer, "le", 8),
+      ],
+      program.programId
+    )
+
+    const acc = await program.account.propertySellProposal.fetch(sell_proposal_key);
+
+    starttime = acc.startTime;
+
+    console.log(acc);
+
+})
+
+
+
+it("vote for sell proposal before end_time should pass",async()=>{
+  advanceClockBy(svm, 129_600n);
+
+  const proposalId = new anchor.BN(1);
+  const airdropSignature = await connection.requestAirdrop(receiver1.publicKey, 1e9);
+  const latestBlockhash = await connection.getLatestBlockhash();
+  await connection.confirmTransaction(
+    {
+      signature: airdropSignature,
+      ...latestBlockhash,
+    },
+    "confirmed"
+  );
+
+  const voterBalance = await connection.getBalance(receiver1.publicKey);
+  assert.isAtLeast(voterBalance, 1_000_000);
+  const [sellProposalKey] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("SELLPROPERTY"),
+      propertySystemPda.toBuffer(),
+      proposalId.toArrayLike(Buffer, "le", 8),
+    ],
+    program.programId
+  );
+
+  const snapshotEntries = [
+    { voter: receiver1.publicKey, votingPower: 200 },
+    { voter: receiver2.publicKey, votingPower: 200 },
+    { voter: receiver3.publicKey, votingPower: 200 },
+  ];
+
+  const sellProposal = await program.account.propertySellProposal.fetch(sellProposalKey);
+  assert.isTrue(Number(svm.getClock().unixTimestamp) < sellProposal.endTime.toNumber());
+
+  const voter1proof = buildSellProposalProof(
+    snapshotEntries,
+    0,
+    sellProposalKey,
+    governanceMint
+  );
+
+  const vote1 = await program.methods.votingForSellProposal(
+    proposalId,
+    new anchor.BN(1),
+    voter1proof,
+    new anchor.BN(200),
+    true,
+  ).accounts({
+    signer:receiver1.publicKey,
+  }).signers([receiver1]).rpc()
+
+
+
+})
+
+
+
+
+// it("skip time to voting end",async() =>{
+//   advanceClockBy(svm, 129_600n);
+
+// })
+
+it("vote for sell proposal at end_time should pass",async()=>{
+
+  const proposalId = new anchor.BN(1);
+  const airdropSignature = await connection.requestAirdrop(receiver2.publicKey, 1e9);
+  const latestBlockhash = await connection.getLatestBlockhash();
+  await connection.confirmTransaction(
+    {
+      signature: airdropSignature,
+      ...latestBlockhash,
+    },
+    "confirmed"
+  );
+
+  const voterBalance = await connection.getBalance(receiver2.publicKey);
+  assert.isAtLeast(voterBalance, 1_000_000);
+  const [sellProposalKey] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("SELLPROPERTY"),
+      propertySystemPda.toBuffer(),
+      proposalId.toArrayLike(Buffer, "le", 8),
+    ],
+    program.programId
+  );
+
+  const snapshotEntries = [
+    { voter: receiver1.publicKey, votingPower: 200 },
+    { voter: receiver2.publicKey, votingPower: 200 },
+    { voter: receiver3.publicKey, votingPower: 200 },
+  ];
+
+  const sellProposal = await program.account.propertySellProposal.fetch(sellProposalKey);
+  // assert.equal(Number(svm.getClock().unixTimestamp), sellProposal.endTime.toNumber());
+
+  const voter2proof = buildSellProposalProof(
+    snapshotEntries,
+    1,
+    sellProposalKey,
+    governanceMint
+  );
+
+  await program.methods.votingForSellProposal(
+    proposalId,
+    new anchor.BN(1),
+    voter2proof,
+    new anchor.BN(200),
+    true,
+  ).accounts({
+    signer:receiver2.publicKey,
+  }).signers([receiver2]).rpc();
+})
+
+it("skip time past voting end",async() =>{
+  advanceClockBy(svm, 1n);
+})
+
+it("vote for sell proposal after end_time should fail",async()=>{
+
+  const proposalId = new anchor.BN(1);
+  const airdropSignature = await connection.requestAirdrop(receiver3.publicKey, 1e9);
+  const latestBlockhash = await connection.getLatestBlockhash();
+  await connection.confirmTransaction(
+    {
+      signature: airdropSignature,
+      ...latestBlockhash,
+    },
+    "confirmed"
+  );
+
+  const voterBalance = await connection.getBalance(receiver3.publicKey);
+  assert.isAtLeast(voterBalance, 1_000_000);
+  const [sellProposalKey] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("SELLPROPERTY"),
+      propertySystemPda.toBuffer(),
+      proposalId.toArrayLike(Buffer, "le", 8),
+    ],
+    program.programId
+  );
+
+  const snapshotEntries = [
+    { voter: receiver1.publicKey, votingPower: 200 },
+    { voter: receiver2.publicKey, votingPower: 200 },
+    { voter: receiver3.publicKey, votingPower: 200 },
+  ];
+
+  const sellProposal = await program.account.propertySellProposal.fetch(sellProposalKey);
+  // assert.isTrue(Number(svm.getClock().unixTimestamp) > sellProposal.endTime.toNumber());
+
+  const voter3proof = buildSellProposalProof(
+    snapshotEntries,
+    2,
+    sellProposalKey,
+    governanceMint
+  );
+
+    await program.methods.votingForSellProposal(
+      proposalId,
+      new anchor.BN(1),
+      voter3proof,
+      new anchor.BN(200),
+      true,
+    ).accounts({
+      signer:receiver3.publicKey,
+    }).signers([receiver3]).rpc();
+
+   
+ 
+})
+
+it("skip time to voting end",async() =>{
+  advanceClockBy(svm, 432000n);
+
+})
+it("skip time past voting end",async() =>{
+  advanceClockBy(svm, 5n);
+})
+
+
+
+
+it("finalize the sell proposal",async()=> {
+const proposalId = new anchor.BN(1);
+
+    const tx = await program.methods.sellProposalFinalize(
+      new anchor.BN(1),
+      propertySystemPda
+    ).accounts(
+        {
+          signer:wallet.publicKey
+        }
+    ).signers([wallet.payer]).rpc();
+
+    
+
+const [sellProposalKey] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("SELLPROPERTY"),
+      propertySystemPda.toBuffer(),
+      proposalId.toArrayLike(Buffer, "le", 8),
+    ],
+    program.programId
+  );
+
+const sellProposal = await program.account.propertySellProposal.fetch(sellProposalKey);
+
+  console.log(sellProposal);
+  
+
+
+//  assert.isTrue("passed" in sellProposal.status);
+
+})
+
 
 
 

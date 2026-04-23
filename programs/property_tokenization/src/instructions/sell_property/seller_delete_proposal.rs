@@ -1,30 +1,35 @@
 use anchor_lang::prelude::*;
 
-use crate::{ common::{PROPERTY_SYSTEM_SEEDS, SELLPROPERTY, TRUSTEEREGISTRYSEEDS}, functions::delete_proposal, state::{PropertySellProposal, PropertySystemAccount, TrusteeRegistry}};
+use crate::{ common::{PROPERTY_SYSTEM_SEEDS, SELLPROPERTY, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS}, functions::delete_proposal, state::{PropertySellProposal, PropertySystemAccount, TrusteeRecepit, TrusteeRegistry}};
 
 
 #[derive(Accounts)]
+#[instruction(proposal_id:u64,property_system_id:u64)]
 pub struct DeleteFailProposal<'info>{
 
-    #[account(
-        seeds = [
-            TRUSTEEREGISTRYSEEDS,
-            property_system.key().as_ref()
-            ],
-        bump = trustee_registry.bump,
-    )]
-    pub trustee_registry : Account<'info,TrusteeRegistry>,
+    
 
     #[account(
         mut,
-        constraint = trustee_registry.trustees.contains(&trustee.key())
+        // constraint = trustee_registry.trustees.contains(&trustee.key())
     )]
     pub trustee : Signer<'info>,
+
+
+    #[account(
+        seeds = [
+            TRUSTEE_RECEIPT_SEEDS,
+            property_system.key().as_ref(),
+            trustee.key().as_ref()
+        ],
+        bump = trustee_receipt.bump,
+    )]
+    pub trustee_receipt: Account<'info,TrusteeRecepit>,
 
     #[account(
         seeds = [ 
             PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes(),
+            &property_system_id.to_le_bytes(),
         ],
         bump=property_system.bump,
     )]
@@ -35,7 +40,7 @@ pub struct DeleteFailProposal<'info>{
         seeds=[
             SELLPROPERTY,
             property_system.key().as_ref(),
-            &proposal.proposal_id.to_le_bytes(),
+            &proposal_id.to_le_bytes(),
         ],
         bump = proposal.bump,
         close = trustee
@@ -44,7 +49,7 @@ pub struct DeleteFailProposal<'info>{
 
 }
 
-pub fn delete_fail_proposal(ctx:Context<DeleteFailProposal>)->Result<()>{
+pub fn delete_fail_proposal(ctx:Context<DeleteFailProposal>,_proposal_id:u64,_property_system_id:u64)->Result<()>{
 
     let proposal = &mut *ctx.accounts.proposal;
 

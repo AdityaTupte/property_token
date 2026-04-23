@@ -109,9 +109,7 @@ impl BaseProposal for PropertySellProposal {
         &mut self.merkle_root
     }
 
-    // fn arbitrar_list(&mut self) -> &mut Vec<Pubkey> {
-    //     &mut self.arbitrar_approvals
-    // }
+    
 
     fn arbitrar_approved(&mut self) -> &mut bool {
         &mut self.is_arbitrar_approved

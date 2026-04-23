@@ -68,8 +68,7 @@ pub mod property_tokenization {
     )->Result<()>{
 
         country_creation::create_approve_country_authority(ctx, threshold, authority)?;
-
-
+        
         Ok(())
 
     }
@@ -110,7 +109,7 @@ pub mod property_tokenization {
         Ok(())
     }
 
-    // //             //STATECREATION
+               //STATECREATION
 
 
     pub fn state_creation_proposal(
@@ -215,8 +214,63 @@ pub mod property_tokenization {
 
     pub fn sell_proposal_arbitrar_vote(ctx:Context<ArbitrarApproval>,proposal_id: u64,property_system_id:u64 )->Result<()>{
         
-        sell_proposal_arbitrar_vote::sell_proposal_arbitrar_vote(ctx, proposal_id, property_system_id)?;
+        sell_property::sell_proposal_arbitrar_vote(ctx, proposal_id, property_system_id)?;
         Ok(())
     }
+
+    pub fn submit_snapshot_for_sell_proposal(
+        ctx:Context<SubmitSnapshot>,
+        property_system_account:Pubkey,
+        proposal_id:u64,
+        merkle_root : [u8;32],
+        closing_days_gap : u8,
+        transfer_deadline_days : u8 ,
+        vote_threshold :u64,
+    )->Result<()>{
+
+        sell_property::sell_submit_snapshot(ctx, property_system_account, proposal_id, merkle_root, closing_days_gap, transfer_deadline_days, vote_threshold)?;
+        
+        Ok(())
+
+    }
+
+
+    pub fn voting_for_sell_proposal(
+        ctx:Context<Voting>,
+        proposal_id:u64,
+        property_system_id:u64,
+        proof: Vec<[u8; 32]>,
+        voting_power : u64,
+        yes_or_no : bool,
+    )->Result<()>{
+
+            sell_property::vote(ctx, proposal_id, property_system_id, proof, voting_power, yes_or_no)?;
+
+        Ok(())
+
+    }
+
+    pub fn sell_proposal_finalize(
+        ctx:Context<Finalize>,
+        proposal_id:u64,
+        property_system_account:Pubkey
+    )->Result<()>{
+
+        sell_property::finalize_sell_proposal(ctx, proposal_id, property_system_account)?;
+
+        Ok(())
+
+    }
+
+    pub fn delete_sell(
+        ctx:Context<DeleteFailProposal>,
+        proposal_id:u64,
+        property_system_id:u64
+    )->Result<()>{
+
+        sell_property::delete_fail_proposal(ctx, proposal_id, property_system_id)?;
+        Ok(())
+    }
+
 
 }

@@ -8,7 +8,6 @@ pub trait BaseProposal {
 
     fn merkle_root(&mut self) -> &mut [u8; 32];
 
-    // fn arbitrar_list(&mut self) -> &mut Vec<Pubkey>;
 
     fn arbitrar_approved(&mut self) -> &mut bool;
 
