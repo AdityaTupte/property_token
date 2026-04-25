@@ -5,7 +5,7 @@ use crate::common::{AuthorityType, ProposalStatus};
 
 #[account()]
 
-pub struct Resignation{
+pub struct  Resignation{
 
     pub authority: Pubkey,
 
@@ -31,6 +31,7 @@ impl Resignation {
                         32 +
                         1  +
                         8 +
-                        1 ;
+                        1 +
+                        1;
 
 }

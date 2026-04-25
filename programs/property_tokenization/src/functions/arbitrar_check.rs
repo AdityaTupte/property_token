@@ -1,6 +1,6 @@
-use crate::{common::ProposalStatus, constant::Governance, events::SnapshotRequested, state::{ArbitratorRegistry, ArbitratorVoteReceipts, PropertySellProposal}};
-use anchor_lang::{accounts::signer, prelude::*};
-use crate::errors::ErrorCode;
+use crate::{common::ProposalStatus, constant::Governance, events::SnapshotRequested, state::{ArbitratorRegistry, ArbitratorVoteReceipts}};
+use anchor_lang::{prelude::*};
+
 
 // pub fn arbitrar_approval<T: Governance>(
 //     item:&mut T,
@@ -37,38 +37,40 @@ use crate::errors::ErrorCode;
 
 
 
-pub fn arbitrar_approval(
-    proposal: &mut Account<PropertySellProposal>,
+pub fn arbitrar_approval<T:Governance>(
+    proposal: &mut T,
+    proposal_key:Pubkey,
     arbitrar_registry : &Account<ArbitratorRegistry>,
     arbitrar_voter: &mut Account<ArbitratorVoteReceipts>,
     signer:Pubkey,
     governance_mint:Pubkey,
+    property_system_account:Pubkey
 )->Result<()>{
 
-    proposal.arbitrar_approvals_count += 1;
+    *proposal.arbitrar_total_count() += 1;
 
-    arbitrar_voter.proposal_key = proposal.key();
+    arbitrar_voter.proposal_key = proposal_key;
 
-    arbitrar_voter.property_system_key = proposal.property_system_account;
+    arbitrar_voter.property_system_key = property_system_account;
 
     arbitrar_voter.arbitrator_key = signer;
     
-    arbitrar_voter.proposal_type = proposal.proposal_type;
+    arbitrar_voter.proposal_type = *proposal.proposal_type();
 
 
-    if proposal.arbitrar_approvals_count >= arbitrar_registry.vote_threshold {
+    if *proposal.arbitrar_total_count() >= arbitrar_registry.vote_threshold {
 
-        proposal.is_arbitrar_approved = true;
+        *proposal.arbitrar_approved() = true;
 
-        proposal.status = ProposalStatus::Approved;
+        *proposal.proposal_status() = ProposalStatus::Approved;
 
         let snapshot_slot= Clock::get()?.slot;
 
-        proposal.slot =snapshot_slot;
+        *proposal.slot() =snapshot_slot;
 
         emit!(SnapshotRequested {
-            proposal_id: proposal.proposal_id,
-            proposal_key: proposal.key(),
+            proposal_id: *proposal.proposal_id(),
+            proposal_key: proposal_key,
             mint: governance_mint,
             slot: snapshot_slot,
         });

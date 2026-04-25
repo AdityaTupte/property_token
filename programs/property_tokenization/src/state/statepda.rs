@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_spl::associated_token::spl_associated_token_account::solana_program::nonce::state;
+
 
 pub const MAX_STATE_NAME :usize = 64;
 pub  const MAX_STATE_ACUTHORITY : usize = 10;

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{COUNTRY_APPROVE_AUTHORITY_SEEDS, COUNTRY_AUTHORITY, COUNTRY_PROPOSAL_SEEDS, COUNTRY_SEED, STATE_AUTHORITY, STATE_PROPOSAL_SEEDS, STATE_SEEDS}, errors::ErrorCode, state::{ApproveCountryAuthority, Country, CountryAuthority, State, StateAuthority, StateProposalPda}};
+use crate::{common::{ COUNTRY_AUTHORITY, COUNTRY_SEED, STATE_AUTHORITY, STATE_PROPOSAL_SEEDS, STATE_SEEDS}, errors::ErrorCode, state::{ Country, CountryAuthority, State, StateAuthority, StateProposalPda}};
 
 #[derive(Accounts)]
 #[instruction(country_name: [u8;32],state_name: [u8;32])]

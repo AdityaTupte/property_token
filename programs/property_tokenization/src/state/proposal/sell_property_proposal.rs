@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{MAX_ARBITRATOR, ProposalStatus, ProposalType}, constant::{BaseProposal, Governance}};
+use crate::{common::{ProposalStatus, ProposalType}, constant::{BaseProposal, Governance}};
 
 #[account]
 
@@ -109,7 +109,9 @@ impl BaseProposal for PropertySellProposal {
         &mut self.merkle_root
     }
 
-    
+     fn arbitrar_total_count(&mut self) -> &mut u8 {
+        &mut self.arbitrar_approvals_count 
+    }
 
     fn arbitrar_approved(&mut self) -> &mut bool {
         &mut self.is_arbitrar_approved

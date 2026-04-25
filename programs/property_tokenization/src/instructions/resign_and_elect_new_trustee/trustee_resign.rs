@@ -1,9 +1,10 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{AuthorityType, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEE_RESIGNATION, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, state::{PropertySystemAccount, Resignation, TrusteeRegistry}};
+use crate::{common::{AuthorityType, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEE_RECEIPT_SEEDS, TRUSTEE_RESIGNATION, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, state::{PropertySystemAccount, Resignation, TrusteeRecepit, TrusteeRegistry}};
 
 
 #[derive(Accounts)]
+#[instruction(property_system_id:u64)]
 pub struct TrusteeResign<'info>{
 
     #[account(
@@ -11,12 +12,21 @@ pub struct TrusteeResign<'info>{
     )]
     pub trustee: Signer<'info>,
 
+    #[account(
+        seeds = [
+            TRUSTEE_RECEIPT_SEEDS,
+            property_system.key().as_ref(),
+            trustee.key().as_ref()
+        ],
+        bump = trustee_receipt.bump,
+    )]
+    pub trustee_receipt: Account<'info,TrusteeRecepit>,
     
 
     #[account(
         seeds=[
             PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes(),
+            &property_system_id.to_le_bytes(),
         ],
         bump = property_system.bump
     )]
@@ -36,8 +46,8 @@ pub struct TrusteeResign<'info>{
         payer = trustee,
         seeds=[
             TRUSTEE_RESIGNATION,
-            trustee.key().as_ref(),
             property_system.key().as_ref(),
+            trustee.key().as_ref(),    
         ],
         bump,
         space = 8 + Resignation::SIZE

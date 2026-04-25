@@ -1,24 +1,37 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::BUYPROPERTY, state::{PropertyBuyProposal, PropertySystemAccount, TrusteeRegistry}};
+use crate::{common::{BUYPROPERTY, PROPERTY_SYSTEM_SEEDS, TRUSTEE_RECEIPT_SEEDS}, state::{PropertyBuyProposal, PropertySystemAccount, TrusteeRecepit}};
 
 use crate::functions::*;
 
 #[derive(Accounts)]
-pub struct DeleteFailProposal<'info>{
-
-    #[account(
-        constraint = property_system.trustee_registry == trustee_registry.key() 
-    )]
-    pub trustee_registry : Account<'info,TrusteeRegistry>,
+#[instruction(proposal_id:u64,property_system_id:u64)]
+pub struct DeleteFailBuyProposal<'info>{
 
     #[account(
         mut,
-        constraint = trustee_registry.trustees.contains(&trustee.key())
+        // constraint = trustee_registry.trustees.contains(&trustee.key())
     )]
     pub trustee : Signer<'info>,
 
-    #[account()]
+     #[account(
+        seeds = [
+            TRUSTEE_RECEIPT_SEEDS,
+            property_system.key().as_ref(),
+            trustee.key().as_ref()
+        ],
+        bump = trustee_receipt.bump,
+    )]
+    pub trustee_receipt: Account<'info,TrusteeRecepit>,
+
+
+    #[account(
+        seeds = [ 
+            PROPERTY_SYSTEM_SEEDS,
+            &property_system_id.to_le_bytes(),
+        ],
+        bump=property_system.bump,
+    )]
     pub property_system : Account<'info,PropertySystemAccount>,
 
     #[account(
@@ -26,10 +39,9 @@ pub struct DeleteFailProposal<'info>{
         seeds=[
             BUYPROPERTY,
             property_system.key().as_ref(),
-            &proposal.proposal_id.to_le_bytes(),
+            &proposal_id.to_le_bytes(),
         ],
         bump = proposal.bump,
-        constraint = proposal.buyer  == property_system.key(),
         close = trustee
     )]
     pub proposal : Account<'info,PropertyBuyProposal>,
@@ -37,7 +49,7 @@ pub struct DeleteFailProposal<'info>{
 }  
 
 
-pub fn delete_buy_proposal(ctx:Context<DeleteFailProposal>) ->Result<()>{
+pub fn delete_buy_proposal(ctx:Context<DeleteFailBuyProposal>,_proposal_id:u64,_property_system_id:u64) ->Result<()>{
 
     let proposal = &mut *ctx.accounts.proposal;
 

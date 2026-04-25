@@ -85,16 +85,16 @@ pub fn sell_proposal_arbitrar_vote(ctx:Context<ArbitrarApproval>,_proposal_id : 
     
     
     
-    let proposal = &mut  ctx.accounts.proposal;
+    let proposal_key = ctx.accounts.proposal.key();
+
+     let proposal = &mut  *ctx.accounts.proposal;
 
     let signer =  ctx.accounts.arbitrar.key();
 
     let property_system = & ctx.accounts.seller;
 
-   
-
      
-    arbitrar_approval(proposal, &mut  ctx.accounts.arbitrar_registry, &mut ctx.accounts.arbitrar_voter, signer, property_system.governance_mint)?;
+    arbitrar_approval(proposal, proposal_key, &mut  ctx.accounts.arbitrar_registry, &mut ctx.accounts.arbitrar_voter, signer, property_system.governance_mint, property_system.key())?;
 
     Ok(())
 }

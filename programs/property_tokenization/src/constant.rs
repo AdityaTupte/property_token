@@ -8,6 +8,7 @@ pub trait BaseProposal {
 
     fn merkle_root(&mut self) -> &mut [u8; 32];
 
+    fn arbitrar_total_count(&mut self) -> &mut u8;
 
     fn arbitrar_approved(&mut self) -> &mut bool;
 
@@ -43,11 +44,11 @@ pub trait AuthorityGovernance: BaseProposal {
 
     fn is_finalize(&mut self)-> &mut bool;
 
-    fn new_authority(&mut self)-> &mut Vec<Pubkey>;
+    // fn new_authority(&mut self)-> &mut Vec<Pubkey>;
 
     fn proposal_type(&mut self) -> &mut AuthorityType;
 
-    fn authority_to_resign(&mut self) -> &mut Vec<Pubkey>;
+    fn total_authority_to_resign(&mut self) -> &mut u8;
 
     fn candidate_submission_deadline(&mut self) -> &mut i64;
 

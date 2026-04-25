@@ -1,15 +1,15 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{AuthorityType, MAX_TRUSTEES, ProposalStatus}, constant::{AuthorityGovernance, BaseProposal}};
+use crate::{common::{AuthorityType, ProposalStatus}, constant::{AuthorityGovernance, BaseProposal}};
 
 #[account]
 pub struct ElectAuthority{
 
     pub property_system: Pubkey,
 
-    pub authority_to_resign : Vec<Pubkey>,
+    pub total_authority_to_resign : u8,
 
-    pub new_authority : Vec<Pubkey>,
+    // pub new_authority : Vec<Pubkey>,
 
     pub authority_type : AuthorityType,
     
@@ -19,7 +19,7 @@ pub struct ElectAuthority{
 
     pub merkle_root: [u8; 32],
 
-    pub arbitrar_approvals: Vec<Pubkey>,
+    pub arbitrar_approvals_count: u8,
 
     pub is_initialized : bool,
 
@@ -35,7 +35,7 @@ pub struct ElectAuthority{
 
     pub challenge_new_authority_deadline : i64,
 
-    pub if_finalize : bool,
+    pub is_finalize : bool,
 
     pub index_for_removal : u8,
 
@@ -48,14 +48,14 @@ pub struct ElectAuthority{
 impl ElectAuthority  {
         pub const SIZE:usize = 
                                 32 +
-                                4 + (32 * MAX_TRUSTEES) +
-                                4 + (32 * MAX_TRUSTEES) +
+                                // 4 + (32 * MAX_TRUSTEES) +
+                                1 +
                                 1 +
                                 1 +
                                 1 +
                                 8 +
                                 32 +
-                                4 + (32* MAX_TRUSTEES) +
+                                1 +
                                 1 +
                                 1 +
                                 1 +
@@ -132,9 +132,13 @@ impl BaseProposal for ElectAuthority {
         &mut self.merkle_root
     }
 
-    fn arbitrar_list(&mut self) -> &mut Vec<Pubkey> {
-        &mut self.arbitrar_approvals
+    fn arbitrar_total_count(&mut self) -> &mut u8 {
+        &mut self.arbitrar_approvals_count
     }
+
+    // fn arbitrar_list(&mut self) -> &mut Vec<Pubkey> {
+    //     &mut self.arbitrar_approvals
+    // }
 
     fn arbitrar_approved(&mut self) -> &mut bool {
         &mut self.is_arbitrar_approved
@@ -159,20 +163,20 @@ impl BaseProposal for ElectAuthority {
 
 impl AuthorityGovernance for ElectAuthority {
 
-    fn new_authority(&mut self)-> &mut Vec<Pubkey>{
-        &mut self.new_authority
-    }
+    // fn new_authority(&mut self)-> &mut Vec<Pubkey>{
+    //     &mut self.new_authority
+    // }
 
     fn is_finalize(&mut self) -> &mut bool{
-        &mut self.if_finalize
+        &mut self.is_finalize
     }
 
     fn proposal_type(&mut self) -> &mut AuthorityType {
         &mut self.authority_type
     }
 
-    fn authority_to_resign(&mut self) -> &mut Vec<Pubkey>{
-        &mut self.authority_to_resign
+    fn total_authority_to_resign(&mut self) -> &mut u8{
+        &mut self.total_authority_to_resign
     }
 
     fn add_new_authority_deadline(&mut self) -> &mut i64 {
@@ -194,4 +198,5 @@ impl AuthorityGovernance for ElectAuthority {
     fn index_for_removal(&mut self) ->  &mut u8 {
         &mut self.index_for_removal
     }
+    
 }

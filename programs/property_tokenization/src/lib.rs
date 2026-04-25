@@ -219,7 +219,7 @@ pub mod property_tokenization {
     }
 
     pub fn submit_snapshot_for_sell_proposal(
-        ctx:Context<SubmitSnapshot>,
+        ctx:Context<SellSubmitSnapshot>,
         property_system_account:Pubkey,
         proposal_id:u64,
         merkle_root : [u8;32],
@@ -236,7 +236,7 @@ pub mod property_tokenization {
 
 
     pub fn voting_for_sell_proposal(
-        ctx:Context<Voting>,
+        ctx:Context<SellProposalVoting>,
         proposal_id:u64,
         property_system_id:u64,
         proof: Vec<[u8; 32]>,
@@ -251,7 +251,7 @@ pub mod property_tokenization {
     }
 
     pub fn sell_proposal_finalize(
-        ctx:Context<Finalize>,
+        ctx:Context<SellProposalFinalize>,
         proposal_id:u64,
         property_system_account:Pubkey
     )->Result<()>{
@@ -263,14 +263,130 @@ pub mod property_tokenization {
     }
 
     pub fn delete_sell(
-        ctx:Context<DeleteFailProposal>,
+        ctx:Context<DeleteFailSellProposal>,
         proposal_id:u64,
         property_system_id:u64
     )->Result<()>{
 
-        sell_property::delete_fail_proposal(ctx, proposal_id, property_system_id)?;
+        sell_property::delete_fail_sell_proposal(ctx, proposal_id, property_system_id)?;
         Ok(())
     }
+
+
+
+    pub fn create_buy_proposal(
+        ctx:Context<BuyPropertyProposal>,
+        proposal_id : u64,
+        buyer_property_system_id:u64,
+        seller_property_system_account:Pubkey,
+        seller_proposal_id:u64,
+        state_pubkey:Pubkey,
+        property_id:u64
+    )->Result<()>{
+
+        buy_property_proposal::createbuyproposal(ctx, proposal_id, buyer_property_system_id, seller_property_system_account, seller_proposal_id, state_pubkey, property_id)
+
+    }
+
+    pub fn buy_proposal_arbitrar_vote(
+        ctx:Context<ArbitrarVote>,
+        proposal_id : u64,
+        buyer_property_system_id:u64
+    )->Result<()>{
+
+        buy_property::buy_proposal_arbitrar_vote(ctx, proposal_id, buyer_property_system_id)?;
+        Ok(())
+    }
+
+    pub fn buy_submit_snapshot(
+        ctx:Context<BuySubmitSnapshot>,
+        property_system_account:Pubkey,
+        proposal_id:u64,
+        merkle_root : [u8;32],
+        closing_days_gap : u8,
+        payment_deadline_days : u8 ,
+        vote_threshold :u64,
+    )->Result<()>{
+
+        buy_property::buy_submit_snapshot(ctx, property_system_account, proposal_id, merkle_root, closing_days_gap, payment_deadline_days, vote_threshold)
+    }
+
+    pub fn buy_proposal_voting(
+        ctx:Context<BuyProposalVoting>,
+        proposal_id:u64,
+        property_system_id:u64,
+        proof: Vec<[u8; 32]>,
+        voting_power : u64,
+        yes_or_no : bool,
+    )->Result<()>{
+
+        buy_property::vote(ctx, proposal_id, property_system_id, proof, voting_power, yes_or_no)?;
+        
+        Ok(())
+    }
+
+    pub fn buy_proposal_finalize(
+        ctx:Context<BuyProposalFinalize>,
+        proposal_id:u64,
+        property_system_account:Pubkey
+    )->Result<()>{
+
+        buy_property::finalize_buy_proposal(ctx, proposal_id, property_system_account)?;
+        Ok(())
+    }
+
+    pub fn delete_buy_proposal(
+        ctx:Context<DeleteFailBuyProposal>,
+        proposal_id:u64,
+        property_system_id:u64
+    )->Result<()>{
+
+        buy_property::delete_buy_proposal(ctx, proposal_id, property_system_id)?;
+        Ok(())
+    }
+
+
+    pub fn execute_buy_proposal(
+        ctx:Context<ExecuteProposal>,
+        proposal_id : u64,
+        buyer_property_system_id:u64,
+        seller_property_system_account_id:u64,
+        seller_proposal_id:u64,
+        state_pubkey:Pubkey,
+        property_id:u64
+    )->Result<()>{
+
+        buy_property::execute_buy_proposal(ctx, proposal_id, buyer_property_system_id, seller_property_system_account_id, seller_proposal_id, state_pubkey,property_id)?;
+
+        Ok(())
+
+    }
+    
+
+    // trustee resignation and new trustee election
+    
+pub fn trustee_resign(ctx:Context<NewTrusteeElectionProposal>, proposal_id:u64, property_system_id:u64)->Result<()>{
+
+    resign_and_elect_new_trustee::new_trustee_election_proposal(ctx, proposal_id, property_system_id)?;
+
+    Ok(())
+
+}
+
+pub fn arbitrar_approve_trustee_election(
+        ctx:Context<ArbitrarApproveTrusteeElection>,
+        proposal_id:u64,
+        property_system_id:u64
+)   ->Result<()>{
+
+    resign_and_elect_new_trustee::arbitrar_approve_trustee_election(ctx, proposal_id, property_system_id)?;
+
+    Ok(())
+
+
+}
+
+
 
 
 }

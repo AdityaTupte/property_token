@@ -1,6 +1,5 @@
 use anchor_lang::prelude::*;
 
-use crate::common::{MAX_COUNTRY_AUTHORITY, MAX_STATE_AUTHORITIES, MAX_STATE_NAME};
 
 
 

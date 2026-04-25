@@ -1,46 +1,49 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken,token_interface::{Mint, TokenAccount, TokenInterface,TransferChecked, transfer_checked}};
 
-use crate::{common::{BUYPROPERTY, HARDCODED_PUBKEY, PROPERTY_PAGE_SEEDS, PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, ProposalStatus, REINVESTMENTPDA, SELLPROPERTY, TREASURYSEEDS},  state::{PropertyAccount, PropertyBuyProposal, PropertyPage, PropertySellProposal, PropertySystemAccount, ReinvestmentPda, TreasuryPda, TrusteeRegistry}};
+use crate::{common::{BUYPROPERTY, PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, ProposalStatus, REINVESTMENTPDA, SELLPROPERTY, TREASURYSEEDS, TRUSTEE_RECEIPT_SEEDS},  state::{PropertyAccount, PropertyBuyProposal, PropertySellProposal, PropertySystemAccount, ReinvestmentPda, TreasuryPda, TrusteeRecepit}};
+
+//temoray disabled because of the mint address change
+//pub const HARDCODED_MINT: Pubkey = pubkey!("6ecHpBQGJqXRqXCBPXvQyFUqzGWmm2WBEFPFGiRJWMuz");
 
 use crate::errors::ErrorCode;
 #[derive(Accounts)]
-
+#[instruction(proposal_id : u64,buyer_property_system_id:u64,seller_property_system_account_id:u64,seller_proposal_id:u64,
+    state_pubkey:Pubkey,property_id:u64)]
 pub struct ExecuteProposal<'info>{
 
-    #[account(
-        constraint = buyer.trustee_registry == trustee_registry.key() 
-    )]
-    pub trustee_registry : Box<Account<'info,TrusteeRegistry>>,
+    // #[account(
+    //     constraint = buyer.trustee_registry == trustee_registry.key() 
+    // )]
+    // pub trustee_registry : Box<Account<'info,TrusteeRegistry>>,
 
     #[account(
         mut,
-        constraint = trustee_registry.trustees.contains(&trustee.key())
+        // constraint = trustee_registry.trustees.contains(&trustee.key())
     )]
     pub trustee : Signer<'info>,
+
+
+    #[account(
+        seeds = [
+            TRUSTEE_RECEIPT_SEEDS,
+            buyer.key().as_ref(),
+            trustee.key().as_ref()
+        ],
+        bump = trustee_receipt.bump,
+    )]
+    pub trustee_receipt: Box<Account<'info,TrusteeRecepit>>,
 
     #[account(
         mut,
         seeds =[
                 PROPERTY_SYSTEM_SEEDS,
-                &buyer.property_system_id.to_le_bytes()
+                &buyer_property_system_id.to_le_bytes()
         ],
         bump = buyer.bump,
     )]
     pub buyer : Box<Account<'info,PropertySystemAccount>>,
 
-    #[account(
-        mut,
-        seeds = [
-            PROPERTY_PAGE_SEEDS,
-            &buyer_property_page.page.to_le_bytes(),
-            buyer.key().as_ref()
-        ],
-        bump = buyer_property_page.bump,
-        constraint = buyer_property_page.property_system == buyer.key() @ ErrorCode::PropertySystemInvalid
-    )]
-
-    pub buyer_property_page : Box<Account<'info,PropertyPage>>,
 
     // #[account(
     //     constraint = buyer.treasury == buyer_treasury.key() @ ErrorCode::InvalidTreasury
@@ -64,7 +67,7 @@ pub struct ExecuteProposal<'info>{
         seeds=[
             BUYPROPERTY,
             buyer.key().as_ref(),
-            &proposal.proposal_id.to_le_bytes(),
+            &proposal_id.to_le_bytes(),
         ],
         bump = proposal.bump,
         constraint = proposal.status == ProposalStatus::Passed @ ErrorCode::ProposalNotPassed,
@@ -79,7 +82,8 @@ pub struct ExecuteProposal<'info>{
         init_if_needed,
         payer = trustee,
         associated_token::mint = mint,
-        associated_token::authority = buyer_wallet ,
+        associated_token::authority = buyer_wallet,
+        associated_token::token_program = token_program,
     )]
     pub buyer_ata : InterfaceAccount<'info, TokenAccount>,
 
@@ -93,7 +97,7 @@ pub struct ExecuteProposal<'info>{
         seeds=[
             SELLPROPERTY,
             seller.key().as_ref(),
-            &sell_proposal.proposal_id.to_le_bytes(),
+            &seller_proposal_id.to_le_bytes(),
         ],
         bump = sell_proposal.bump,
         constraint = sell_proposal.status == ProposalStatus::Passed @ ErrorCode::ProposalNotPassed,
@@ -108,7 +112,7 @@ pub struct ExecuteProposal<'info>{
         mut,
         seeds =[
                 PROPERTY_SYSTEM_SEEDS,
-                &seller.property_system_id.to_le_bytes()
+                &seller_property_system_account_id.to_le_bytes()
         ],
         bump = seller.bump,
     )]
@@ -129,7 +133,8 @@ pub struct ExecuteProposal<'info>{
         init_if_needed,
         payer = trustee,
         associated_token::mint = mint,
-        associated_token::authority = seller_treasury ,
+        associated_token::authority = seller_treasury,
+        associated_token::token_program = token_program,
     )]
     pub seller_ata : InterfaceAccount<'info, TokenAccount>,
 
@@ -137,30 +142,18 @@ pub struct ExecuteProposal<'info>{
         mut,
         seeds=[ 
             PROPERTY_SEED,
-            &property_account.property_id.to_le_bytes(),                
-            &property_account.state_pubkey.as_ref(),
-            &property_account.country_pubkey.as_ref(),                
+            &property_id.to_le_bytes(),                
+            &state_pubkey.as_ref(),               
         ],
         bump = property_account.bump,
         constraint = property_account.property_system == seller.key() @ ErrorCode::InvalidLandForSource
     )]
     pub property_account : Box<Account<'info,PropertyAccount>>,
 
-    #[account(
-        mut,
-        seeds = [
-            PROPERTY_PAGE_SEEDS,
-            &seller_property_page.page.to_le_bytes(),
-            seller.key().as_ref()
-        ],
-        bump = seller_property_page.bump,
-      //  constraint = seller_property_page.property_system == seller.key() @ ErrorCode::PropertySystemInvalid
-    )]
 
-    pub seller_property_page : Box<Account<'info,PropertyPage>>,
 
     #[account(
-        address = HARDCODED_PUBKEY,
+        // address = HARDCODED_MINT,
     )]
     pub mint : InterfaceAccount<'info,Mint>,
 
@@ -173,17 +166,25 @@ pub struct ExecuteProposal<'info>{
 
 }
 
-pub fn execute_buy_proposal(ctx:Context<ExecuteProposal>)->Result<()>{
+pub fn execute_buy_proposal(
+    ctx:Context<ExecuteProposal>,
+    _proposal_id: u64,
+    _buyer_property_system_id:u64,
+    _seller_property_system_account_id:u64,
+    _seller_proposal_id:u64,
+    _state_pubkey:Pubkey,   
+    _property_id:u64, 
+)->Result<()>{
 
     let proposal = &mut ctx.accounts.proposal;
 
     let sell_proposal = &mut ctx.accounts.sell_proposal;
 
-    let sell_property_page = &mut ctx.accounts.seller_property_page;
+    // let sell_property_page = &mut ctx.accounts.seller_property_page;
 
     let property = &mut ctx.accounts.property_account;
 
-    let buy_property_page = &mut ctx.accounts.buyer_property_page;
+    // let buy_property_page = &mut ctx.accounts.buyer_property_page;
 
     let buyer = &mut ctx.accounts.buyer;
 
@@ -193,9 +194,9 @@ pub fn execute_buy_proposal(ctx:Context<ExecuteProposal>)->Result<()>{
     
     let current_time = Clock::get()?.unix_timestamp;
 
-    require!(sell_property_page.land.contains(&property.key()), ErrorCode::InvalidProperty);
+    // require!(sell_property_page.land.contains(&property.key()), ErrorCode::InvalidProperty);
     
-    require!(buy_property_page.land.len() < 100, ErrorCode::InsufficentSpace);
+    // require!(buy_property_page.land.len() < 100, ErrorCode::InsufficentSpace);
 
     require!(current_time <= sell_proposal.transfer_deadline  && current_time <= proposal.payment_deadline , ErrorCode::CantTramnsfer );
 
@@ -210,17 +211,17 @@ pub fn execute_buy_proposal(ctx:Context<ExecuteProposal>)->Result<()>{
 
     
 
-   if  let Some(index) = sell_property_page.land.iter().position(|x| *x == property.key()){
+//    if  let Some(index) = sell_property_page.land.iter().position(|x| *x == property.key()){
 
-        sell_property_page.land.swap_remove(index);
+//         sell_property_page.land.swap_remove(index);
 
-   }
+//    }
 
-   buy_property_page.land.push(property.key());
+//    buy_property_page.land.push(property.key());
 
-   property.property_system = buyer.key();
+     property.property_system = buyer.key();
    
-   property.page_number = buy_property_page.page;
+//    property.page_number = buy_property_page.page;
 
    let cpi_accounts = TransferChecked{
     from:ctx.accounts.buyer_ata.to_account_info(),

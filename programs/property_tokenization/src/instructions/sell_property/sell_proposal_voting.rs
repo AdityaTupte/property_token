@@ -4,7 +4,7 @@ use crate::{common::{PROPERTY_SYSTEM_SEEDS, ProposalStatus, SELLPROPERTY, VOTERR
 
 #[derive(Accounts)]
 #[instruction(proposal_id:u64,property_system_id:u64)]
-pub struct Voting<'info>{
+pub struct SellProposalVoting<'info>{
 
     #[account(mut)]
     pub signer: Signer<'info>,
@@ -55,7 +55,7 @@ pub struct Voting<'info>{
 }
 
     pub fn vote(
-        ctx:Context<Voting>,
+        ctx:Context<SellProposalVoting>,
         _proposal_id:u64,
         _property_system_id:u64,
         proof: Vec<[u8; 32]>,
@@ -77,9 +77,9 @@ pub struct Voting<'info>{
     
     let current_time = Clock::get()?.unix_timestamp;
     
-    require!(current_time >= proposal.start_time  , ErrorCode::VotingPeriodExpired);
+    require!(current_time >= proposal.start_time  , ErrorCode::VotingPeriodNotStarted);
 
-    require!(current_time <= proposal.end_time ,ErrorCode::VotingLimitReached);
+    require!(current_time <= proposal.end_time ,ErrorCode::VotingPeriodExpired);
 
     require!(voting_power > 0, ErrorCode::VotingPowerInvalid);
 

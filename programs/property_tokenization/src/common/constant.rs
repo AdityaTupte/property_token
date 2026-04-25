@@ -23,7 +23,6 @@ pub const MAX_COUNTRY_NAME: usize = 64;
 pub const MAX_COUNTRY_AUTHORITY: usize = 10;
     
 
-
 pub const STATE_PROPOSAL_SEEDS: &[u8] = b"state_proposal";
 pub const STATE_SEEDS : &[u8] = b"state";
 
@@ -41,7 +40,6 @@ pub const PROPERTY_SEED : &[u8] = b"property";
 pub const PROPERTY_METADATA_SEEDS :&[u8] = b"property_metadata";
 
 
-
 pub const SELLPROPERTY : &[u8] = b"SELLPROPERTY";
 pub const BUYPROPERTY : &[u8] = b"BUYPROPERTY";
 
@@ -52,13 +50,11 @@ pub const SAFETYPROPOSAL :  &[u8] = b"safetyproposal";
 
 pub const USEREINVESTMENTOKEN :&[u8] = b"use_reinvestment_token";
 
-
 pub const TRUSTEEREGISTRYSEEDS : &[u8] = b"trustee_registry";
 
 pub const TRUSTEE_RECEIPT_SEEDS : &[u8] = b"trustee_recepit";
 
 pub const TRUSTEE_SELL_PROPOSAL_VOTE_RECEIPT_SEEDS : &[u8] = b"trustee_sell_proposal_vote_receipt";
-
 
 pub const ARBITRAR_REGISTRYSEEDS : &[u8] = b"arbitrator_registry";
 
@@ -66,11 +62,11 @@ pub const ARBITRAR_RECEIPT_SEEDS : &[u8] = b"arbitrator_recepit";
 
 pub const ARBITRAR_SELL_PROPOSAL_VOTE_RECEIPT_SEEDS : &[u8] = b"ArbitrarSellProposalReceipt";
 
+pub const ARBITRAR_BUY_PROPOSAL_VOTE_RECEIPT_SEEDS : &[u8] = b"ArbitrarBuyProposalReceipt";
+
 pub const TREASURYSEEDS : &[u8] = b"treasury";
 
 pub const DIVIDENDSEEDS : &[u8] = b"dividend";
-
-
 
 pub const HARDCODED_PUBKEY: Pubkey = pubkey!("EezSke1hYxfEZuCrxDAgGe1nb7i2DoqJnaFJQPBPRpJs");
 
@@ -80,25 +76,23 @@ pub const VOTERRECIEPT : &[u8] = b"voter_receipt";
 
 pub const MAX_LAND_PER_PAGE:usize = 100;
 
-
-
 pub const RT_CHG_PROPOSAL_SEEDS : &[u8] = b"rt_change_proposal";
+
 pub const PROPOSE_THRESHOLD : &[u8] = b"propose_threshold";
 
 pub const THRESHOLD_VOTE_RECEIPT : &[u8] = b"threshold_vote_receipt";
 
 pub const THRESHOLD :&[u8] = b"threshold";
 
-
 pub const TRUSTEE_RESIGNATION : &[u8] = b"trustee_resignation";
 
 pub const ARBITRAR_RESIGNATION : &[u8] = b"arbitrar_resignation";
 
+pub const TRUSTEE_ELECTION_APPROVE_RECEIPT : &[u8] = b"trustee_election_receipt";
 
 pub const ELECT_TRUSTEE : &[u8] = b"elect_trustee";
 
 pub const ELECT_ARBITRAR : &[u8] = b"elect_arbitrar" ;
-
 
 pub const CANDIDATE_PROFILE : &[u8] = b"candidate_profile";
 

@@ -110,7 +110,11 @@ pub enum ErrorCode{
     ApproveAuthorityThresholdInvalid,
 
     #[msg("the signer is nopt authorized to sign the trasaction")]
-    NotAuthorized,
+    UnAuthorized,
+
+
+    #[msg("total appoval count must be 0 ")]
+    TotalApprovalCountInvalid,
 
     #[msg("the proposal already approved ")]
     AlreadyApproved,
@@ -184,7 +188,10 @@ pub enum ErrorCode{
     #[msg("the given proof is not valid ")]
     InvalidMerkleProof,
 
-    #[msg("the voting period it not start yet or expired")]
+    #[msg("the voting period it not start yet")]
+    VotingPeriodNotStarted,
+
+    #[msg("the voting period  expired")]
     VotingPeriodExpired,
 
     #[msg("the voting power should be greater than 0 ")]
@@ -225,6 +232,9 @@ pub enum ErrorCode{
 
     #[msg("the transfer deadline be more than 0")]
     TransferDeadline,
+
+    #[msg("the payment deadline be more than 0")]
+    PaymentDeadline,
 
     #[msg("the reinvestment treasury is invalid")]
     InvalidReinvestAccount,

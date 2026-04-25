@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use crate::common::{ProposalStatus, SELLPROPERTY};
+use crate::common::{HARDCODED_PUBKEY, ProposalStatus, SELLPROPERTY};
 
 use crate::errors::ErrorCode;
 use crate::functions::submit;
@@ -7,8 +7,11 @@ use crate::state::{PropertySellProposal};
 
 #[derive(Accounts)]
 #[instruction(property_system_account:Pubkey,proposal_id:u64)]
-pub struct SubmitSnapshot<'info>{
+pub struct SellSubmitSnapshot<'info>{
 
+    #[account(mut,
+    address = HARDCODED_PUBKEY  @ ErrorCode::UnAuthorized,
+    )]
     pub signer: Signer<'info>,
 
     #[account(
@@ -28,7 +31,7 @@ pub struct SubmitSnapshot<'info>{
 }
 
 pub fn sell_submit_snapshot(
-    ctx:Context<SubmitSnapshot>,
+    ctx:Context<SellSubmitSnapshot>,
     _property_system_account:Pubkey,
     _proposal_id:u64,
     merkle_root : [u8;32],

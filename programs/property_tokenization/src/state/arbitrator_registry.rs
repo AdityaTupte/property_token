@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::MAX_ARBITRATOR, constant::AuthorityRegistry};
+
 
 
 #[account]

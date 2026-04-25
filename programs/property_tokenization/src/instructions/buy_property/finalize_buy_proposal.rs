@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
 
-use crate::common::SELLPROPERTY;
+use crate::common::{BUYPROPERTY};
 use crate::functions::finalize;
 use crate::state::PropertyBuyProposal;
 
@@ -9,7 +9,8 @@ use crate::state::PropertyBuyProposal;
 
 
 #[derive(Accounts)]
-pub struct Finalize<'info>{
+#[instruction(proposal_id:u64,property_system_account:Pubkey)]
+pub struct BuyProposalFinalize<'info>{
 
 
     #[account()]
@@ -17,10 +18,11 @@ pub struct Finalize<'info>{
 
 
     #[account(
+        mut,
         seeds=[
-            SELLPROPERTY,
-            proposal.buyer.as_ref(),
-            &proposal.proposal_id.to_le_bytes(),
+            BUYPROPERTY,
+            property_system_account.as_ref(),
+            &proposal_id.to_le_bytes(),
         ],
         bump = proposal.bump
     )]
@@ -28,7 +30,11 @@ pub struct Finalize<'info>{
 }
 
 
-pub fn finalize_buy_proposal(ctx:Context<Finalize>)->Result<()>{
+pub fn finalize_buy_proposal(
+    ctx:Context<BuyProposalFinalize>,
+    _proposal_id:u64,
+    _property_system_account:Pubkey
+)->Result<()>{
 
     let proposal = &mut *ctx.accounts.proposal; 
 

@@ -42,7 +42,7 @@ pub struct ApproveCountry<'info>{
 
     #[account(
         mut,
-        constraint = authority.authority.contains(&signer.key()) @ ErrorCode::NotAuthorized,
+        constraint = authority.authority.contains(&signer.key()) @ ErrorCode::UnAuthorized,
     )]
 
     pub signer: Signer<'info>,

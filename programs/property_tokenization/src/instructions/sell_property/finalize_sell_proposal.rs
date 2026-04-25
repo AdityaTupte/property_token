@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 
 use crate::common::SELLPROPERTY;
 use crate::functions::finalize;
-use crate::instructions::property_system;
+
 use crate::state::PropertySellProposal;
 
 
@@ -11,7 +11,7 @@ use crate::state::PropertySellProposal;
 
 #[derive(Accounts)]
 #[instruction(proposal_id:u64,property_system_account:Pubkey)]
-pub struct Finalize<'info>{
+pub struct SellProposalFinalize<'info>{
 
 
     #[account()]
@@ -31,7 +31,7 @@ pub struct Finalize<'info>{
 }
 
 
-pub fn finalize_sell_proposal(ctx:Context<Finalize>,_proposal_id:u64,_property_system_account:Pubkey)->Result<()>{
+pub fn finalize_sell_proposal(ctx:Context<SellProposalFinalize>,_proposal_id:u64,_property_system_account:Pubkey)->Result<()>{
 
     let proposal = &mut *ctx.accounts.proposal; 
 

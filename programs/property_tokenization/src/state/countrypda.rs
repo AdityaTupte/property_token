@@ -1,6 +1,5 @@
 use anchor_lang::prelude::*;
 
-use crate::common::{ MAX_COUNTRY_NAME};
 
 
 #[account]

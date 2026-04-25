@@ -17,7 +17,7 @@ pub struct AddArbitrator<'info> {
             system_id.to_le_bytes().as_ref()
         ],
         bump = property_system_acc.bump,
-        constraint = property_system_acc.creator == authority.key() @ ErrorCode::NotAuthorized,
+        constraint = property_system_acc.creator == authority.key() @ ErrorCode::UnAuthorized,
         constraint = !property_system_acc.ready_for_listing @ ErrorCode::PropertySystemReadyForListing
     )]
     pub property_system_acc: Account<'info, PropertySystemAccount>,

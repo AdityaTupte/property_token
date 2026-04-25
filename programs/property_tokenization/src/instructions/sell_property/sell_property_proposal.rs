@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
-use crate::common::{ PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, SELLPROPERTY, TREASURYSEEDS, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS};
+use crate::common::{ PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, SELLPROPERTY, TREASURYSEEDS, TRUSTEE_RECEIPT_SEEDS,};
 use crate::errors::ErrorCode;
-use crate::state::{PropertyAccount, PropertySellProposal, PropertySystemAccount, TreasuryPda, TrusteeRecepit, TrusteeRegistry};
+use crate::state::{PropertyAccount, PropertySellProposal, PropertySystemAccount, TreasuryPda, TrusteeRecepit,};
 
 
 #[derive(Accounts)]

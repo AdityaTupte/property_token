@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{ COUNTRY_SEED, PROPERTY_PROPOSAL_SEEDS, PROPERTY_SYSTEM_SEEDS, STATE_AUTHORITY, STATE_SEEDS}, errors::ErrorCode, state::{ Country, PropertyProposal, PropertySystemAccount, State, StateAuthority}};
+use crate::{common::{ PROPERTY_PROPOSAL_SEEDS, PROPERTY_SYSTEM_SEEDS, STATE_AUTHORITY, STATE_SEEDS}, errors::ErrorCode, state::{  PropertyProposal, PropertySystemAccount, State, StateAuthority}};
 
 
 
