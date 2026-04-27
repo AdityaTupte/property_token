@@ -283,6 +283,38 @@ function buildSellProposalLeaf(
   ]);
 }
 
+function buildAuthorityLeaf(
+  voter: PublicKey,
+  proposal: PublicKey,
+  governanceMint: PublicKey,
+  votingPower: number | bigint | anchor.BN,
+  authorityType: number ,   // 0 for TRUSTEE, 1 for ARBITRATOR
+): Buffer {
+  return keccakBuffer([
+    Buffer.from([authorityType]),
+    voter.toBuffer(),
+    proposal.toBuffer(),
+    governanceMint.toBuffer(),
+    toU64LeBuffer(votingPower),
+  ]);
+}
+
+// function buildTrusteeVoteLeaf(
+//   voter: PublicKey,
+//   proposal: PublicKey,
+//   governanceMint: PublicKey,
+//   votingPower: number | bigint | anchor.BN
+// ): Buffer {
+//   return keccakBuffer([
+//     Buffer.from("TRUSTEE"),
+//     voter.toBuffer(),
+//     proposal.toBuffer(),
+//     governanceMint.toBuffer(),
+//     toU64LeBuffer(votingPower),
+//   ]);
+// }
+
+
 
 function buildBuyProposalLeaf(
   voter: PublicKey,
@@ -299,6 +331,23 @@ function buildBuyProposalLeaf(
   ]);
 }
 
+// function buildTrusteeVoteProof(
+//   entries: ReadonlyArray<{
+//     voter: PublicKey;
+//     votingPower: number | bigint | anchor.BN;
+//     authoritytype:number,
+//   }>,
+//   targetIndex: number,
+//   proposal: PublicKey,
+//   governanceMint: PublicKey
+// ): number[][] {
+//   const leaves = entries.map((entry) =>
+//     buildAuthorityLeaf(entry.voter, proposal, governanceMint, entry.votingPower,entry.authoritytype)
+//   );
+
+//   return buildMerkleProof(leaves, targetIndex);
+// }
+
 function buildSellProposalProof(
   entries: ReadonlyArray<{
     voter: PublicKey;
@@ -310,6 +359,23 @@ function buildSellProposalProof(
 ): number[][] {
   const leaves = entries.map((entry) =>
     buildSellProposalLeaf(entry.voter, proposal, governanceMint, entry.votingPower)
+  );
+
+  return buildMerkleProof(leaves, targetIndex);
+}
+
+function buildAuthorityProof(
+  entries: ReadonlyArray<{
+    voter: PublicKey;
+    votingPower: number | bigint | anchor.BN;
+    authoritytype:number,
+  }>,
+  targetIndex: number,
+  proposal: PublicKey,
+  governanceMint: PublicKey
+): number[][] {
+  const leaves = entries.map((entry) =>
+    buildAuthorityLeaf(entry.voter, proposal, governanceMint, entry.votingPower,entry.authoritytype)
   );
 
   return buildMerkleProof(leaves, targetIndex);
@@ -1436,131 +1502,134 @@ console.log(meta);
   
 //   })
 
-//   let receiver1 = Keypair.generate();
-//   let receiver2 = Keypair.generate();
-//   let receiver3 = Keypair.generate();
+  let receiver1 = Keypair.generate();
+  let receiver2 = Keypair.generate();
+  let receiver3 = Keypair.generate();
+  let receiver4 = Keypair.generate();
+  let receiver5 = Keypair.generate();
+  let receiver6 = Keypair.generate();
 
-// const [governanceMint] = anchor.web3.PublicKey.findProgramAddressSync(
-//   [
-//    Buffer.from("mint"),
-//   propertySystemPda.toBuffer(),
-//   ],
-//   program.programId
-// );
+const [governanceMint] = anchor.web3.PublicKey.findProgramAddressSync(
+  [
+   Buffer.from("mint"),
+  propertySystemPda.toBuffer(),
+  ],
+  program.programId
+);
 
-//  it("split token in 3 accounts", async () => {
+ it("split token in 6 accounts", async () => {
 
-//   const senderAta = getAssociatedTokenAddressSync(
-//     governanceMint,
-//     wallet.publicKey,
-//     false,
-//     TOKEN_2022_PROGRAM_ID,
-//     ASSOCIATED_TOKEN_PROGRAM_ID
+  const senderAta = getAssociatedTokenAddressSync(
+    governanceMint,
+    wallet.publicKey,
+    false,
+    TOKEN_2022_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
+  const receivers = [receiver1, receiver2, receiver3,receiver4,receiver5,receiver6];
+
+  const tx = new Transaction();
+
+  for (const r of receivers) {
+    const receiverAta = await getAssociatedTokenAddress(
+      governanceMint,
+      r.publicKey,
+      false,
+      TOKEN_2022_PROGRAM_ID,
+      ASSOCIATED_TOKEN_PROGRAM_ID
+    );
+
+    const ataInfo = await provider.connection.getAccountInfo(receiverAta);
+
+    if (!ataInfo) {
+      tx.add(
+        createAssociatedTokenAccountInstruction(
+          wallet.publicKey,
+          receiverAta,
+          r.publicKey,
+          governanceMint,
+          TOKEN_2022_PROGRAM_ID,
+          ASSOCIATED_TOKEN_PROGRAM_ID
+        )
+      );
+    }
+
+    tx.add(
+      createTransferInstruction(
+        senderAta,
+        receiverAta,
+        wallet.publicKey,
+        100,
+        [],
+        TOKEN_2022_PROGRAM_ID
+      )
+    );
+  }
+
+  await provider.sendAndConfirm(tx);
+
+  console.log("Tokens transferred to receivers");
+  
+  for (const r of receivers) {
+    const receiverAta = await getAssociatedTokenAddress(
+      governanceMint,
+      r.publicKey,
+      false,
+      TOKEN_2022_PROGRAM_ID,
+      ASSOCIATED_TOKEN_PROGRAM_ID
+    );
+
+    const accountInfo = await provider.connection.getAccountInfo(receiverAta);
+
+    if (accountInfo) {
+      const accountData = Buffer.from(accountInfo.data);
+      const amount = accountData.readBigUInt64LE(64); // amount is at offset 64
+      console.log(`Receiver ${r.publicKey.toBase58()} has ${amount} tokens`);
+    } else {
+      console.log(`Receiver ${r.publicKey.toBase58()} does not have an associated token account`);
+    }
+
+
+  }
+
+})
+
+
+
+// it("delete sell proposal",async()=>{
+
+
+//   const proposalId = new anchor.BN(1)
+
+//    const [sellProposalKey] = anchor.web3.PublicKey.findProgramAddressSync(
+//     [
+//       Buffer.from("SELLPROPERTY"),
+//       propertySystemPda.toBuffer(),
+//       proposalId.toArrayLike(Buffer, "le", 8),
+//     ],
+//     program.programId
 //   );
 
-//   const receivers = [receiver1, receiver2, receiver3];
+//   const acc2 = await program.account.propertySellProposal.fetch(sellProposalKey);
 
-//   const tx = new Transaction();
-
-//   for (const r of receivers) {
-//     const receiverAta = await getAssociatedTokenAddress(
-//       governanceMint,
-//       r.publicKey,
-//       false,
-//       TOKEN_2022_PROGRAM_ID,
-//       ASSOCIATED_TOKEN_PROGRAM_ID
-//     );
-
-//     const ataInfo = await provider.connection.getAccountInfo(receiverAta);
-
-//     if (!ataInfo) {
-//       tx.add(
-//         createAssociatedTokenAccountInstruction(
-//           wallet.publicKey,
-//           receiverAta,
-//           r.publicKey,
-//           governanceMint,
-//           TOKEN_2022_PROGRAM_ID,
-//           ASSOCIATED_TOKEN_PROGRAM_ID
-//         )
-//       );
-//     }
-
-//     tx.add(
-//       createTransferInstruction(
-//         senderAta,
-//         receiverAta,
-//         wallet.publicKey,
-//         200,
-//         [],
-//         TOKEN_2022_PROGRAM_ID
-//       )
-//     );
-//   }
-
-//   await provider.sendAndConfirm(tx);
-
-//   console.log("Tokens transferred to receivers");
+//   console.log(acc2);
   
-//   for (const r of receivers) {
-//     const receiverAta = await getAssociatedTokenAddress(
-//       governanceMint,
-//       r.publicKey,
-//       false,
-//       TOKEN_2022_PROGRAM_ID,
-//       ASSOCIATED_TOKEN_PROGRAM_ID
-//     );
-
-//     const accountInfo = await provider.connection.getAccountInfo(receiverAta);
-
-//     if (accountInfo) {
-//       const accountData = Buffer.from(accountInfo.data);
-//       const amount = accountData.readBigUInt64LE(64); // amount is at offset 64
-//       console.log(`Receiver ${r.publicKey.toBase58()} has ${amount} tokens`);
-//     } else {
-//       console.log(`Receiver ${r.publicKey.toBase58()} does not have an associated token account`);
-//     }
 
 
-//   }
+//   const tx = await program.methods.deleteSell(
+//     new anchor.BN(1),
+//     new anchor.BN(1)
+//   ).accounts({
+//     trustee:pro1.publicKey
+//   }).signers([pro1]).rpc();
+
+
+//   const acc = await program.account.propertySellProposal.fetch(sellProposalKey);
+
+//   console.log(acc);
 
 // })
-
-
-
-// // it("delete sell proposal",async()=>{
-
-
-// //   const proposalId = new anchor.BN(1)
-
-// //    const [sellProposalKey] = anchor.web3.PublicKey.findProgramAddressSync(
-// //     [
-// //       Buffer.from("SELLPROPERTY"),
-// //       propertySystemPda.toBuffer(),
-// //       proposalId.toArrayLike(Buffer, "le", 8),
-// //     ],
-// //     program.programId
-// //   );
-
-// //   const acc2 = await program.account.propertySellProposal.fetch(sellProposalKey);
-
-// //   console.log(acc2);
-  
-
-
-// //   const tx = await program.methods.deleteSell(
-// //     new anchor.BN(1),
-// //     new anchor.BN(1)
-// //   ).accounts({
-// //     trustee:pro1.publicKey
-// //   }).signers([pro1]).rpc();
-
-
-// //   const acc = await program.account.propertySellProposal.fetch(sellProposalKey);
-
-// //   console.log(acc);
-
-// // })
 
 // let starttime;
 
@@ -1613,60 +1682,60 @@ console.log(meta);
 
 
 
-// it("vote for sell proposal before end_time should pass",async()=>{
-//   advanceClockBy(svm, 129_600n);
+// // it("vote for sell proposal before end_time should pass",async()=>{
+// //   advanceClockBy(svm, 129_600n);
 
-//   const proposalId = new anchor.BN(1);
-//   const airdropSignature = await connection.requestAirdrop(receiver1.publicKey, 1e9);
-//   const latestBlockhash = await connection.getLatestBlockhash();
-//   await connection.confirmTransaction(
-//     {
-//       signature: airdropSignature,
-//       ...latestBlockhash,
-//     },
-//     "confirmed"
-//   );
+// //   const proposalId = new anchor.BN(1);
+// //   const airdropSignature = await connection.requestAirdrop(receiver1.publicKey, 1e9);
+// //   const latestBlockhash = await connection.getLatestBlockhash();
+// //   await connection.confirmTransaction(
+// //     {
+// //       signature: airdropSignature,
+// //       ...latestBlockhash,
+// //     },
+// //     "confirmed"
+// //   );
 
-//   const voterBalance = await connection.getBalance(receiver1.publicKey);
-//   assert.isAtLeast(voterBalance, 1_000_000);
-//   const [sellProposalKey] = anchor.web3.PublicKey.findProgramAddressSync(
-//     [
-//       Buffer.from("SELLPROPERTY"),
-//       propertySystemPda.toBuffer(),
-//       proposalId.toArrayLike(Buffer, "le", 8),
-//     ],
-//     program.programId
-//   );
+// //   const voterBalance = await connection.getBalance(receiver1.publicKey);
+// //   assert.isAtLeast(voterBalance, 1_000_000);
+// //   const [sellProposalKey] = anchor.web3.PublicKey.findProgramAddressSync(
+// //     [
+// //       Buffer.from("SELLPROPERTY"),
+// //       propertySystemPda.toBuffer(),
+// //       proposalId.toArrayLike(Buffer, "le", 8),
+// //     ],
+// //     program.programId
+// //   );
 
-//   const snapshotEntries = [
-//     { voter: receiver1.publicKey, votingPower: 200 },
-//     { voter: receiver2.publicKey, votingPower: 200 },
-//     { voter: receiver3.publicKey, votingPower: 200 },
-//   ];
+// //   const snapshotEntries = [
+// //     { voter: receiver1.publicKey, votingPower: 200 },
+// //     { voter: receiver2.publicKey, votingPower: 200 },
+// //     { voter: receiver3.publicKey, votingPower: 200 },
+// //   ];
 
-//   const sellProposal = await program.account.propertySellProposal.fetch(sellProposalKey);
-//   assert.isTrue(Number(svm.getClock().unixTimestamp) < sellProposal.endTime.toNumber());
+// //   const sellProposal = await program.account.propertySellProposal.fetch(sellProposalKey);
+// //   assert.isTrue(Number(svm.getClock().unixTimestamp) < sellProposal.endTime.toNumber());
 
-//   const voter1proof = buildSellProposalProof(
-//     snapshotEntries,
-//     0,
-//     sellProposalKey,
-//     governanceMint
-//   );
+// //   const voter1proof = buildSellProposalProof(
+// //     snapshotEntries,
+// //     0,
+// //     sellProposalKey,
+// //     governanceMint
+// //   );
 
-//   const vote1 = await program.methods.votingForSellProposal(
-//     proposalId,
-//     new anchor.BN(1),
-//     voter1proof,
-//     new anchor.BN(200),
-//     true,
-//   ).accounts({
-//     signer:receiver1.publicKey,
-//   }).signers([receiver1]).rpc()
+// //   const vote1 = await program.methods.votingForSellProposal(
+// //     proposalId,
+// //     new anchor.BN(1),
+// //     voter1proof,
+// //     new anchor.BN(200),
+// //     true,
+// //   ).accounts({
+// //     signer:receiver1.publicKey,
+// //   }).signers([receiver1]).rpc()
 
 
 
-// })
+// // })
 
 
 
@@ -2590,6 +2659,294 @@ it("arbitrar vote to elect trustee",async()=>{
   const acc3 = await program.account.voteReceiptForAuthorityElection.fetch(election_vote_key);
 
   console.log(acc3);
+
+})
+
+it("submits snapshot for trustee election",async()=>{
+
+
+   const proposalId = new anchor.BN(1);
+
+  const [trustee_election_key] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("elect_trustee"),
+      propertySystemPda.toBuffer(),
+      proposalId.toArrayLike(Buffer, "le", 8),
+    ],
+    program.programId
+  );
+
+  const merkleRoot = buildMerkleRoot([
+    buildAuthorityLeaf(receiver1.publicKey, trustee_election_key, governanceMint, 100,0),
+    buildAuthorityLeaf(receiver2.publicKey, trustee_election_key, governanceMint, 100,0),
+    buildAuthorityLeaf(receiver3.publicKey, trustee_election_key, governanceMint, 100,0),
+    buildAuthorityLeaf(receiver4.publicKey, trustee_election_key, governanceMint, 100,0),
+    buildAuthorityLeaf(receiver5.publicKey, trustee_election_key, governanceMint, 100,0),
+    buildAuthorityLeaf(receiver6.publicKey, trustee_election_key, governanceMint, 100,0)
+  ]);
+
+ // console.log("pubkey", wallet.publicKey);
+  const tx = await program.methods.submitSnapshotForAuthority(
+    proposalId,
+    propertySystemPda,
+    2,
+    2,
+    2,
+    2,
+    merkleRoot
+  ).accounts(
+    [wallet.publicKey]
+  ).signers([wallet.payer]).rpc()
+
+
+    const acc = await program.account.electAuthority.fetch(trustee_election_key);
+
+
+
+    console.log(acc);
+
+
+
+})
+
+let candidate1 = Keypair.generate();
+let candidate2 = Keypair.generate();
+let candidate3 = Keypair.generate();
+let candidate4 = Keypair.generate();
+
+let candidate_vec = [candidate1,candidate2,candidate3,candidate4];
+
+
+it("create candiadate profile ",async()=>{
+
+  for(let i = 0; i<4 ;i++){
+
+  await connection.requestAirdrop(candidate_vec[i].publicKey, 1e9);
+
+}
+
+for(let i = 0; i<4 ;i++){
+  const tx = await program.methods.createCandidateProfile(
+  legal_doc_hash,
+).accounts({
+  candidate:candidate_vec[i].publicKey,
+}).signers([wallet.payer]).rpc()
+
+
+}
+
+const [profile_key] = anchor.web3.PublicKey.findProgramAddressSync(
+  [
+    Buffer.from("candidate_profile"),
+    candidate1.publicKey.toBuffer()
+  ],
+  program.programId
+)
+
+// const acc = await program.account.candidateProfile.fetch(profile_key);
+
+// console.log(acc);
+
+
+
+})
+
+
+it("candidate profile submission for trustee",async()=>{
+
+  let proposalId = new anchor.BN(1);
+
+for(let i = 0; i<4 ;i++){
+  const tx = await program.methods.submitTrusteeCandidate(
+      new anchor.BN(1),
+      new anchor.BN(1),
+  ).accounts(
+    {
+      signer:candidate_vec[i].publicKey,
+    }
+  ).signers([candidate_vec[i]]).rpc();
+
+
+}
+
+  
+
+  const [trustee_election_key] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("elect_trustee"),
+      propertySystemPda.toBuffer(),
+      proposalId.toArrayLike(Buffer, "le", 8),
+    ],
+    program.programId
+  );
+
+  const [candidate_recepit] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("authority_candidate"),
+      propertySystemPda.toBuffer(),
+      trustee_election_key.toBuffer(),
+      candidate1.publicKey.toBuffer()
+    ],
+    program.programId
+  )
+
+  const acc = await program.account.authorityCandidate.fetch(candidate_recepit);
+
+  console.log(acc);
+
+})
+
+it("skip time to voting end",async() =>{
+  advanceClockBy(svm, 180800n);
+
+})
+
+it("vote for candidate",async()=>{
+
+  const snapshotEntries = [
+    { voter: receiver1.publicKey, votingPower: 100,authoritytype:0 },
+    { voter: receiver2.publicKey, votingPower: 100,authoritytype:0  },
+    { voter: receiver3.publicKey, votingPower: 100,authoritytype:0  },
+     { voter: receiver4.publicKey, votingPower: 100 ,authoritytype:0 },
+      { voter: receiver5.publicKey, votingPower: 100,authoritytype:0  },
+       { voter: receiver6.publicKey, votingPower: 100 ,authoritytype:0 },
+  ];
+
+
+  let proposalId = new anchor.BN(1);
+
+ const [trustee_election_key] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("elect_trustee"),
+      propertySystemPda.toBuffer(),
+      proposalId.toArrayLike(Buffer, "le", 8),
+    ],
+    program.programId
+  );
+
+
+
+  const elect_proposal = await program.account.electAuthority.fetch(trustee_election_key);
+
+  // assert.isTrue(Number(svm.getClock().unixTimestamp) < sellProposal.endTime.toNumber());
+
+ 
+ const receivers = [receiver1, receiver2, receiver3,receiver4,receiver5,receiver6];
+
+  for(let i = 0; i < 6; i++){await connection.requestAirdrop(receivers[i].publicKey, 1e9)};
+
+
+  // console.log(elect_proposal);
+  
+
+  for(let i =0 ;i<2;i++){
+
+
+     const voter1proof = buildAuthorityProof(
+    snapshotEntries,
+    i,
+    trustee_election_key,
+    governanceMint
+  );
+
+const tx = await program.methods.voteForTrusteeCandiate(
+    new anchor.BN(1),
+    new anchor.BN(1),
+    candidate1.publicKey,
+    voter1proof,
+    new anchor.BN(100),
+  ).accounts(
+    {
+      signer:receivers[i].publicKey
+    }
+  ).signers([receivers[i]]).rpc();
+
+
+  }
+
+  for(let i =2 ;i<4;i++){
+     const voter1proof = buildAuthorityProof(
+    snapshotEntries,
+    i,
+    trustee_election_key,
+    governanceMint
+  );
+
+const tx1 = await program.methods.voteForTrusteeCandiate(
+    new anchor.BN(1),
+    new anchor.BN(1),
+    candidate2.publicKey,
+    voter1proof,
+    new anchor.BN(100),
+  ).accounts(
+    {
+      signer:receivers[i].publicKey
+    }
+  ).signers([receivers[i]]).rpc();
+
+  }
+
+    
+ const voter1proof = buildAuthorityProof(
+    snapshotEntries,
+    4,
+    trustee_election_key,
+    governanceMint
+  );
+const tx2 = await program.methods.voteForTrusteeCandiate(
+    new anchor.BN(1),
+    new anchor.BN(1),
+    candidate3.publicKey,
+    voter1proof,
+    new anchor.BN(100),
+  ).accounts(
+    {
+      signer:receiver5.publicKey
+    }
+  ).signers([receiver5]).rpc();
+
+
+ const voter6proof = buildAuthorityProof(
+    snapshotEntries,
+    5,
+    trustee_election_key,
+    governanceMint
+  );
+  const tx3 = await program.methods.voteForTrusteeCandiate(
+    new anchor.BN(1),
+    new anchor.BN(1),
+    candidate4.publicKey,
+    voter6proof,
+    new anchor.BN(100),
+  ).accounts(
+    {
+      signer:receiver6.publicKey
+    }
+  ).signers([receiver6]).rpc();
+
+  
+
+
+
+
+
+//  for(let i =0 ;i<4;i++){
+
+//    const [candidate_recepit] = anchor.web3.PublicKey.findProgramAddressSync(
+//     [
+//       Buffer.from("authority_candidate"),
+//       propertySystemPda.toBuffer(),
+//       trustee_election_key.toBuffer(),
+//       candidate_vec[i].publicKey.toBuffer()
+//     ],
+//     program.programId
+//   )
+
+//   const acc = await program.account.authorityCandidate.fetch(candidate_recepit);
+
+//   console.log(acc);
+
+//  }
 
 })
 

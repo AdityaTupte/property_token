@@ -8,7 +8,7 @@ pub struct CandidateProfile{
 
     pub candidate:Pubkey,
 
-    pub is_verified : bool,
+    // pub is_verified : bool,
 
     pub total_applied : u16,
 

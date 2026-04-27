@@ -386,7 +386,67 @@ pub fn arbitrar_approve_trustee_election(
 
 }
 
+pub fn submit_snapshot_for_authority(
+    ctx:Context<SubmitSnapshotForAuthority>,
 
+    proposal_id:u64,
+
+    property_system:Pubkey,
+
+    candidate_submission_deadline: u8,
+
+    voting_for_authority_deadline : u8,
+
+    add_new_authority_deadline : u8,
+
+    challenge_new_authority_deadline : u8,
+
+    merkle_root : [u8;32],
+)->Result<()>{
+
+    resign_and_elect_new_trustee::submit_snapshot_for_authority(ctx, proposal_id, property_system, candidate_submission_deadline, voting_for_authority_deadline, add_new_authority_deadline, challenge_new_authority_deadline, merkle_root)?;
+
+    Ok(())
+
+}
+
+
+pub fn create_candidate_profile(
+    ctx:Context<CreateCandidateProfile>,
+    metadata_hash : [u8;32]
+)-> Result<()>{
+
+    create_candidate_profile::create_candidate_profile(ctx, metadata_hash)?;
+    Ok(())
+}
+
+
+pub fn submit_trustee_candidate(
+    ctx:Context<SubmitTrusteeCandidate>,
+    property_system_id:u64,
+    proposal_id:u64
+)->Result<()>{
+
+    resign_and_elect_new_trustee::submit_trustee_candidate(ctx, property_system_id, proposal_id)?;
+
+    Ok(())
+}
+
+pub  fn vote_for_trustee_candiate(
+    ctx:Context<VotingForNewTrustee>,
+    proposal_id:u64,property_system_id:u64,candidate_key:Pubkey,
+    proof: Vec<[u8; 32]>,
+    voting_power : u64,
+    
+)->Result<()>{
+    
+
+    resign_and_elect_new_trustee::voting_for_new_trustee(ctx, proposal_id, property_system_id, candidate_key, proof, voting_power)?;
+
+    Ok(())
+
+
+}
 
 
 }

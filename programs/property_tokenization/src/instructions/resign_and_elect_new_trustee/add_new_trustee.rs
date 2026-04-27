@@ -4,11 +4,11 @@ use crate::{common::{AUTHORITY_CANDIDATE, ELECT_TRUSTEE, PROPERTY_SYSTEM_SEEDS, 
 
 
 #[derive(Accounts)]
-
+#[instruction(candidate_key:Pubkey,property_system_id:u64,proposal_id:u64)]
 pub struct AddNewTrustee<'info>{
 
     #[account(
-        constraint = trustee_registry.trustees.contains(&trustee.key()) @ ErrorCode::NotAuthorized
+        // constraint = trustee_registry.trustees.contains(&trustee.key()) @ ErrorCode::NotAuthorized
     )]
     pub trustee: Signer<'info>,
 
@@ -16,8 +16,8 @@ pub struct AddNewTrustee<'info>{
         mut,
         seeds=[
             ELECT_TRUSTEE,
-            &proposal.proposal_id.to_le_bytes(),
-            property_system.key().as_ref(),
+            &proposal_id.to_le_bytes(),
+            property_system.key().as_ref()
         ],
         bump = proposal.bump,
         constraint = proposal.snapshot_submitted @ ErrorCode::SnapshotNotSubmitted,
@@ -28,7 +28,7 @@ pub struct AddNewTrustee<'info>{
     #[account(
         seeds=[
             PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes(),
+            &property_system_id.to_le_bytes(),
         ],
         bump = property_system.bump
     )]
@@ -46,13 +46,13 @@ pub struct AddNewTrustee<'info>{
     #[account(
         seeds=[
             AUTHORITY_CANDIDATE,
-            candidate.candidate.as_ref(),
+            candidate_key.as_ref(),
             proposal.key().as_ref(),
             property_system.key().as_ref()
         ],
-        bump = candidate.bump
+        bump = authority_candidate.bump
     )]
-    pub candidate: Account<'info,AuthorityCandidate>,
+    pub authority_candidate: Account<'info,AuthorityCandidate>,
 
 } 
 

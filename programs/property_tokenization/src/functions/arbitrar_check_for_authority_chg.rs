@@ -60,8 +60,9 @@ pub fn arbitrar_approval_for_authority<T: AuthorityGovernance>(
 
         *proposal.slot() =snapshot_slot;
 
-        emit!(SnapshotRequested {
+        emit!(SnapshotRequestedForAuthority {
             proposal_id: *proposal.proposal_id(),
+            proposal_type:*proposal.proposal_type(),
             proposal_key: proposal_key,
             mint: governance_mint,
             slot: snapshot_slot,

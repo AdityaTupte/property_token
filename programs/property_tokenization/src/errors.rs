@@ -182,6 +182,9 @@ pub enum ErrorCode{
     #[msg("the snaphot is not submitted to the proposal")]
     SnapshotNotSubmitted,
 
+    #[msg("the authority_candidate not linked to proposal")]
+    AuthorityNotMatchWithProposal,
+
     #[msg("the property system is not valid to proposal")]
     InvalidProposal,
 

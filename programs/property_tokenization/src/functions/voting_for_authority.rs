@@ -1,7 +1,7 @@
 use anchor_lang::{ prelude::*};
 use anchor_spl::associated_token::spl_associated_token_account::solana_program::keccak;
 
-use crate::{ common::AuthorityType, constant::{AuthorityGovernance, BaseProposal}, errors::ErrorCode, functions::verify_proof, state::{AuthorityCandidate, AuthorityVoteReceipt, }};
+use crate::{constant::{AuthorityGovernance, BaseProposal}, errors::ErrorCode, functions::verify_proof, state::{AuthorityCandidate, AuthorityVoteReceipt, }};
 
 
 pub fn voting_for_authority<T:BaseProposal + AuthorityGovernance>(
@@ -26,7 +26,7 @@ pub fn voting_for_authority<T:BaseProposal + AuthorityGovernance>(
         ErrorCode::AuthorityVotingDeadline
     );
 
-      require!(authority_candidate.authority_type == AuthorityType::TRUSTEE,ErrorCode::AuthotityTypeNotMatched);
+      // require!(authority_candidate.authority_type == AuthorityType::TRUSTEE,ErrorCode::AuthotityTypeNotMatched);
 
       let leaf = keccak::hashv(&[
         &[*item.proposal_type() as u8],
@@ -41,10 +41,11 @@ pub fn voting_for_authority<T:BaseProposal + AuthorityGovernance>(
         verify_proof(leaf, &proof, *item.merkle_root()),
         ErrorCode::InvalidMerkleProof
     );
-
-     if !receipt.is_initialized {
         
         receipt.voter = signer;
+
+    //change here later
+        receipt.candidate_pubkey = authority_candidate.candidate;
 
         receipt.proposal = proposal_key;
 
@@ -52,20 +53,22 @@ pub fn voting_for_authority<T:BaseProposal + AuthorityGovernance>(
 
         receipt.bump = receipt_bump;
 
-        receipt.is_initialized =true;
-
-    }
-
-    require!(item.authority_to_resign().len() > receipt.votes.len(),ErrorCode::VotingLimitReached);
-
-    require!(!receipt.votes.contains(&authority_candidate.candidate),ErrorCode::DuplicateAuthority);
-
-    authority_candidate.vote_gained = authority_candidate.vote_gained
-                                .checked_add(voting_power)
-                                .ok_or(ErrorCode::MathOverflow)?;
     
 
-    receipt.votes.push(authority_candidate.candidate);
+    // require!(item.authority_to_resign().len() > receipt.votes.len(),ErrorCode::VotingLimitReached);
+
+   // require!(!receipt.votes.contains(&authority_candidate.candidate),ErrorCode::DuplicateAuthority);
+
+    // authority_candidate.vote_gained = authority_candidate.vote_gained
+    //                             .checked_add(voting_power)
+    //                             .ok_or(ErrorCode::MathOverflow)?;
+    
+
+    // receipt.votes.push(authority_candidate.candidate);
+
+    authority_candidate.vote_gained = authority_candidate.vote_gained
+                                            .checked_add(voting_power)
+                                            .ok_or(ErrorCode::MathOverflow)?;
 
 
    Ok(())

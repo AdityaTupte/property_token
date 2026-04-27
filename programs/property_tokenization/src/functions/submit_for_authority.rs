@@ -54,7 +54,7 @@ use crate::{common::ProposalStatus, constant::AuthorityGovernance, errors::Error
                                                 ).ok_or(ErrorCode::MathOverflow)?;
 
 
-    *item.proposal_status() = ProposalStatus::Passed;
+    *item.proposal_status() = ProposalStatus::Active;
 
     *item.snapshot_submitted() = true;
 

@@ -4,6 +4,7 @@ use crate::{common::{AUTHORITY_CANDIDATE, AUTHORITYVOTERECEIPT, ELECT_TRUSTEE, P
 
 
 #[derive(Accounts)]
+#[instruction(proposal_id:u64, property_system_id : u64,candidate_key:Pubkey)]
 
 pub struct VotingForNewTrustee<'info>{
 
@@ -12,40 +13,45 @@ pub struct VotingForNewTrustee<'info>{
     )]
     pub signer: Signer<'info>,
 
-    #[account(
-        seeds =[
-            AUTHORITY_CANDIDATE,
-            authority_candidate.candidate.as_ref(),
-            proposal.key().as_ref(),
-            property_system.key().as_ref()
-        ],
-        bump = authority_candidate.bump
-    )]
-    pub authority_candidate : Account<'info,AuthorityCandidate>,
 
-    #[account(
+   #[account(
+        seeds=[
+            PROPERTY_SYSTEM_SEEDS,
+            &property_system_id.to_le_bytes(),
+        ],
+        bump = property_system.bump
+    )]
+    pub property_system: Account<'info,PropertySystemAccount>,
+
+     #[account(
         seeds=[
             ELECT_TRUSTEE,
-            &proposal.proposal_id.to_le_bytes(),
-            property_system.key().as_ref()
+            property_system.key().as_ref(),
+            &proposal_id.to_le_bytes()
         ],
         bump= proposal.bump,
         constraint = proposal.snapshot_submitted @ ErrorCode::SnapshotNotSubmitted,
-        constraint = proposal.status == ProposalStatus::Passed @ ErrorCode::ProposalNotPassed
+        constraint = proposal.status == ProposalStatus::Active @ ErrorCode::ProposalNotActive
     )]
     pub proposal : Account<'info,ElectAuthority>,
 
     #[account(
-        seeds=[
-            PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes(),
+        mut,
+        seeds =[
+            AUTHORITY_CANDIDATE,
+            property_system.key().as_ref(), 
+            proposal.key().as_ref(),
+            candidate_key.as_ref(), 
         ],
-        bump = property_system.bump
+        bump = authority_candidate.bump,
+        constraint = authority_candidate.proposal == proposal.key()  @ ErrorCode::AuthorityNotMatchWithProposal
     )]
-    pub property_system : Account<'info,PropertySystemAccount>,
+    pub authority_candidate : Account<'info,AuthorityCandidate>,
+
+   
 
     #[account(
-        init_if_needed,
+        init,
         payer = signer,
         seeds=[
             AUTHORITYVOTERECEIPT,
@@ -64,6 +70,7 @@ pub struct VotingForNewTrustee<'info>{
 
 pub fn voting_for_new_trustee(
     ctx:Context<VotingForNewTrustee>,
+    _proposal_id:u64,_property_system_id:u64,_candidate_key:Pubkey,
     proof: Vec<[u8; 32]>,
     voting_power : u64,
 )->Result<()>{

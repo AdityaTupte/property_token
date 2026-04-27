@@ -3,7 +3,10 @@ use anchor_lang::prelude::*;
 use crate::{common::{AUTHORITY_CANDIDATE, AuthorityType, CANDIDATE_PROFILE, ELECT_TRUSTEE, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, state::{AuthorityCandidate, CandidateProfile, ElectAuthority, PropertySystemAccount}};
 
 #[derive(Accounts)]
-
+#[instruction(
+    property_system_id : u64,
+    proposal_id : u64
+)]
 pub struct SubmitTrusteeCandidate<'info>{
 
     #[account(
@@ -14,7 +17,7 @@ pub struct SubmitTrusteeCandidate<'info>{
     #[account(
         seeds=[
             PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes(),
+            &property_system_id.to_le_bytes(),
         ],
         bump = property_system.bump
     )]
@@ -23,12 +26,12 @@ pub struct SubmitTrusteeCandidate<'info>{
     #[account(
         seeds=[
             ELECT_TRUSTEE,
-            &proposal.proposal_id.to_le_bytes(),
-            property_system.key().as_ref()
+            property_system.key().as_ref(),
+            &proposal_id.to_le_bytes()
         ],
         bump = proposal.bump ,
         constraint = proposal.snapshot_submitted @ ErrorCode::SnapshotNotSubmitted,
-        constraint = proposal.status == ProposalStatus::Passed @ ErrorCode::ProposalNotPassed
+        constraint = proposal.status == ProposalStatus::Active @ ErrorCode::ProposalNotActive
     )]
     pub proposal : Account<'info,ElectAuthority>,
 
@@ -38,7 +41,7 @@ pub struct SubmitTrusteeCandidate<'info>{
                 signer.key().as_ref()
         ],
         bump = candidate_profile.bump,
-        constraint = candidate_profile.is_verified  @ ErrorCode::NotVerfied,
+        // constraint = candidate_profile.is_verified  @ ErrorCode::NotVerfied,
         constraint = !candidate_profile.is_blacklisted @ ErrorCode::Blacklisted 
     )]
     pub candidate_profile : Account<'info,CandidateProfile>,
@@ -48,9 +51,9 @@ pub struct SubmitTrusteeCandidate<'info>{
         payer= signer,
         seeds=[
             AUTHORITY_CANDIDATE,
-            signer.key().as_ref(),
+            property_system.key().as_ref(), 
             proposal.key().as_ref(),
-            property_system.key().as_ref()       
+            signer.key().as_ref(),      
         ],
         bump,
         space = 8 + AuthorityCandidate::SIZE
@@ -62,7 +65,11 @@ pub struct SubmitTrusteeCandidate<'info>{
 }
 
 
-pub fn submit_trustee_candidate(ctx:Context<SubmitTrusteeCandidate>)->Result<()>{
+pub fn submit_trustee_candidate(
+    ctx:Context<SubmitTrusteeCandidate>,
+    _property_system_id : u64,
+    _proposal_id : u64
+)->Result<()>{
 
     let current_time = Clock::get()?.unix_timestamp;
 
