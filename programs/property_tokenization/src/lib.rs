@@ -449,4 +449,18 @@ pub  fn vote_for_trustee_candiate(
 }
 
 
+pub fn add_new_trustee(
+     ctx:Context<AddNewTrustee>,
+    candidate_key:Pubkey,
+    property_system_id:u64,
+    proposal_id:u64,
+    ranking:u8,
+)->Result<()>{
+
+    resign_and_elect_new_trustee::add_new_trustee(ctx, candidate_key, property_system_id, proposal_id, ranking)?;
+
+    Ok(())
+}
+
+
 }

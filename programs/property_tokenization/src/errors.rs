@@ -3,7 +3,8 @@ use anchor_lang::prelude::*;
 #[error_code]
 pub enum ErrorCode{
 
-
+     #[msg("the ranking must between 1 and total_authority to resign ")]
+    RankingNotBetween,
 
     #[msg("the land is currently leased you cannot sell the land until the lease is end")]
     LandCurrentlyLeased,
@@ -38,7 +39,10 @@ pub enum ErrorCode{
     #[msg("the voter voting limit reached ")]
     VotingLimitReached,
 
-    #[msg("the time for authority adding is not started yet or deadline is reached")]
+     #[msg("the time for authority adding is not started yet ")]
+    AuthorityAddingNotStarted,
+
+    #[msg("the time for authority adding  deadline is reached")]
     AuthorityAddDeadline,
 
     #[msg("invalid authority type please recheck it")]

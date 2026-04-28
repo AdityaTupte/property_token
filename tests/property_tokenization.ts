@@ -2751,10 +2751,19 @@ const [profile_key] = anchor.web3.PublicKey.findProgramAddressSync(
 
 })
 
+let proposalId = new anchor.BN(1);
+const [trustee_election_key] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("elect_trustee"),
+      propertySystemPda.toBuffer(),
+      proposalId.toArrayLike(Buffer, "le", 8),
+    ],
+    program.programId
+  );
+
 
 it("candidate profile submission for trustee",async()=>{
 
-  let proposalId = new anchor.BN(1);
 
 for(let i = 0; i<4 ;i++){
   const tx = await program.methods.submitTrusteeCandidate(
@@ -2771,14 +2780,7 @@ for(let i = 0; i<4 ;i++){
 
   
 
-  const [trustee_election_key] = anchor.web3.PublicKey.findProgramAddressSync(
-    [
-      Buffer.from("elect_trustee"),
-      propertySystemPda.toBuffer(),
-      proposalId.toArrayLike(Buffer, "le", 8),
-    ],
-    program.programId
-  );
+  
 
   const [candidate_recepit] = anchor.web3.PublicKey.findProgramAddressSync(
     [
@@ -2949,6 +2951,56 @@ const tx2 = await program.methods.voteForTrusteeCandiate(
 //  }
 
 })
+
+it("skip time to 2 days ",async() =>{
+  advanceClockBy(svm, 180800n);
+
+})
+
+it("add new trustee",async()=>{
+  
+
+  const tx = await program.methods.addNewTrustee(
+    candidate1.publicKey,
+    new anchor.BN(1),
+    new anchor.BN(1),
+    1
+  ).accounts({
+    signer:pro1.publicKey}
+  ).signers([pro1]).rpc();
+
+  let rank = 1;
+
+  const [rankacc_key] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("ranking_account"),
+      Buffer.from([rank]),
+      trustee_election_key.toBuffer(),
+      propertySystemPda.toBuffer()
+    ],
+    program.programId
+  ) 
+
+  let acc = await program.account.rankingAccount.fetch(rankacc_key);
+
+  console.log(acc);
+
+
+  const tx2 = await program.methods.addNewTrustee(
+    candidate3.publicKey,
+    new anchor.BN(1),
+    new anchor.BN(1),
+    2
+  ).accounts({
+    signer:pro1.publicKey}
+  ).signers([pro1]).rpc();
+
+
+})
+
+
+
+
 
 
 

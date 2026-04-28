@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{AuthorityType, ELECT_TRUSTEE, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEE_RECEIPT_SEEDS, TRUSTEE_RESIGNATION, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, state::{ElectAuthority, PropertySystemAccount, Resignation, TrusteeRecepit, TrusteeRegistry}};
+use crate::{common::{AuthorityType, ELECT_TRUSTEE, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEE_RECEIPT_SEEDS, TRUSTEE_RESIGNATION}, errors::ErrorCode, state::{ElectAuthority, PropertySystemAccount, Resignation, TrusteeRecepit}};
 
 #[derive(Accounts)]
 #[instruction(proposal_id:u64,property_system_id:u64)]

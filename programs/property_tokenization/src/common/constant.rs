@@ -30,6 +30,10 @@ pub const MAX_STATE_NAME: usize = 32;
 pub const MAX_STATE_AUTHORITIES: usize = 10;
 
 
+
+pub const  RANKINGACCOUNT : &[u8] = b"ranking_account";
+
+
 pub const PROPERTY_SYSTEM_SEEDS : &[u8] =  b"property_system_account";
 pub const PROPERTY_PAGE_SEEDS : &[u8] = b"property_page";
 

@@ -26,11 +26,13 @@ pub mod salary_pda;
 pub mod arbitrator_vote_receipts;
 pub mod trustee_vote_receipts;
 pub mod vote_receipt_for_authority_election;
+pub mod ranking_acc;
 
 
 pub mod funds;
 pub use funds::*;
 
+pub use ranking_acc::*;
 pub use vote_receipt_for_authority_election::*;
 pub use trustee_vote_receipts::*;
 pub use arbitrator_vote_receipts::*;
