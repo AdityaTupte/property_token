@@ -3,6 +3,18 @@ use anchor_lang::prelude::*;
 #[error_code]
 pub enum ErrorCode{
 
+    #[msg("authority is not selected already")]
+    AuthorityNotSelected,
+
+    #[msg("authority is selected already")]
+    AuthoritySelected,
+
+    #[msg("no rank change required")]
+    NotRankChangeRequired,
+
+    #[msg("rank accoutn invalid ")]
+    RankAccountInvalid,
+
      #[msg("the ranking must between 1 and total_authority to resign ")]
     RankingNotBetween,
 
@@ -20,6 +32,9 @@ pub enum ErrorCode{
 
     #[msg("not is uppercase")]
     NotInUppercase,
+
+    #[msg("rank account should be adjacent to each other")]
+    RankAccountNotAdjacent,
 
     #[msg("the authority not initialized")]
     AuhtorityNotInitialized,
@@ -132,8 +147,11 @@ pub enum ErrorCode{
     #[msg("state name must be between 0 to 32 as uszie")]
     StateNameInvalid,
 
-    #[msg("the give authorities vector has some duplicate authority")]
+    #[msg("the account should be different ")]
     DuplicateAuthority,
+
+    #[msg("same rank account")]
+    SameRankAccount,
 
     #[msg("the proposal is not approved yet by the authorities")]
     ProposalNotApproved,
@@ -313,7 +331,7 @@ pub enum ErrorCode{
     ChangeDeadlineExpired,
 
     #[msg("the challenge deadline not reached yet")]
-    ChallegeDeadlineNotExpired,
+    ChallegeDeadlineNotStart,
     
     #[msg("the deadline should be less than 30")]
     DeadlineIssue,

@@ -463,4 +463,33 @@ pub fn add_new_trustee(
 }
 
 
+pub fn adjust_ranks(
+    ctx:Context<AdjustTrusteeRanking>,
+    proposal_id:u64,
+    property_system:Pubkey,
+    candidate_key1:Pubkey,
+    candidate_key2:Pubkey,
+    ranking1:u8,
+    ranking2:u8
+)->Result<()>{
+
+
+    resign_and_elect_new_trustee::adjust_trustee_ranking(ctx, proposal_id, property_system, candidate_key1, candidate_key2,ranking1,ranking2)?;
+
+    Ok(())
+
+}
+
+pub fn challenge_against_new_trustee(
+    ctx:Context<ChallengeNewTrustee>,
+    proposal_id:u64,
+    challenge_from_key:Pubkey,
+    challenge_to_key:Pubkey,
+    ranking:u8,
+    property_system_id:u64
+)->Result<()>{
+    resign_and_elect_new_trustee::challenge_new_trustee(ctx, proposal_id, challenge_from_key, challenge_to_key, ranking,property_system_id)?;
+    Ok(())
+}
+
 }

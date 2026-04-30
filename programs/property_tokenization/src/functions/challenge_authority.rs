@@ -1,30 +1,30 @@
 use anchor_lang::prelude::*;
 
-use crate::{constant::AuthorityGovernance,errors::ErrorCode, state::AuthorityCandidate };
+use crate::{constant::AuthorityGovernance,errors::ErrorCode, state::{AuthorityCandidate, AuthorityCandidateSelectionRecipt, RankingAccount} };
 
 
 
 pub fn challenge_authority<T:AuthorityGovernance>(
     item:&mut T,
-    challenge_from : &AuthorityCandidate,
-    challenge_from_key:&Pubkey,
-    challenge_to : &AuthorityCandidate,
-    challenge_to_key: &Pubkey,
+    challenge_from : &mut Account<AuthorityCandidate>,
+    challenge_to : &mut Account<AuthorityCandidate>,
+    ranking_acc : &mut Account<RankingAccount>,
+
 )->Result<()>{
     
     let current_time  = Clock::get()?.unix_timestamp;
-    
-    require!(
-    challenge_from_key != challenge_to_key,
-    ErrorCode::InvalidChallenge);
+
+    require!( 
+        current_time > *item.add_new_authority_deadline() ,
+        ErrorCode::ChallegeDeadlineNotStart
+    );
 
     require!(
-        current_time > *item.add_new_authority_deadline() &&
         current_time <= *item.challenge_new_authority_deadline(),
         ErrorCode::ChallegeDeadlineExpired
     );
 
-     require!(!item.new_authority().contains(challenge_from_key),ErrorCode::DuplicateAuthority);
+    
 
   
 
@@ -34,16 +34,13 @@ pub fn challenge_authority<T:AuthorityGovernance>(
     ErrorCode::VoteGainedLess
     );
 
-     let index = item
-    .new_authority()
-    .iter()
-    .position(|x| x == challenge_to_key)
-    .ok_or(ErrorCode::ChallengeToNotInNewAuthority)?;
+    challenge_from.selected = true;
 
-    item.new_authority().swap_remove(index);
+    challenge_to.selected = false;
 
-    item.new_authority().push(*challenge_from_key);
+    challenge_from.selected_time = Clock::get()?.unix_timestamp;
     
+    ranking_acc.candidate_key = challenge_from.candidate;
 
 Ok(())
 

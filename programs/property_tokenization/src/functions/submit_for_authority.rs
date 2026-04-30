@@ -46,7 +46,7 @@ use crate::{common::ProposalStatus, constant::AuthorityGovernance, errors::Error
                                                     .ok_or(ErrorCode::MathOverflow)?
                                                 ).ok_or(ErrorCode::MathOverflow)?;
  
-    *item.challenge_new_authority_deadline() = item.challenge_new_authority_deadline()
+    *item.challenge_new_authority_deadline() = item.add_new_authority_deadline()
                                                 .checked_add(
                                                     (challenge_new_authority_deadline as i64)
                                                     .checked_mul((24*60*60) as i64)

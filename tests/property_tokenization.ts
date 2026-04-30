@@ -2961,27 +2961,27 @@ it("add new trustee",async()=>{
   
 
   const tx = await program.methods.addNewTrustee(
-    candidate1.publicKey,
+    candidate2.publicKey,
     new anchor.BN(1),
     new anchor.BN(1),
-    1
+    2
   ).accounts({
     signer:pro1.publicKey}
   ).signers([pro1]).rpc();
 
-  let rank = 1;
+  
 
-  const [rankacc_key] = anchor.web3.PublicKey.findProgramAddressSync(
+  const [rankacc_key2] = anchor.web3.PublicKey.findProgramAddressSync(
     [
       Buffer.from("ranking_account"),
-      Buffer.from([rank]),
+      Buffer.from([2]),
       trustee_election_key.toBuffer(),
       propertySystemPda.toBuffer()
     ],
     program.programId
   ) 
 
-  let acc = await program.account.rankingAccount.fetch(rankacc_key);
+  let acc = await program.account.rankingAccount.fetch(rankacc_key2);
 
   console.log(acc);
 
@@ -2990,19 +2990,189 @@ it("add new trustee",async()=>{
     candidate3.publicKey,
     new anchor.BN(1),
     new anchor.BN(1),
-    2
+    1
   ).accounts({
     signer:pro1.publicKey}
   ).signers([pro1]).rpc();
+
+  const [rankacc_key3] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("ranking_account"),
+      Buffer.from([1]),
+      trustee_election_key.toBuffer(),
+      propertySystemPda.toBuffer()
+    ],
+    program.programId
+  ) 
+
+  let acc2 = await program.account.rankingAccount.fetch(rankacc_key3);
+
+  console.log(acc2);
+
+
+  //   const [candidate_recepit] = anchor.web3.PublicKey.findProgramAddressSync(
+  //   [
+  //     Buffer.from("authority_candidate"),
+  //     propertySystemPda.toBuffer(),
+  //     trustee_election_key.toBuffer(),
+  //     candidate2.publicKey.toBuffer()
+  //   ],
+  //   program.programId
+  // )
+
+  // const acc3 = await program.account.authorityCandidate.fetch(candidate_recepit);
+
+  // console.log(acc3);
+
+  //  const [candidate_recepit2] = anchor.web3.PublicKey.findProgramAddressSync(
+  //   [
+  //     Buffer.from("authority_candidate"),
+  //     propertySystemPda.toBuffer(),
+  //     trustee_election_key.toBuffer(),
+  //     candidate3.publicKey.toBuffer()
+  //   ],
+  //   program.programId
+  // )
+
+  // const acc4 = await program.account.authorityCandidate.fetch(candidate_recepit2);
+
+  // console.log(acc4);
 
 
 })
 
 
+it("adjust ranking",async()=>{
+
+  const tx = await program.methods.adjustRanks(
+    new anchor.BN(1),
+    propertySystemPda,
+    candidate2.publicKey,
+    candidate3.publicKey,
+    2,1
+  ).accounts(
+    {signer:wallet.publicKey}
+  ).signers([wallet.payer]).rpc();
+
+
+    const [candidate_recepit] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("authority_candidate"),
+      propertySystemPda.toBuffer(),
+      trustee_election_key.toBuffer(),
+      candidate2.publicKey.toBuffer()
+    ],
+    program.programId
+  )
+
+  const acc3 = await program.account.authorityCandidate.fetch(candidate_recepit);
+
+  console.log(acc3);
+
+   const [candidate_recepit2] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("authority_candidate"),
+      propertySystemPda.toBuffer(),
+      trustee_election_key.toBuffer(),
+      candidate3.publicKey.toBuffer()
+    ],
+    program.programId
+  )
+
+  const acc4 = await program.account.authorityCandidate.fetch(candidate_recepit2);
+
+  console.log(acc4);
+  
+
+
+})
+
+it("skip time to 2 days ",async() =>{
+  advanceClockBy(svm, 170800n);
+
+})
+it("challenge the new trustee",async()=>{
 
 
 
 
+  // const elect_proposal = await program.account.electAuthority.fetch(trustee_election_key);
 
-    
+
+  // console.log(elect_proposal);
+
+    const [candidate_recepit2] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("authority_candidate"),
+      propertySystemPda.toBuffer(),
+      trustee_election_key.toBuffer(),
+      candidate3.publicKey.toBuffer()
+    ],
+    program.programId
+  )
+
+  const acc22 = await program.account.authorityCandidate.fetch(candidate_recepit2);
+
+  console.log(acc22);
+  
+
+  const tx = await program.methods.challengeAgainstNewTrustee(
+    new anchor.BN(1),
+    candidate1.publicKey,
+    candidate3.publicKey,
+    2,
+    new anchor.BN(1),
+  ).accounts(
+    {signer: candidate1.publicKey}
+  ).signers([candidate1]).rpc()
+
+
+  //   const [rankacc_key2] = anchor.web3.PublicKey.findProgramAddressSync(
+  //   [
+  //     Buffer.from("ranking_account"),
+  //     Buffer.from([2]),
+  //     trustee_election_key.toBuffer(),
+  //     propertySystemPda.toBuffer()
+  //   ],
+  //   program.programId
+  // ) 
+
+  // let acc = await program.account.rankingAccount.fetch(rankacc_key2);
+
+  // console.log(acc);
+
+  const [candidate_recepit1] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("authority_candidate"),
+      propertySystemPda.toBuffer(),
+      trustee_election_key.toBuffer(),
+      candidate1.publicKey.toBuffer()
+    ],
+    program.programId
+  )
+
+  const acc2 = await program.account.authorityCandidate.fetch(candidate_recepit1);
+
+  console.log(acc2);
+
+  const [candidate_recepit] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("authority_candidate"),
+      propertySystemPda.toBuffer(),
+      trustee_election_key.toBuffer(),
+      candidate3.publicKey.toBuffer()
+    ],
+    program.programId
+  )
+
+  const acc = await program.account.authorityCandidate.fetch(candidate_recepit);
+
+  console.log(acc);
+  
+  
+
+
+})
+
+
   });

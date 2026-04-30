@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{AUTHORITY_CANDIDATE, ELECT_TRUSTEE, PROPERTY_SYSTEM_SEEDS, ProposalStatus, RANKINGACCOUNT, TRUSTEE_RECEIPT_SEEDS}, errors::ErrorCode, functions::add_new_authority, state::{AuthorityCandidate, ElectAuthority, PropertySystemAccount, RankingAccount, TrusteeRecepit}};
+use crate::{common::{AUTHORITY_CANDIDATE, ELECT_TRUSTEE, PROPERTY_SYSTEM_SEEDS, ProposalStatus, RANKCOUNT, RANKINGACCOUNT, TRUSTEE_RECEIPT_SEEDS}, errors::ErrorCode, functions::add_new_authority, state::{AuthorityCandidate, AuthorityCandidateSelectionRecipt, ElectAuthority, PropertySystemAccount, RankCounter, RankingAccount, TrusteeRecepit}};
 
 
 #[derive(Accounts)]
@@ -56,15 +56,30 @@ pub struct AddNewTrustee<'info>{
     // pub trustee_registry : Account<'info,TrusteeRegistry>,
 
     #[account(
+        mut,
         seeds=[
             AUTHORITY_CANDIDATE,
             property_system.key().as_ref(), 
             proposal.key().as_ref(),
             candidate_key.as_ref(), 
         ],
-        bump = authority_candidate.bump
+        bump = authority_candidate.bump,
+        constraint  = !authority_candidate.selected @ ErrorCode::AuthoritySelected ,
     )]
     pub authority_candidate: Account<'info,AuthorityCandidate>,
+
+
+    #[account(
+        init_if_needed,
+        payer = signer,
+        seeds =[
+            RANKCOUNT,
+            proposal.key().as_ref(),
+        ],
+        bump,
+        space = 8 + RankCounter::SIZE
+    )]
+    pub counter : Account<'info,RankCounter>,
 
 
     #[account(
@@ -80,6 +95,18 @@ pub struct AddNewTrustee<'info>{
         space=8 + RankingAccount::SIZE
     )]
     pub ranking_acc : Account<'info,RankingAccount>,
+
+    // #[account(
+    //     init,
+    //     payer = signer,
+    //     seeds=[
+    //         candidate_key.as_ref(),
+    //         proposal.key().as_ref(),
+    //     ],
+    //     bump,
+    //     space = 8 + AuthorityCandidateSelectionRecipt::SIZE
+    // )]
+    // pub authority_candiate_selection_receipt : Account<'info,AuthorityCandidateSelectionRecipt>,
 
     pub system_program : Program<'info,System>
 
@@ -104,6 +131,9 @@ pub fn add_new_trustee(
         ranking,
         proposal_key,
         ctx.bumps.ranking_acc,
+        &mut ctx.accounts.counter,
+        // &mut ctx.accounts.authority_candiate_selection_receipt,
+        // ctx.bumps.authority_candiate_selection_receipt
     )?;
 
 

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{constant::AuthorityGovernance, errors::ErrorCode, state::{AuthorityCandidate, RankingAccount}, };
+use crate::{constant::AuthorityGovernance, errors::ErrorCode, state::{AuthorityCandidate, AuthorityCandidateSelectionRecipt, RankCounter, RankingAccount}, };
 
 
 pub fn add_new_authority<T:AuthorityGovernance,>(
@@ -9,7 +9,10 @@ pub fn add_new_authority<T:AuthorityGovernance,>(
     authority_candidate : &mut Account<AuthorityCandidate>,
     ranking:u8,
     proposal_key :Pubkey,
-    bump:u8
+    bump:u8,
+    counter : &mut Account<RankCounter>,
+    // selection_receipt: &mut Account<AuthorityCandidateSelectionRecipt>,
+    // selection_bump:u8,
 )->Result<()>{
 
 
@@ -33,6 +36,14 @@ require!(
     ranking >= 1 , ErrorCode::RankingNotBetween);
 
 
+    require!(counter.count < *item.total_authority_to_resign() , ErrorCode::AuthorityLimitReached );
+
+    counter.count +=1;
+
+    authority_candidate.selected = true;
+
+    authority_candidate.selected_time = Clock::get()?.unix_timestamp;
+
 ranking_acc.candidate_key = authority_candidate.candidate;
 
 ranking_acc.elect_proposal = proposal_key;
@@ -40,6 +51,12 @@ ranking_acc.elect_proposal = proposal_key;
 ranking_acc.rank = ranking;
 
 ranking_acc.bump = bump;
+
+// selection_receipt.candidate_key = authority_candidate.candidate;
+
+// selection_receipt.proposal = proposal_key;
+
+// selection_receipt.bump = selection_bump;
 
 // (*item.new_authority()).push(*authority_candidate_key);
  

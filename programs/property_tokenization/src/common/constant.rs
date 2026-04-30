@@ -117,4 +117,6 @@ pub const TRUSTEE_SALARY : &[u8] = b"trustee_salary";
 
 pub const ARBITRAR_SALARY : &[u8] = b"arbitrar_salary";
 
+pub const RANKCOUNT :&[u8] = b"rank_count";
+
     
