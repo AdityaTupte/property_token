@@ -1,7 +1,7 @@
 
 use anchor_lang::prelude::*;
 
-use crate::{common::ProposalStatus, constant::{AuthorityGovernance, AuthorityRegistry, Governance}, errors::ErrorCode, state::Resignation,};
+use crate::{common::ProposalStatus, constant::{AuthorityGovernance,}, errors::ErrorCode, state::Resignation,};
 
 
 pub fn finalize_authority<U:AuthorityGovernance>(

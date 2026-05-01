@@ -1,54 +1,70 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{ARBITRAR_REGISTRYSEEDS, ARBITRAR_RESIGNATION, AuthorityType, ELECT_ARBITRAR,PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, state::{ArbitratorRegistry, ElectAuthority, PropertySystemAccount, Resignation}};
+use crate::{common::{ARBITRAR_RECEIPT_SEEDS, ARBITRAR_RESIGNATION, AuthorityType, ELECT_ARBITRAR, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, state::{ArbitratorRecepit, ElectAuthority, PropertySystemAccount, Resignation}};
 
 #[derive(Accounts)]
-#[instruction(proposal_id:u64)]
+#[instruction(proposal_id:u64,property_system_id:u64)]
 pub struct NewArbitrarElectionProposal<'info>{
 
     #[account(
         mut,
-        constraint = arbitrar_registry.arbitrator.contains(&arbitrar.key()) @ ErrorCode::NotAuthorized
+        // constraint = arbitrar_registry.arbitrator.contains(&arbitrar.key()) @ ErrorCode::NotAuthorized
     )]
     pub arbitrar: Signer<'info>,
 
-     #[account(
-        seeds=[
-            ARBITRAR_RESIGNATION,
-            arbitrar.key().as_ref(),
-            property_system.key().as_ref(),
-        ],
-        bump = resignation.bump,
-        constraint = resignation.status ==  ProposalStatus::Pending @ ErrorCode::AlreadyExecuted
-    )]
-    pub resignation: Account<'info,Resignation>,
 
     #[account(
+        seeds = [
+            ARBITRAR_RECEIPT_SEEDS,
+            property_system.key().as_ref(),
+            arbitrar.key().as_ref()
+        ],
+        bump = arbitrar_receipt.bump,
+    )]
+    pub arbitrar_receipt: Account<'info,ArbitratorRecepit>,
+
+
+      #[account(
         seeds=[
             PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes(),
+            &property_system_id.to_le_bytes(),
         ],
         bump = property_system.bump
     )]
     pub property_system : Account<'info,PropertySystemAccount>, 
 
 
-    #[account(
+
+     #[account(
+        init,
+        payer = arbitrar,
         seeds=[
-            ARBITRAR_REGISTRYSEEDS,
-            property_system.key().as_ref()
+            ARBITRAR_RESIGNATION,
+            property_system.key().as_ref(),
+            arbitrar.key().as_ref(),  
         ],
-        bump = arbitrar_registry.bump
+        bump,
+        space = 8 + Resignation::SIZE
+        // constraint = resignation.status ==  ProposalStatus::Pending @ ErrorCode::AlreadyExecuted
     )]
-    pub arbitrar_registry: Account<'info,ArbitratorRegistry>,
+    pub resignation: Account<'info,Resignation>,
+
+    // #[account(
+    //     seeds=[
+    //         ARBITRAR_REGISTRYSEEDS,
+    //         property_system.key().as_ref()
+    //     ],
+    //     bump = arbitrar_registry.bump
+    // )]
+    // pub arbitrar_registry: Account<'info,ArbitratorRegistry>,
 
     #[account(
         init_if_needed,
         payer = arbitrar,
         seeds=[
             ELECT_ARBITRAR,
+            property_system.key().as_ref(),
             &proposal_id.to_le_bytes(),
-            property_system.key().as_ref()
         ],
         bump ,
         space = 8 + ElectAuthority::SIZE,
@@ -61,9 +77,9 @@ pub struct NewArbitrarElectionProposal<'info>{
 
 pub fn new_trustee_election_proposal(
     ctx:Context<NewArbitrarElectionProposal>,
-    proposal_id:u64
+    proposal_id:u64,
 
-
+    _property_system_id:u64
 )->Result<()>{
 
     let  proposal = &mut ctx.accounts.proposal;
@@ -89,22 +105,24 @@ pub fn new_trustee_election_proposal(
 
     else {
         require!(proposal.status == ProposalStatus::Draft,ErrorCode::NotInDraft);
+        
+         require!(proposal.arbitrar_approvals_count == 0, ErrorCode::TotalApprovalCountInvalid);
+
     }
 
-    let arbitrar_key = ctx.accounts.arbitrar.key();
+    resignation.authority = ctx.accounts.arbitrar.key();
 
-    require!(
-        !proposal.authority_to_resign.contains(&arbitrar_key),
-        ErrorCode::DuplicateAuthority
-    );
+    resignation.property_system = ctx.accounts.property_system.key();
 
-    require!(
-        !proposal.authority_to_resign.len() <= 5 as usize ,ErrorCode::AuhtorityLimitReached
-    );
+    resignation.authority_type = AuthorityType::ARBITRATOR;
 
-    proposal.authority_to_resign.push(arbitrar_key);
+    resignation.bump = ctx.bumps.resignation;
+
+    resignation.status = ProposalStatus::Pending;
 
     resignation.proposal = proposal.key();
+
+    proposal.total_authority_to_resign += 1;
 
     Ok(())
 }

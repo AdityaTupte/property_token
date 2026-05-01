@@ -25,7 +25,7 @@ pub fn challenge_authority<T:AuthorityGovernance>(
     );
 
     
-
+    require!(ranking_acc.rank == *item.total_authority_to_resign(), ErrorCode::NotRankChangeRequired);
   
 
     require_gt!(

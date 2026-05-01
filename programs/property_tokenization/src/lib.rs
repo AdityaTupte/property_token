@@ -518,4 +518,164 @@ pub fn finalize_new_trustee(
     Ok(())
 
 }
+
+
+    //Arbitar resgination and election
+
+
+pub fn arbitrar_resign(ctx:Context<NewArbitrarElectionProposal>, proposal_id:u64, property_system_id:u64)->Result<()>{
+
+    resign_and_elect_new_arbitrar::new_trustee_election_proposal(ctx, proposal_id, property_system_id)?;
+
+    Ok(())
+
+
+}
+
+pub fn trustee_approve_arbitrar_election(
+        ctx:Context<TrusteeApproveArbitrarElection>,
+        proposal_id:u64,
+        property_system_id:u64
+)   ->Result<()>{
+
+    resign_and_elect_new_arbitrar::trustee_approve_arbitrar_election(ctx, proposal_id, property_system_id)?;
+
+    Ok(())
+
+
+}
+
+
+pub fn submit_snapshot_for_arbitrar_election(
+    ctx:Context<SubmitSnapshotForArbitrarAuthority>,
+    proposal_id:u64,
+
+    property_system:Pubkey,
+
+    candidate_submission_deadline: u8,
+
+    voting_for_authority_deadline : u8,
+
+    add_new_authority_deadline : u8,
+
+    challenge_new_authority_deadline : u8,
+
+    merkle_root : [u8;32],
+)->Result<()>{
+
+    resign_and_elect_new_arbitrar::submit_snapshot_for_arbitrar_authority(ctx, proposal_id, property_system, candidate_submission_deadline, voting_for_authority_deadline, add_new_authority_deadline, challenge_new_authority_deadline, merkle_root)?;
+    Ok(())
+
+}
+
+pub fn submit_arbitrar_candidate(
+    ctx:Context<SubmitArbitrarCandidate>,
+    property_system_id : u64,
+    proposal_id : u64
+)->Result<()>{
+
+    resign_and_elect_new_arbitrar::submit_arbitrar_candidate(ctx, property_system_id, proposal_id)?;
+
+    Ok(())
+
+}
+
+
+pub  fn vote_for_arbitrar_candiate(
+    ctx:Context<VotingForNewArbitrar>,
+    proposal_id:u64,property_system_id:u64,candidate_key:Pubkey,
+    proof: Vec<[u8; 32]>,
+    voting_power : u64,
+    
+)->Result<()>{
+    
+
+    resign_and_elect_new_arbitrar::voting_for_new_arbitrar(ctx, proposal_id, property_system_id, candidate_key, proof, voting_power)?;
+
+    Ok(())
+
+
+}
+
+
+pub fn add_new_arbitrar(
+    ctx:Context<AddNewArbitrar>,
+    candidate_key:Pubkey,
+    property_system_id:u64,
+    proposal_id:u64,
+    ranking:u8,
+)-> Result<()> {
+
+resign_and_elect_new_arbitrar::add_new_arbitrar(ctx, candidate_key, property_system_id, proposal_id, ranking)?;
+
+Ok(())
+
+}
+
+
+
+pub fn adjust_arbitrar_ranks(
+    ctx:Context<AdjustArbitrarRanking>,
+    proposal_id:u64,
+    property_system:Pubkey,
+    candidate_key1:Pubkey,
+    candidate_key2:Pubkey,
+    ranking1:u8,
+    ranking2:u8
+)->Result<()>{
+
+
+    resign_and_elect_new_arbitrar::adjust_arbitrar_ranking(ctx, proposal_id, property_system, candidate_key1, candidate_key2, ranking1, ranking2)?;
+
+    Ok(())
+
+}
+
+
+pub fn challenge_against_new_arbitrar(
+     ctx:Context<ChallengeNewArbitrar>,
+    proposal_id:u64,
+    challenge_from_key:Pubkey,
+    challenge_to_key:Pubkey,
+    ranking:u8,
+    property_system_id:u64,
+)->Result<()>{
+
+    resign_and_elect_new_arbitrar::challenge_new_arbitrar(ctx, proposal_id, challenge_from_key, challenge_to_key, ranking, property_system_id)?;
+
+    Ok(())
+}
+
+
+
+pub fn  finalize_old_arbitrar(
+    ctx:Context<FinalizeOldArbitrar>,
+    proposal_id:u64,
+    property_system_id:u64,
+    arbitrar:Pubkey
+)->Result<()>{
+
+    resign_and_elect_new_arbitrar::finalize_old_arbitrar(ctx, proposal_id, property_system_id, arbitrar)?;
+    
+    Ok(())
+
+}
+
+
+pub fn finalize_new_arbitrar(
+        ctx:Context<FinalizeArbitrarAuthorityCandiate>,
+        candidate_pubkey:Pubkey,
+        proposal_id:u64,
+        property_system_id:u64
+
+)->Result<()>{
+
+
+    resign_and_elect_new_arbitrar::finalize_arbitrar_authority_candiate(ctx, candidate_pubkey, proposal_id, property_system_id)?;
+
+    Ok(())
+
+}
+
+
 }

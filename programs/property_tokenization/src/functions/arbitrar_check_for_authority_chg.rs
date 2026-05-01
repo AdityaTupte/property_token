@@ -1,6 +1,6 @@
-use crate::{common::ProposalStatus, constant::AuthorityGovernance, events::{SnapshotRequested, SnapshotRequestedForAuthority}, state::{ArbitratorRegistry, ArbitratorVoteReceipts, VoteReceiptForAuthorityElection}};
+use crate::{common::ProposalStatus, constant::AuthorityGovernance, events::{ SnapshotRequestedForAuthority}, state::{ VoteReceiptForAuthorityElection}};
 use anchor_lang::prelude::*;
-use crate::errors::ErrorCode;
+
 
 pub fn arbitrar_approval_for_authority<T: AuthorityGovernance>(
     proposal:&mut T,

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{AUTHORITY_CANDIDATE, CANDIDATE_PROFILE, ELECT_TRUSTEE, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, functions::finalize_candidate, state::{AuthorityCandidate, CandidateProfile, ElectAuthority, PropertySystemAccount, TrusteeRecepit, TrusteeRegistry, trustee_recepit}};
+use crate::{common::{AUTHORITY_CANDIDATE, CANDIDATE_PROFILE, ELECT_TRUSTEE, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, functions::finalize_candidate, state::{AuthorityCandidate, CandidateProfile, ElectAuthority, PropertySystemAccount, TrusteeRecepit, TrusteeRegistry}};
 
 
 

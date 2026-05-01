@@ -41,7 +41,8 @@ pub struct ChallengeNewTrustee<'info>{
             proposal.key().as_ref(),
             challenge_from_key.as_ref(), 
         ],
-        bump = challenge_from.bump
+        bump = challenge_from.bump,
+        constraint = !challenge_from.selected @ ErrorCode::AuthoritySelected,
     )]
     pub challenge_from: Account<'info,AuthorityCandidate>, 
 

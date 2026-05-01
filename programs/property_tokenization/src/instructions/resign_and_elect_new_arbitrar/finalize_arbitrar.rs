@@ -1,22 +1,39 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{ARBITRAR_REGISTRYSEEDS, ARBITRAR_RESIGNATION, AuthorityType, ELECT_ARBITRAR, PROPERTY_SYSTEM_SEEDS, ProposalStatus, }, errors::ErrorCode, functions::finalize_authority, state::{ArbitratorRegistry, ElectAuthority, PropertySystemAccount, Resignation}};
+use crate::{common::{ARBITRAR_RECEIPT_SEEDS, ARBITRAR_REGISTRYSEEDS, ARBITRAR_RESIGNATION, AuthorityType, ELECT_ARBITRAR, PROPERTY_SYSTEM_SEEDS, ProposalStatus }, errors::ErrorCode, functions::finalize_authority, state::{ArbitratorRecepit, ArbitratorRegistry, ElectAuthority, PropertySystemAccount, Resignation}};
 
 #[derive(Accounts)]
-pub struct FinalizeArbitrar<'info>{
+#[instruction(proposal_id:u64,property_system_id:u64,arbitrar:Pubkey)]
+pub struct FinalizeOldArbitrar<'info>{
 
+    #[account(mut)]
     pub signer: Signer<'info>,
+
+
+    #[account(
+        mut,
+        seeds = [
+            ARBITRAR_RECEIPT_SEEDS,
+            property_system.key().as_ref(),
+            arbitrar.as_ref()
+        ],
+        bump = arbitrar_receipt.bump,
+        constraint = property_system.key() == arbitrar_receipt.property_system_account @ ErrorCode::PropertySystemInvalidForRegistry,
+        close = signer,
+    )]
+    pub arbitrar_receipt: Account<'info,ArbitratorRecepit>,
+
 
     #[account(
         mut,
         seeds=[
             ELECT_ARBITRAR,
-            &proposal.proposal_id.to_le_bytes(),
             property_system.key().as_ref(),
+            &proposal_id.to_le_bytes(),
         ],
         bump = proposal.bump,
         constraint = proposal.snapshot_submitted @ ErrorCode::SnapshotNotSubmitted,
-        constraint = proposal.status == ProposalStatus::Passed @ ErrorCode::ProposalNotPassed
+        constraint = proposal.status == ProposalStatus::Active @ ErrorCode::ProposalNotActive
     )]
     pub proposal : Account<'info,ElectAuthority>,
 
@@ -24,7 +41,7 @@ pub struct FinalizeArbitrar<'info>{
         mut,
         seeds=[
             PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes(),
+            &property_system_id.to_le_bytes(),
         ],
         bump = property_system.bump
     )]
@@ -41,10 +58,11 @@ pub struct FinalizeArbitrar<'info>{
     pub arbitrar_registry: Account<'info,ArbitratorRegistry>,
 
     #[account(
+        mut,
         seeds=[
             ARBITRAR_RESIGNATION,
-            resignation.authority.as_ref(),
             property_system.key().as_ref(),
+            arbitrar.as_ref(),
         ],
         bump = resignation.bump,
         constraint = resignation.status ==  ProposalStatus::Pending @ ErrorCode::AlreadyExecuted,
@@ -54,20 +72,23 @@ pub struct FinalizeArbitrar<'info>{
 
 }
 
-pub fn finalize_arbitrar(
-    ctx:Context<FinalizeArbitrar>
+pub fn finalize_old_arbitrar(
+    ctx:Context<FinalizeOldArbitrar>,
+    _proposal_id:u64,
+    _property_system_id:u64,
+    _arbitrar:Pubkey
 )->Result<()>{
 
     finalize_authority(
-        &mut *ctx.accounts.arbitrar_registry,
         &mut *ctx.accounts.proposal, 
+        &mut ctx.accounts.resignation, 
     )?;
     
 
-let resignation = &mut ctx.accounts.resignation; 
+let registry = &mut ctx.accounts.arbitrar_registry;
 
-     resignation.status = ProposalStatus::Executed;
-
+    registry.current_number_of_arbitrators -= 1;
 
     Ok(())
+
 }

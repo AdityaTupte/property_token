@@ -94,6 +94,9 @@ pub const ARBITRAR_RESIGNATION : &[u8] = b"arbitrar_resignation";
 
 pub const TRUSTEE_ELECTION_APPROVE_RECEIPT : &[u8] = b"trustee_election_receipt";
 
+pub const ARBITRAR_ELECTION_APPROVE_RECEIPT : &[u8] = b"arbitrar_election_receipt";
+
+
 pub const ELECT_TRUSTEE : &[u8] = b"elect_trustee";
 
 pub const ELECT_ARBITRAR : &[u8] = b"elect_arbitrar" ;
