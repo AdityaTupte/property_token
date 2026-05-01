@@ -1,12 +1,12 @@
 
 use anchor_lang::prelude::*;
 
-use crate::{common::ProposalStatus, constant::{AuthorityGovernance, AuthorityRegistry}, errors::ErrorCode,};
+use crate::{common::ProposalStatus, constant::{AuthorityGovernance, AuthorityRegistry, Governance}, errors::ErrorCode, state::Resignation,};
 
 
-pub fn finalize_authority<T:AuthorityRegistry,U:AuthorityGovernance>(
-    registry:&mut T,
+pub fn finalize_authority<U:AuthorityGovernance>(
     proposal: &mut U,
+    resignation : &mut Account<Resignation>,
 )->Result<()>{
 
     require!( 
@@ -15,38 +15,41 @@ pub fn finalize_authority<T:AuthorityRegistry,U:AuthorityGovernance>(
         ErrorCode::ChallegeDeadlineNotExpired
     );
 
-    require!(
-        proposal.new_authority().len() == proposal.authority_to_resign().len(),
-        ErrorCode::InvalidAuthorityMapping
-    );
+    
 
-    let new_auth = proposal.new_authority().clone();
-let resign_auth = proposal.authority_to_resign().clone();
+    // for (to_remove, to_add) in resign_auth
+    //     .iter()
+    //     .zip(new_auth.iter())
+    // {
+    //     let index = registry
+    //         .registry()
+    //         .iter()
+    //         .position(|x| x == to_remove)
+    //         .ok_or(ErrorCode::AuthorityNotFound)?;
 
-    for (to_remove, to_add) in resign_auth
-        .iter()
-        .zip(new_auth.iter())
-    {
-        let index = registry
-            .registry()
-            .iter()
-            .position(|x| x == to_remove)
-            .ok_or(ErrorCode::AuthorityNotFound)?;
+    //     require!(
+    //         !registry.registry().contains(to_add),
+    //         ErrorCode::DuplicateAuthority
+    //     );
 
-        require!(
-            !registry.registry().contains(to_add),
-            ErrorCode::DuplicateAuthority
-        );
-
-        registry.registry() [index] = *to_add;
+    //     registry.registry() [index] = *to_add;
         
+    // }
+
+
+    *proposal.total_authority_to_resign() = proposal.total_authority_to_resign()
+                                                    .checked_sub(1)
+                                                    .ok_or(ErrorCode::MathOverflow)?;
+
+    if *proposal.total_authority_to_resign() ==0  {
+        *proposal.proposal_status() = ProposalStatus::Passed ;
+
+    *proposal.is_finalize() = true; 
     }
 
-    *proposal.proposal_status() = ProposalStatus::Executed ;
+     resignation.status = ProposalStatus::Executed;
 
-    *proposal.is_finalize() = true;
-
-    
+     resignation.time = Clock::get()?.unix_timestamp;
    
 
 

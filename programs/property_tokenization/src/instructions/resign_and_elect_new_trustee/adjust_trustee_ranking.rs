@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{AUTHORITY_CANDIDATE, ELECT_TRUSTEE, ProposalStatus, RANKINGACCOUNT}, errors::ErrorCode, state::{AuthorityCandidate, AuthorityCandidateSelectionRecipt, ElectAuthority, RankingAccount}};
+use crate::{common::{AUTHORITY_CANDIDATE, ELECT_TRUSTEE, ProposalStatus, RANKINGACCOUNT}, errors::ErrorCode, state::{AuthorityCandidate, ElectAuthority, RankingAccount}};
 
 
 #[derive(Accounts)]

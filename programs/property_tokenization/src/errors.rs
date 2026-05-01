@@ -330,6 +330,9 @@ pub enum ErrorCode{
     #[msg("the change deadline had been reached")]
     ChangeDeadlineExpired,
 
+    #[msg("the challenge deadline had been reached")]
+    ChallegeDeadlineNotExpired,
+
     #[msg("the challenge deadline not reached yet")]
     ChallegeDeadlineNotStart,
     

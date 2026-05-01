@@ -492,4 +492,30 @@ pub fn challenge_against_new_trustee(
     Ok(())
 }
 
+
+pub fn  finalize_old_trsutee(
+    ctx:Context<FinalizeTrustee>,
+    proposal_id:u64,
+    property_system_id:u64,
+    trustee:Pubkey
+)->Result<()>{
+
+    resign_and_elect_new_trustee::finalize_trustee(ctx, proposal_id, property_system_id, trustee)?;
+    
+    Ok(())
+
+}
+
+
+pub fn finalize_new_trustee(
+    ctx:Context<FinalizeTrusteeAuthorityCandiate>,
+    candidate_pubkey:Pubkey,proposal_id:u64,property_system_id:u64
+)
+->Result<()>{
+
+    resign_and_elect_new_trustee::finalize_trustee_authority_candiate(ctx, candidate_pubkey, proposal_id, property_system_id)?;
+
+    Ok(())
+
+}
 }

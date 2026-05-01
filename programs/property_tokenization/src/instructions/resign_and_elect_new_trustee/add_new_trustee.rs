@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{AUTHORITY_CANDIDATE, ELECT_TRUSTEE, PROPERTY_SYSTEM_SEEDS, ProposalStatus, RANKCOUNT, RANKINGACCOUNT, TRUSTEE_RECEIPT_SEEDS}, errors::ErrorCode, functions::add_new_authority, state::{AuthorityCandidate, AuthorityCandidateSelectionRecipt, ElectAuthority, PropertySystemAccount, RankCounter, RankingAccount, TrusteeRecepit}};
+use crate::{common::{AUTHORITY_CANDIDATE, ELECT_TRUSTEE, PROPERTY_SYSTEM_SEEDS, ProposalStatus, RANKCOUNT, RANKINGACCOUNT, TRUSTEE_RECEIPT_SEEDS}, errors::ErrorCode, functions::add_new_authority, state::{AuthorityCandidate, ElectAuthority, PropertySystemAccount, RankCounter, RankingAccount, TrusteeRecepit}};
 
 
 #[derive(Accounts)]

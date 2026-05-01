@@ -37,8 +37,6 @@ pub struct ElectAuthority{
 
     pub is_finalize : bool,
 
-    pub index_for_removal : u8,
-
     pub slot : u64,
 
     pub bump:u8,
@@ -63,7 +61,6 @@ impl ElectAuthority  {
                                 8 +
                                 8 +
                                 8 +
-                                1 +
                                 1 +
                                 8 +
                                 1  ;
@@ -195,8 +192,5 @@ impl AuthorityGovernance for ElectAuthority {
         &mut self.voting_for_authority_deadline
     }
 
-    fn index_for_removal(&mut self) ->  &mut u8 {
-        &mut self.index_for_removal
-    }
     
 }

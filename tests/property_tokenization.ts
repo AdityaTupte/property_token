@@ -410,6 +410,7 @@ describe("property_tokenization", () => {
 
   const provider = new LiteSvmProvider(new LiteSvmConnection(svm), new LiteSvmWallet());
   svm.airdrop(provider.wallet.publicKey.toBase58() as any, 100_000_000_000n as any);
+  
   anchor.setProvider(provider as any);
   const program = new Program(idl as PropertyTokenization, provider as any) as Program<PropertyTokenization>;
 
@@ -3174,5 +3175,90 @@ it("challenge the new trustee",async()=>{
 
 })
 
+it("skip time to 2 days ",async() =>{
+  advanceClockBy(svm, 170800n);
+
+})
+
+it("finalize the old trustee",async()=>{
+
+  const tx = await program.methods.finalizeOldTrsutee(
+    new anchor.BN(1),
+     new anchor.BN(1),
+     pro1.publicKey
+  ).accounts({
+    signer:wallet.publicKey
+  }).signers([wallet.payer]).rpc()
+
+
+  const tx2 = await program.methods.finalizeOldTrsutee(
+    new anchor.BN(1),
+     new anchor.BN(1),
+     pro2.publicKey
+  ).accounts({
+    signer:wallet.publicKey
+  }).signers([wallet.payer]).rpc()
+
+  //  const [resgination_key] = anchor.web3.PublicKey.findProgramAddressSync(
+  //   [
+  //     Buffer.from("trustee_resignation"),
+  //     propertySystemPda.toBuffer(),
+  //     pro1.publicKey.toBuffer()
+  //   ],
+  //   program.programId
+  // ) 
+
+  // const acc = await program.account.resignation.fetch(resgination_key);
+
+  // console.log(acc);
+
+})
+
+it("finalize the new trsutee",async()=>{
+
+
+  
+
+  const tx = await program.methods.finalizeNewTrustee(
+    candidate1.publicKey,
+    new anchor.BN(1),
+  new anchor.BN(1), 
+  ).accounts(
+    {
+      signer:wallet.publicKey,
+      candidate:candidate1.publicKey
+    }
+  ).signers([wallet.payer]).rpc()
+
+
+
+  const tx2 = await program.methods.finalizeNewTrustee(
+    candidate2.publicKey,
+    new anchor.BN(1),
+  new anchor.BN(1), 
+  ).accounts(
+    {
+      signer:wallet.publicKey,
+      candidate:candidate2.publicKey
+    }
+  ).signers([wallet.payer]).rpc()
+
+  const acc = await program.account.electAuthority.fetch(trustee_election_key);
+
+  console.log(acc);
+
+
+  // const tx3 = await program.methods.finalizeNewTrustee(
+  //   candidate3.publicKey,
+  //   new anchor.BN(1),
+  // new anchor.BN(1), 
+  // ).accounts(
+  //   {
+  //     signer:wallet.publicKey,
+  //     candidate:candidate3.publicKey
+  //   }
+  // ).signers([wallet.payer]).rpc()
+
+})
 
   });

@@ -28,11 +28,11 @@ pub mod trustee_vote_receipts;
 pub mod vote_receipt_for_authority_election;
 pub mod ranking_acc;
 pub mod rank_counter;
-pub mod authoritycandiadte_selection_receipt;
 
 pub mod funds;
 pub use funds::*;
-pub use authoritycandiadte_selection_receipt::*;
+
+
 pub use rank_counter::*;
 pub use ranking_acc::*;
 pub use vote_receipt_for_authority_election::*;

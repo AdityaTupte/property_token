@@ -1,31 +1,43 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{AuthorityType}, constant::AuthorityGovernance, errors::ErrorCode, state::{AuthorityCandidate, CandidateProfile,}};
+use crate::{common::{AuthorityType, ProposalStatus}, constant::{AuthorityGovernance, AuthorityRegistry}, errors::ErrorCode, state::{AuthorityCandidate, CandidateProfile,}};
 
 
 
-pub fn finalize_candidate<T:AuthorityGovernance>(
+pub fn finalize_candidate<T:AuthorityGovernance,U:AuthorityRegistry>(
     item:&mut T,
-    authority_candidate : &mut AuthorityCandidate,
-    candidate_profile : &mut CandidateProfile,
+    registry:&mut U,
+    authority_candidate : &mut Account<AuthorityCandidate>,
+    candidate_profile : &mut Account<CandidateProfile>,
 )->Result<()>{
 
     require!(
-         *item.is_finalize() &&
-        ! authority_candidate.is_finalized ,
+        *item.is_finalize() &&
+        !authority_candidate.is_finalized ,
         ErrorCode::AlreadyFinalized
     );
 
-    require!(
-        authority_candidate.candidate == candidate_profile.candidate &&
-        item.new_authority().contains(&authority_candidate.candidate),
-        ErrorCode::NotAuthorized,
-    );
+    // require!(
+    //     authority_candidate.candidate == candidate_profile.candidate &&
+    //     item.new_authority().contains(&authority_candidate.candidate),
+    //     ErrorCode::NotAuthorized,
+    // );
 
 
-    authority_candidate.selected = true;
+    // authority_candidate.selected = true;
 
-    authority_candidate.selected_time = Clock::get()?.unix_timestamp;
+    // authority_candidate.selected_time = Clock::get()?.unix_timestamp;
+
+
+    *registry.current_authority() = registry.current_authority().checked_add(1).ok_or(ErrorCode::MathOverflow)?;
+
+    if  *registry.current_authority() ==  *registry.total_authority() {
+
+        *item.proposal_status() = ProposalStatus::Executed;
+    }
+
+    authority_candidate.is_finalized = true;
+
 
     if *item.proposal_type() == AuthorityType::TRUSTEE {
 

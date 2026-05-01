@@ -1,5 +1,7 @@
 use anchor_lang::prelude::*;
 
+use crate::constant::AuthorityRegistry;
+
 
 
 #[account]
@@ -26,13 +28,19 @@ impl TrusteeRegistry {
     pub const SIZE : usize = 32 + 1 +  1 + 1 + 8 + 1 ;
 }
 
-// impl AuthorityRegistry for TrusteeRegistry  {
+impl AuthorityRegistry for TrusteeRegistry  {
     
-//     fn registry(&mut self)-> &mut Vec<Pubkey>{
+    fn total_authority(&mut self)-> &mut u8{
 
-//         &mut self.trustees
+        &mut self.total_trustees
 
-//     }
+    }
 
-// }
+
+
+    fn current_authority(&mut self)-> &mut u8 {
+        &mut self.current_number_of_trustees
+    }
+
+}
 
