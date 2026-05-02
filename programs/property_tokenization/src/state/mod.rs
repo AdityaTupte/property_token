@@ -14,6 +14,7 @@ pub mod state_proposal;
 pub mod property_proposal;
 pub mod property_page_account;
 pub mod resignation;
+pub mod offender_receipt;
 //////////////////
 pub mod proposal;
 pub mod authority_candidate;
@@ -32,7 +33,7 @@ pub mod rank_counter;
 pub mod funds;
 pub use funds::*;
 
-
+pub use offender_receipt::*;
 pub use rank_counter::*;
 pub use ranking_acc::*;
 pub use vote_receipt_for_authority_election::*;

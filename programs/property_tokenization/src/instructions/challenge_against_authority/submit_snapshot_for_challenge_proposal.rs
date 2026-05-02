@@ -3,20 +3,20 @@ use anchor_lang::prelude::*;
 use crate::{common::{CHALLENGEAUTHORITY, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, state::{ChallengeProposal, PropertySystemAccount}};
 
 #[derive(Accounts)]
-
-
+#[instruction(proposal_id : u64,property_system_id : u64)]
 pub struct SubmitSnaphotForChallengeProposal<'info>{
 
     #[account(
-        constraint = proposal.creator == signer.key() @ ErrorCode::NotAuthorized
+        constraint = proposal.creator == signer.key() @ ErrorCode::UnAuthorized
     )]
     pub signer : Signer<'info>,
 
     #[account(
+        mut,
         seeds =[
             CHALLENGEAUTHORITY,
-            &proposal.proposal_id.to_le_bytes(),
             property_system.key().as_ref(),
+            &proposal_id.to_le_bytes(),
         ],
         bump = proposal.bump,
     )]
@@ -26,7 +26,7 @@ pub struct SubmitSnaphotForChallengeProposal<'info>{
     #[account(
         seeds=[
             PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes()
+            &property_system_id.to_le_bytes()
         ],
         bump = property_system.bump,
     )]
@@ -37,7 +37,9 @@ pub struct SubmitSnaphotForChallengeProposal<'info>{
 
 pub fn submit_snapshot_for_challenge_proposal(
     ctx: Context<SubmitSnaphotForChallengeProposal>,
-    merkle_root : [u8;32]
+    _proposal_id : u64,_property_system_id : u64,
+    merkle_root : [u8;32],
+    
 )->Result<()>{
 
     let proposal = &mut ctx.accounts.proposal;

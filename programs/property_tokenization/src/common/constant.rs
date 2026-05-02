@@ -111,6 +111,8 @@ pub const CHALLENGEAUTHORITY : &[u8] = b"challenge_authority";
 
 pub const REMOVEAUTHORITY : &[u8] = b"remove_authority";
 
+pub const REMOVETRUSTEEAUTHORITY :&[u8] = b"remove_trustee_authority";
+
 pub const LEASE_PROPERTY_PROPOSAL : &[u8] = b" lease_property_proposal";
 
 pub const LEASE_PROPERTY : &[u8] = b" lease_property";
@@ -121,5 +123,8 @@ pub const TRUSTEE_SALARY : &[u8] = b"trustee_salary";
 pub const ARBITRAR_SALARY : &[u8] = b"arbitrar_salary";
 
 pub const RANKCOUNT :&[u8] = b"rank_count";
+
+
+pub const OFFENDERRECEIPT :&[u8] = b"offender";
 
     

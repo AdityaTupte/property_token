@@ -4,19 +4,20 @@ use crate::{common::{CHALLENGEAUTHORITY, PROPERTY_SYSTEM_SEEDS, ProposalStatus},
 
 
 #[derive(Accounts)]
-
+#[instruction(proposal_id : u64,property_system_id : u64)]
 pub struct VoteForChallengeProposal<'info>{
 
     pub signer : Signer<'info>,
 
      #[account(
+        mut,
         seeds =[
             CHALLENGEAUTHORITY,
-            &proposal.proposal_id.to_le_bytes(),
             property_system.key().as_ref(),
+            &proposal_id.to_le_bytes(),
         ],
         bump,
-        constraint = proposal.status == ProposalStatus::Draft @ ErrorCode::NotInDraft
+        constraint = proposal.status == ProposalStatus::Active @ ErrorCode::ProposalNotActive
     )]
     pub proposal : Account<'info,ChallengeProposal>,
 
@@ -24,7 +25,7 @@ pub struct VoteForChallengeProposal<'info>{
     #[account(
         seeds=[
             PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes()
+            &property_system_id.to_le_bytes()
         ],
         bump = property_system.bump,
     )]
@@ -35,6 +36,8 @@ pub struct VoteForChallengeProposal<'info>{
 
 pub fn vote_for_challenge_proposal(
     ctx:Context<VoteForChallengeProposal>,
+    _proposal_id : u64,
+    _property_system_id : u64,
     proof: Vec<[u8;32]>,
     voting_power : u64,
 )->Result<()>{
@@ -50,7 +53,7 @@ pub fn vote_for_challenge_proposal(
             &[proposal.proposal_type as u8],
             ctx.accounts.signer.key().as_ref(),
             proposal.key().as_ref(),
-            property_system.key().as_ref(),
+            // property_system.key().as_ref(),
             property_system.governance_mint.as_ref(),
             &voting_power.to_le_bytes(),               
         ]).0 ;
@@ -61,7 +64,7 @@ pub fn vote_for_challenge_proposal(
                                     .checked_add(voting_power)
                                     .ok_or(ErrorCode::MathOverflow)?;
 
-    if  proposal.vote_gained > proposal.required_vote_to_active {
+    if  proposal.vote_gained >= proposal.required_vote_to_active {
 
         proposal.status = ProposalStatus::Passed;
 

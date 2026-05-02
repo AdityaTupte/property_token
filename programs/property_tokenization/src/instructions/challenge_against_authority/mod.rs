@@ -1,10 +1,15 @@
-// pub mod challenge_authority_proposal;
-// pub mod vote_for_challenge_proposal;
-// pub mod submit_snapshot_for_challenge_proposal;
-// pub mod outcome_of_proposal;
-// pub mod finalize_candidate_profile;
-// pub mod remove_guilty_authority;
-// pub mod submit_snapshot_for_guilty_authority;
+pub mod challenge_authority_proposal;
+pub mod add_trustee_offender;
+pub mod add_arbitrar_offender;
+pub mod submit_snapshot_for_challenge_proposal;
+pub mod vote_for_challenge_proposal;
+pub mod outcome_of_proposal;
+pub mod finalize_trustee_candidate_profile;
+pub mod finalize_arbitrar_candidate_profile;
+
+pub mod remove_trustee_guilty_authority;
+pub mod add_trustee_for_removal;
+pub mod submit_snapshot_for_guilty_authority;
 // pub mod submit_candidate_for_authority;
 // pub mod vote_for_new_authority;
 // pub mod add_new_authority_as_trustee;
@@ -17,13 +22,18 @@
 // pub mod removal_proposal_finalize_arbitrar;
 // pub mod finalize_removed_authority;
 
-// pub use challenge_authority_proposal::*;
-// pub use submit_snapshot_for_challenge_proposal::*;
-// pub use vote_for_challenge_proposal::*; 
-// pub use outcome_of_proposal::*;
-// pub use finalize_candidate_profile::*;
-// pub use remove_guilty_authority::*;
-// pub use submit_snapshot_for_guilty_authority::*;
+pub use challenge_authority_proposal::*;
+pub use add_trustee_offender::*;
+pub use add_arbitrar_offender::*;
+pub use submit_snapshot_for_challenge_proposal::*;
+pub use vote_for_challenge_proposal::*; 
+pub use outcome_of_proposal::*;
+pub use finalize_trustee_candidate_profile::*;
+pub use finalize_arbitrar_candidate_profile::*;
+
+pub use remove_trustee_guilty_authority::*;
+pub use add_trustee_for_removal::*;
+pub use submit_snapshot_for_guilty_authority::*;
 // pub use submit_candidate_for_authority::*;
 // pub use vote_for_new_authority::*;
 // pub use add_new_authority_as_trustee::*;

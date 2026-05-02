@@ -1,11 +1,11 @@
 use anchor_lang::prelude::*;
-use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint, TokenAccount}};
+use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint, TokenAccount, TokenInterface}};
 
-use crate::{common::{CHALLENGEAUTHORITY, PROPERTY_SYSTEM_SEEDS, ProposalStatus, REMOVEAUTHORITY}, errors::ErrorCode, state::{ChallengeProposal, ElectAuthority, PropertySystemAccount}};
+use crate::{common::{AuthorityType, CHALLENGEAUTHORITY, PROPERTY_SYSTEM_SEEDS, ProposalStatus, REMOVEAUTHORITY}, errors::ErrorCode, state::{ChallengeProposal, ElectAuthority, PropertySystemAccount}};
 
 #[derive(Accounts)]
-
-pub struct RemoveGuiltyAuthority<'info>{
+#[instruction(proposal_id:u64,property_system_id:u64)]
+pub struct RemoveTrusteeGuiltyAuthority<'info>{
 
     #[account(mut)]
     pub signer: Signer<'info>,
@@ -13,14 +13,15 @@ pub struct RemoveGuiltyAuthority<'info>{
     #[account(
         associated_token::mint = mint,
         associated_token::authority = signer,
+        associated_token::token_program= token_program,
     )]
     pub ata : InterfaceAccount<'info,TokenAccount>,
 
     #[account(
         seeds =[
             CHALLENGEAUTHORITY,
-            &proposal.proposal_id.to_le_bytes(),
             property_system.key().as_ref(),
+            &proposal_id.to_le_bytes(),
         ],
         bump = proposal.bump,
         constraint = proposal.status == ProposalStatus::Executed @ ErrorCode::ProposalNotExecuted
@@ -31,7 +32,7 @@ pub struct RemoveGuiltyAuthority<'info>{
     #[account(
             seeds=[
             PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes()
+            &property_system_id.to_le_bytes()
         ],
         bump = property_system.bump,
         
@@ -43,8 +44,8 @@ pub struct RemoveGuiltyAuthority<'info>{
         payer = signer,
         seeds=[
             REMOVEAUTHORITY,
-            proposal.key().as_ref(),
             property_system.key().as_ref(),
+            proposal.key().as_ref(),
         ],
         bump,
         space = 8 + ElectAuthority::SIZE, 
@@ -58,13 +59,17 @@ pub struct RemoveGuiltyAuthority<'info>{
     )]
     pub mint: InterfaceAccount<'info,Mint>,
 
-    pub associated_token_program: Program<'info, AssociatedToken>
+    pub associated_token_program: Program<'info, AssociatedToken>,
+
+    pub token_program:Interface<'info,TokenInterface>,
     
 
 }
 
-pub fn removal_proposal(
-    ctx:Context<RemoveGuiltyAuthority>
+pub fn removal_of_trustee_proposal(
+    ctx:Context<RemoveTrusteeGuiltyAuthority>,
+    _proposal_id:u64,
+    _property_system_id:u64
 )->Result<()>{
 
     let proposal = &ctx.accounts.proposal;
@@ -81,9 +86,9 @@ pub fn removal_proposal(
 
     remove_proposal.property_system = ctx.accounts.property_system.key();
 
-    remove_proposal.authority_to_resign = proposal.against.clone();
+    // remove_proposal.total_authority_to_resign += 1;
 
-    remove_proposal.authority_type = proposal.authority_type;
+    remove_proposal.authority_type = AuthorityType::TRUSTEE;
 
     remove_proposal.status = ProposalStatus::Draft;
 

@@ -7,11 +7,14 @@ pub mod constant;
 pub mod common;
 pub mod functions;
 use crate::instructions::*;
+use crate::common::*;
 
 declare_id!("BD4CURALcvWKHuLrcx74iaJaaUrKbRogXYXcNBPfqFRR");
 
 #[program]
 pub mod property_tokenization {
+
+    use crate::common::ReasonType;
 
     use super::*;
 
@@ -677,5 +680,142 @@ pub fn finalize_new_arbitrar(
 
 }
 
+
+pub fn challenge_authority(
+    ctx:Context<ChallengeAuthorityProposal>,
+    proposal_id : u64,
+    property_system_id : u64,
+    charges_hash: [u8; 32],
+    evidence_hash : [u8;32],
+)->Result<()>{
+
+    challenge_against_authority::challenge_authority(ctx, proposal_id, property_system_id, charges_hash, evidence_hash)?;
+
+    Ok(())
+
+
+}
+
+pub fn add_trustee_offender(
+    ctx:Context<AddTrusteeOffender>,
+    proposal_id : u64,property_system_id : u64
+)->Result<()>{
+
+    challenge_against_authority::add_trustee_offender(ctx, proposal_id, property_system_id)?;
+
+    Ok(())
+
+}
+
+
+pub fn add_arbitrar_offender(
+    ctx:Context<AddArbitrarOffender>,
+    proposal_id : u64,property_system_id : u64
+)->Result<()>{
+
+    challenge_against_authority::add_arbitrar_offender(ctx, proposal_id, property_system_id)?;
+
+    Ok(())
+
+}
+   
+
+
+pub fn submit_snaphot_for_voting_on_challenge_proposal(
+     ctx: Context<SubmitSnaphotForChallengeProposal>,
+    proposal_id : u64,property_system_id : u64,merkle_root : [u8;32],
+)->Result<()>{
+
+    challenge_against_authority::submit_snapshot_for_challenge_proposal(ctx, proposal_id, property_system_id, merkle_root)?;
+
+    Ok(())
+}
+
+
+pub fn vote_for_challenge_proposal(
+    ctx:Context<VoteForChallengeProposal>,
+    proposal_id : u64,
+    property_system_id : u64,
+    proof: Vec<[u8;32]>,
+    voting_power : u64,
+)->Result<()>{
+
+    challenge_against_authority::vote_for_challenge_proposal(ctx, proposal_id, property_system_id, proof, voting_power)?;
+    Ok(())
+}
+
+
+pub fn outcome_of_proposal(
+    ctx:Context<OutComeOFProposal>,
+    proposal_id : u64,
+    property_system_id : u64,
+    outcome:ReasonType,
+)->Result<()>{
+    
+    challenge_against_authority::outcome_of_proposal(ctx, proposal_id, property_system_id, outcome)?;
+
+    Ok(())
+
+}
+
+
+pub fn finalize_trustee_candidate_profile_for_challenge_proposal(
+            ctx:Context<FinalizeTrusteeCandidateProfile>,
+            proposal_id:u64,
+            property_system_id:u64,
+            candidate_key:Pubkey
+)->Result<()>{
+
+    challenge_against_authority::finalize_trustee_candidate_profile(ctx, proposal_id, property_system_id, candidate_key)?;
+        Ok(())
+}
+
+pub fn finalize_arbitrar_candidate_profile_for_challenge_proposal(
+            ctx:Context<FinalizeArbitrarCandidateProfile>,
+            proposal_id:u64,
+            property_system_id:u64,
+            candidate_key:Pubkey
+)->Result<()>{
+
+    challenge_against_authority::finalize_arbitrar_candidate_profile(ctx, proposal_id, property_system_id, candidate_key)?;
+        Ok(())
+}
+
+
+pub fn remove_trustee_guilt_authority_proposal(
+    ctx:Context<RemoveTrusteeGuiltyAuthority>,
+    proposal_id:u64,
+    property_system_id:u64
+)->Result<()>{
+
+
+    challenge_against_authority::removal_of_trustee_proposal(ctx, proposal_id, property_system_id)?;
+
+    Ok(())
+
+}
+
+pub fn add_trustee_for_removal(
+    ctx:Context<AddTrusteeToRemove>,
+    proposal_id:u64,
+    property_system_id:u64,
+    
+)->Result<()>{
+
+    challenge_against_authority::add_trustee_for_removal_proposal(ctx, proposal_id, property_system_id)?;
+
+    Ok(())
+}
+
+pub fn submit_snapshot_for_removal_proposal(
+    ctx:Context<SubmitSnapshotForGuiltyAuthority>,
+    challenge_proposal_key:Pubkey,property_system_id:u64,
+    merkle_root : [u8;32],
+)->Result<()>{
+
+    challenge_against_authority::submit_snapshot_for_removal_of_guilty_authority(ctx, challenge_proposal_key, property_system_id, merkle_root)?;
+
+    Ok(())
+}
 
 }

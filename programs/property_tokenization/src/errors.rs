@@ -270,6 +270,9 @@ pub enum ErrorCode{
     #[msg("the proposal should be draft stage")]
     NotInDraft,
 
+    #[msg("proposal is not Finalize")]
+    NotFinalized,
+
     #[msg("proposal is cannot Finalize")]
     AlreadyFinalized,
 

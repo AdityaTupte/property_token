@@ -14,9 +14,11 @@ pub struct ChallengeProposal{
 
     pub property_system : Pubkey,
 
-    pub authority_type : AuthorityType,
+    // pub authority_type : AuthorityType,
 
-    pub against:Vec<Pubkey>,
+    pub trustee_offender_total_number:u8,
+
+    pub arbitrar_offender_total_number:u8,
 
     pub required_vote_to_active : u64,
 
@@ -49,21 +51,23 @@ pub struct ChallengeProposal{
 
 impl ChallengeProposal{
 
-    pub const SIZE :usize = 32 +
-                            8 +
-                            32 +
-                            4 + (32*MAX_TRUSTEES) +
-                            8 +
-                            8 +
-                            8 +
-                            8 +
-                            1 +
-                            1 +
-                            8 +
-                            1 +
-                            8 +
-                            8 +
-                            8 +
-                            1 +
-                            1 ;
+    pub const SIZE: usize =
+    32 + // creator
+    8  + // proposal_id
+    32 + // property_system
+    1  + // trustee_offender_total_number
+    1  + // arbitrar_offender_total_number
+    8  + // required_vote_to_active
+    8  + // vote_gained
+    32 + // charges_hash
+    32 + // evidence_hash
+    1  + // proposal_type
+    1  + // status
+    32 + // merkle_root
+    1  + // guilty
+    8  + // created_at
+    8  + // result_time
+    8  + // ✅ voting_deadline (MISSING)
+    1  + // index
+    1;   // bump
                         }

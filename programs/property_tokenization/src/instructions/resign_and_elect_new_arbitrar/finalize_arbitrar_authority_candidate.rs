@@ -107,6 +107,14 @@ pub fn finalize_arbitrar_authority_candiate(
         &mut ctx.accounts.candidate_profile,
     )?;
     
+    let arbitrar_receipt = &mut ctx.accounts.arbitrar_receipt;
+
+    arbitrar_receipt.property_system_account = ctx.accounts.property_system.key();
+
+    arbitrar_receipt.arbitrator = ctx.accounts.candidate.key();
+
+    arbitrar_receipt.bump = ctx.bumps.arbitrar_receipt;
+
 
     Ok(())
 }

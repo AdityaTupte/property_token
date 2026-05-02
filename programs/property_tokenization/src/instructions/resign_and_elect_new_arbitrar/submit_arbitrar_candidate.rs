@@ -36,6 +36,7 @@ pub struct SubmitArbitrarCandidate<'info>{
     pub proposal : Account<'info,ElectAuthority>,
 
     #[account(
+        mut,
         seeds=[
                 CANDIDATE_PROFILE,
                 signer.key().as_ref()
