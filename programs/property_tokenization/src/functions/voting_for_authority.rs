@@ -20,10 +20,11 @@ pub fn voting_for_authority<T:BaseProposal + AuthorityGovernance>(
    let current_time = Clock::get()?.unix_timestamp;
 
 
+   require!(current_time <= *item.voting_for_authority_deadline() ,ErrorCode::AuthorityVotingDeadline);
+
     require!(
-        current_time <= *item.voting_for_authority_deadline() &&
         current_time > *item.candidate_submission_deadline(),
-        ErrorCode::AuthorityVotingDeadline
+        ErrorCode::VotingPeriodNotStarted 
     );
 
       // require!(authority_candidate.authority_type == AuthorityType::TRUSTEE,ErrorCode::AuthotityTypeNotMatched);

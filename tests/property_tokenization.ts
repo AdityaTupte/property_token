@@ -3598,7 +3598,7 @@ it("skip time to voting end",async() =>{
 })
 
 
-it("add new trustee",async()=>{
+it("add new arbitrar",async()=>{
   
 
   const tx = await program.methods.addNewArbitrar(
@@ -3612,19 +3612,19 @@ it("add new trustee",async()=>{
 
   
 
-  const [rankacc_key2] = anchor.web3.PublicKey.findProgramAddressSync(
-    [
-      Buffer.from("ranking_account"),
-      Buffer.from([2]),
-      election_proposal_key.toBuffer(),
-      propertySystemPda.toBuffer()
-    ],
-    program.programId
-  ) 
+  // const [rankacc_key2] = anchor.web3.PublicKey.findProgramAddressSync(
+  //   [
+  //     Buffer.from("ranking_account"),
+  //     Buffer.from([2]),
+  //     election_proposal_key.toBuffer(),
+  //     propertySystemPda.toBuffer()
+  //   ],
+  //   program.programId
+  // ) 
 
-  let acc = await program.account.rankingAccount.fetch(rankacc_key2);
+  // let acc = await program.account.rankingAccount.fetch(rankacc_key2);
 
-  console.log(acc);
+  // console.log(acc);
 
 
   const tx2 = await program.methods.addNewArbitrar(
@@ -3646,9 +3646,9 @@ it("add new trustee",async()=>{
     program.programId
   ) 
 
-  let acc2 = await program.account.rankingAccount.fetch(rankacc_key3);
+  // let acc2 = await program.account.rankingAccount.fetch(rankacc_key3);
 
-  console.log(acc2);
+  // console.log(acc2);
 
 
   //   const [candidate_recepit] = anchor.web3.PublicKey.findProgramAddressSync(
@@ -3681,6 +3681,7 @@ it("add new trustee",async()=>{
 
 
 })
+
 
 
 it("adjust ranking for arbitrar",async()=>{
@@ -4222,7 +4223,7 @@ console.log(acc);
 
 
 
-it("remove guilt trustee proposal",async()=>{
+it("remove guilt trustee and arbitrar proposal",async()=>{
 
 
   const tx = await program.methods.removeTrusteeGuiltAuthorityProposal(
@@ -4235,23 +4236,34 @@ it("remove guilt trustee proposal",async()=>{
   }).signers([receiver1]).rpc()
 
 
-  const [key] = anchor.web3.PublicKey.findProgramAddressSync(
-  [
-      Buffer.from("remove_authority"),
-      propertySystemPda.toBuffer(),
-      proposal_key.toBuffer()
-  ],
-  program.programId
-)
 
-const acc = await program.account.electAuthority.fetch(key);
+   await program.methods.removeArbitrarGuiltAuthorityProposal(
+      new anchor.BN(1),
+      new anchor.BN(1),
+  ).accounts({
+    signer:receiver1.publicKey,
+    mint:governanceMint,
+    tokenProgram:TOKEN_2022_PROGRAM_ID
+  }).signers([receiver1]).rpc()
 
-console.log(acc);
+
+//   const [key] = anchor.web3.PublicKey.findProgramAddressSync(
+//   [
+//       Buffer.from("remove_trustee_proposal"),
+//       propertySystemPda.toBuffer(),
+//       proposal_key.toBuffer()
+//   ],
+//   program.programId
+// )
+
+// const acc = await program.account.electAuthority.fetch(key);
+
+// console.log(acc);
 
 
 })
 
-it("add trustee to remove",async()=>{
+it("add trustee and arbitrar to remove ",async()=>{
 
   const proposalId = new anchor.BN(1);
 const propertySystemId = new anchor.BN(1);
@@ -4260,11 +4272,23 @@ const propertySystemId = new anchor.BN(1);
   const tx = await program.methods.addTrusteeForRemoval(
     proposalId,
     propertySystemId,
-
+    
   ).accounts(
     {
       signer:receiver1.publicKey,
       trustee:candidate1.publicKey
+    }
+  ).signers([receiver1]).rpc()
+
+
+  const tx2 = await program.methods.addArbitrarForRemoval(
+    proposalId,
+    propertySystemId,
+
+  ).accounts(
+    {
+      signer:receiver1.publicKey,
+      arbitrar:candidate1.publicKey
     }
   ).signers([receiver1]).rpc()
 
@@ -4279,42 +4303,525 @@ const propertySystemId = new anchor.BN(1);
 
 //     ],program.programId
 //   )
-
-it("submit snapshot for removal proposal",async()=>{
-
    const [key] = anchor.web3.PublicKey.findProgramAddressSync(
   [
-      Buffer.from("remove_authority"),
+      Buffer.from("remove_trustee_proposal"),
       propertySystemPda.toBuffer(),
       proposal_key.toBuffer()
   ],
   program.programId
 )
 
-  const merkleRoot = buildMerkleRoot([
-    buildAuthorityLeaf(receiver1.publicKey, key, governanceMint, 100,6),
-    buildAuthorityLeaf(receiver2.publicKey, key, governanceMint, 100,6),
-    buildAuthorityLeaf(receiver3.publicKey, key, governanceMint, 100,6),
-    buildAuthorityLeaf(receiver4.publicKey, key, governanceMint, 100,6),
-    buildAuthorityLeaf(receiver5.publicKey, key, governanceMint, 100,6),
-    buildAuthorityLeaf(receiver6.publicKey, key, governanceMint, 100,6)
+   const [key2] = anchor.web3.PublicKey.findProgramAddressSync(
+  [
+      Buffer.from("remove_arbitrar_proposal"),
+      propertySystemPda.toBuffer(),
+      proposal_key.toBuffer()
+  ],
+  program.programId
+)
+
+
+it("submit snapshot for removal proposal",async()=>{
+
+
+
+  const merkleRoot1 = buildMerkleRoot([
+    buildAuthorityLeaf(receiver1.publicKey, key, governanceMint, 100,0),
+    buildAuthorityLeaf(receiver2.publicKey, key, governanceMint, 100,0),
+    buildAuthorityLeaf(receiver3.publicKey, key, governanceMint, 100,0),
+    buildAuthorityLeaf(receiver4.publicKey, key, governanceMint, 100,0),
+    buildAuthorityLeaf(receiver5.publicKey, key, governanceMint, 100,0),
+    buildAuthorityLeaf(receiver6.publicKey, key, governanceMint, 100,0)
   ]);
 
   const tx = await program.methods.submitSnapshotForRemovalProposal(
     proposal_key,
     new anchor.BN(1),
-    merkleRoot
-  ).accounts(
-    wallet.publicKey
+    merkleRoot1
+  ).accounts({
+    removalProposal:key
+  },
   ).signers([wallet.payer]).rpc();
 
   const acc = await program.account.electAuthority.fetch(key);
 
   console.log(acc);
 
+
+   const merkleRoot2 = buildMerkleRoot([
+    buildAuthorityLeaf(receiver1.publicKey, key2, governanceMint, 100,1),
+    buildAuthorityLeaf(receiver2.publicKey, key2, governanceMint, 100,1),
+    buildAuthorityLeaf(receiver3.publicKey, key2, governanceMint, 100,1),
+    buildAuthorityLeaf(receiver4.publicKey, key2, governanceMint, 100,1),
+    buildAuthorityLeaf(receiver5.publicKey, key2, governanceMint, 100,1),
+    buildAuthorityLeaf(receiver6.publicKey, key2, governanceMint, 100,1)
+  ]);
+
+    const tx2 = await program.methods.submitSnapshotForRemovalProposal(
+    proposal_key,
+    new anchor.BN(1),
+    merkleRoot2
+  ).accounts({
+    removalProposal:key2
+  },
+  ).signers([wallet.payer]).rpc();
+
+  const acc2 = await program.account.electAuthority.fetch(key);
+
+  console.log(acc);
   
 
 })
+
+
+it("submit candidate for proposal",async()=>{
+
+
+  const tx = await program.methods.submitCandidateForTrusteeAuthorityForRemoveProposal(
+    proposal_key,
+    new anchor.BN(1)
+  ).accounts(
+    {
+      signer:candidate3.publicKey,
+    
+    }
+  ).signers([candidate3]).rpc()
+
+
+  const tx2 = await program.methods.submitCandidateForArbitrarAuthorityForRemoveProposal(
+    proposal_key,
+    new anchor.BN(1)
+  ).accounts(
+    {
+      signer:candidate3.publicKey,
+    
+    }
+  ).signers([candidate3]).rpc()
+
+
+})
+
+
+it("skip time to voting end",async() =>{
+  advanceClockBy(svm, 302400n);
+
+})
+
+
+
+
+it("vote for new authority for in removal proposal",async()=>{
+
+
+  // const acc = await program.account.electAuthority.fetch(key);
+
+  // console.log(acc);
+  
+
+  const snapshotEntries = [
+    { voter: receiver1.publicKey, votingPower: 100,authoritytype:0 },
+    { voter: receiver2.publicKey, votingPower: 100,authoritytype:0  },
+    { voter: receiver3.publicKey, votingPower: 100,authoritytype:0  },
+     { voter: receiver4.publicKey, votingPower: 100 ,authoritytype:0 },
+      { voter: receiver5.publicKey, votingPower: 100,authoritytype:0  },
+       { voter: receiver6.publicKey, votingPower: 100 ,authoritytype:0 },
+  ];
+
+   const voter1proof = buildAuthorityProof(
+    snapshotEntries,
+    0,
+    key,
+    governanceMint
+  );
+  const voter2proof = buildAuthorityProof(
+    snapshotEntries,
+    1,
+    key,
+    governanceMint
+  );
+
+   const voter3proof = buildAuthorityProof(
+    snapshotEntries,
+    2,
+    key,
+    governanceMint
+  );
+   const voter4proof = buildAuthorityProof(
+    snapshotEntries,
+    3,
+    key,
+    governanceMint
+  );
+   const voter5proof = buildAuthorityProof(
+    snapshotEntries,
+    4,
+    key,
+    governanceMint
+  );
+
+
+
+  const tx = await program.methods.voteForNewTrusteeAuthorityForRemovalProposal(
+    proposal_key,
+    new anchor.BN(1),
+    candidate3.publicKey,
+    voter1proof,
+    new anchor.BN(100)
+  ).accounts(
+    {
+      signer:receiver1.publicKey
+    }
+  ).signers([receiver1]).rpc()
+
+  const tx2 = await program.methods.voteForNewTrusteeAuthorityForRemovalProposal(
+    proposal_key,
+    new anchor.BN(1),
+    candidate3.publicKey,
+    voter2proof,
+    new anchor.BN(100)
+  ).accounts(
+    {
+      signer:receiver2.publicKey
+    }
+  ).signers([receiver2]).rpc()
+
+   await program.methods.voteForNewTrusteeAuthorityForRemovalProposal(
+    proposal_key,
+    new anchor.BN(1),
+    candidate3.publicKey,
+    voter3proof,
+    new anchor.BN(100)
+  ).accounts(
+    {
+      signer:receiver3.publicKey
+    }
+  ).signers([receiver3]).rpc()
+
+
+ await program.methods.voteForNewTrusteeAuthorityForRemovalProposal(
+    proposal_key,
+    new anchor.BN(1),
+    candidate3.publicKey,
+    voter4proof,
+    new anchor.BN(100)
+  ).accounts(
+    {
+      signer:receiver4.publicKey
+    }
+  ).signers([receiver4]).rpc()
+
+
+
+  //////////////////////////////////////////
+
+
+  const snapshotEntries2 = [
+    { voter: receiver1.publicKey, votingPower: 100,authoritytype:1 },
+    { voter: receiver2.publicKey, votingPower: 100,authoritytype:1  },
+    { voter: receiver3.publicKey, votingPower: 100,authoritytype:1  },
+     { voter: receiver4.publicKey, votingPower: 100 ,authoritytype:1 },
+      { voter: receiver5.publicKey, votingPower: 100,authoritytype:1  },
+       { voter: receiver6.publicKey, votingPower: 100 ,authoritytype:1 },
+  ];
+
+   const voterAproof = buildAuthorityProof(
+    snapshotEntries2,
+    0,
+    key2,
+    governanceMint
+  );
+  const voterBproof = buildAuthorityProof(
+    snapshotEntries2,
+    1,
+    key2,
+    governanceMint
+  );
+
+  const voterCproof = buildAuthorityProof(
+    snapshotEntries2,
+    2,
+    key2,
+    governanceMint
+  );
+  const voterDproof = buildAuthorityProof(
+    snapshotEntries2,
+    3,
+    key2,
+    governanceMint
+  );
+
+
+
+    await program.methods.voteForNewArbitrarAuthorityForRemovalProposal(
+    proposal_key,
+    new anchor.BN(1),
+    candidate3.publicKey,
+    voterAproof,
+    new anchor.BN(100)
+  ).accounts(
+    {
+      signer:receiver1.publicKey
+    }
+  ).signers([receiver1]).rpc()
+
+   await program.methods.voteForNewArbitrarAuthorityForRemovalProposal(
+    proposal_key,
+    new anchor.BN(1),
+    candidate3.publicKey,
+    voterBproof,
+    new anchor.BN(100)
+  ).accounts(
+    {
+      signer:receiver2.publicKey
+    }
+  ).signers([receiver2]).rpc()
+
+   await program.methods.voteForNewArbitrarAuthorityForRemovalProposal(
+    proposal_key,
+    new anchor.BN(1),
+    candidate3.publicKey,
+    voterCproof,
+    new anchor.BN(100)
+  ).accounts(
+    {
+      signer:receiver3.publicKey
+    }
+  ).signers([receiver3]).rpc()
+
+   await program.methods.voteForNewArbitrarAuthorityForRemovalProposal(
+    proposal_key,
+    new anchor.BN(1),
+    candidate3.publicKey,
+    voterDproof,
+    new anchor.BN(100)
+  ).accounts(
+    {
+      signer:receiver4.publicKey
+    }
+  ).signers([receiver4]).rpc()
+
+
+
+
+
+
+
+
+
+})
+
+
+it("skip time to voting end",async() =>{
+  advanceClockBy(svm, 302400n);
+
+})
+
+
+it("finalize remove proposal",async()=>{
+
+
+  await program.methods.finalizeRemoveProposal().accounts(
+    {
+      signer:receiver5.publicKey,
+      removeProposal:key
+    }
+  ).signers([receiver5]).rpc()
+
+
+  await program.methods.finalizeRemoveProposal().accounts(
+    {
+      signer:receiver5.publicKey,
+      removeProposal:key2
+    }
+  ).signers([receiver5]).rpc()
+
+  const acc = await program.account.electAuthority.fetch(key2);
+
+  console.log(acc);
+  
+
+})
+
+
+
+
+it("add new authority for removal proposal",async()=>{
+
+  const tx = await program.methods.addNewAuthorityForTrusteeRemoveProposal(
+    proposal_key,
+    candidate3.publicKey,
+    new anchor.BN(1),
+    new anchor.BN(1),
+    1
+  ).accounts(
+    {signer:wallet.publicKey}
+  ).signers([wallet.payer]).rpc();
+
+
+
+
+   await program.methods.addNewAuthorityForArbitrarRemoveProposal(
+    proposal_key,
+    candidate3.publicKey,
+    new anchor.BN(1),
+    new anchor.BN(1),
+    1
+  ).accounts(
+    {signer:wallet.publicKey}
+  ).signers([wallet.payer]).rpc();
+
+
+
+  const [candidate_auth_key] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("authority_candidate"),
+      propertySystemPda.toBuffer(),
+      key.toBuffer(),
+      candidate3.publicKey.toBuffer()
+    ],
+    program.programId
+  )
+
+  const acc = await program.account.authorityCandidate.fetch(candidate_auth_key);
+
+  console.log(acc);
+  
+
+
+
+})
+
+it("skip time to voting end",async() =>{
+  advanceClockBy(svm, 302400n);
+
+})
+it("skip time to voting end",async() =>{
+  advanceClockBy(svm, 302400n);
+
+})
+
+it("remove old trustee and arbitrar",async()=>{
+  
+
+  
+
+
+  const tx = await program.methods.removeOldTrusteeRemoveProposal(
+    new anchor.BN(1),
+    proposal_key,
+    new anchor.BN(1),
+    candidate1.publicKey
+  ).accounts(
+    {
+      signer:receiver1.publicKey
+    }
+  ).signers([receiver1]).rpc()
+
+  const tx2 = await program.methods.removeOldArbitrarRemoveProposal(
+    new anchor.BN(1),
+    proposal_key,
+    new anchor.BN(1),
+    candidate1.publicKey
+  ).accounts(
+    {
+      signer:receiver1.publicKey
+    }
+  ).signers([receiver1]).rpc()
+
+
+
+
+//   const [trustee_registry] = PublicKey.findProgramAddressSync(
+//   [
+//     Buffer.from("trustee_registry"),
+//     propertySystemPda.toBuffer(),
+//   ],
+//   program.programId
+// );
+
+// const trustee_registry_pda = await program.account.trusteeRegistry.fetch(trustee_registry);
+
+
+// console.log(trustee_registry_pda);
+
+
+})
+
+it("finalize new trustee for remove proposal",async()=>{
+
+
+
+  await program.methods.finalizeNewTrusteeForRemoveProposal(
+    candidate3.publicKey,
+    new anchor.BN(1),
+    new anchor.BN(1),
+    proposal_key
+  ).accounts(
+    {signer:wallet.publicKey,
+     candidate:candidate3.publicKey
+    }
+  ).signers([wallet.payer]).rpc()
+
+
+
+  await program.methods.finalizeNewArbitrarForRemoveProposal(
+    candidate3.publicKey,
+    new anchor.BN(1),
+    new anchor.BN(1),
+    proposal_key
+  ).accounts(
+    {signer:wallet.publicKey,
+     candidate:candidate3.publicKey
+    }
+  ).signers([wallet.payer]).rpc()
+
+
+//     const [key] = anchor.web3.PublicKey.findProgramAddressSync(
+//   [
+//       Buffer.from("remove_trustee_authority"),
+//       propertySystemPda.toBuffer(),
+//       proposal_key.toBuffer()
+//   ],
+//   program.programId
+// )
+
+const acc = await program.account.electAuthority.fetch(key2);
+
+console.log(acc);
+
+
+
+
+
+  //  const [candidate_auth_key] = anchor.web3.PublicKey.findProgramAddressSync(
+  //   [
+  //     Buffer.from("authority_candidate"),
+  //     propertySystemPda.toBuffer(),
+  //     key.toBuffer(),
+  //     candidate3.publicKey.toBuffer()
+  //   ],
+  //   program.programId
+  // )
+
+  // const acc = await program.account.authorityCandidate.fetch(candidate_auth_key);
+
+  // console.log(acc);
+  //  const [candidate_auth_key] = anchor.web3.PublicKey.findProgramAddressSync(
+  //   [
+  //     Buffer.from("authority_candidate"),
+  //     propertySystemPda.toBuffer(),
+  //     key.toBuffer(),
+  //     candidate3.publicKey.toBuffer()
+  //   ],
+  //   program.programId
+  // )
+
+  // const acc = await program.account.authorityCandidate.fetch(candidate_auth_key);
+
+
+})
+
 
 
   });

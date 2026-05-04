@@ -41,6 +41,12 @@ pub struct ElectAuthority{
 
     pub bump:u8,
 
+    pub rm_voting_threshold:u64,
+
+    pub rm_total_voting_power_gained:u64,
+
+   
+
 }
 
 impl ElectAuthority  {
@@ -63,7 +69,9 @@ impl ElectAuthority  {
                                 8 +
                                 1 +
                                 8 +
-                                1  ;
+                                1 +
+                                8 +
+                                8  ;
 
 }
 

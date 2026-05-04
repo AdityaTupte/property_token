@@ -111,7 +111,13 @@ pub const CHALLENGEAUTHORITY : &[u8] = b"challenge_authority";
 
 pub const REMOVEAUTHORITY : &[u8] = b"remove_authority";
 
+ pub const REMOVETRUSTEEAUTHORITYPROPOSAL : &[u8] = b"remove_trustee_proposal";
+
+ pub const REMOVEARBITRARAUTHORITYPROPOSAL : &[u8] = b"remove_arbitrar_proposal";
+
 pub const REMOVETRUSTEEAUTHORITY :&[u8] = b"remove_trustee_authority";
+
+pub const REMOVEARBITRARAUTHORITY :&[u8] = b"remove_arbitrar_authority";
 
 pub const LEASE_PROPERTY_PROPOSAL : &[u8] = b" lease_property_proposal";
 
@@ -126,5 +132,11 @@ pub const RANKCOUNT :&[u8] = b"rank_count";
 
 
 pub const OFFENDERRECEIPT :&[u8] = b"offender";
+
+
+pub const PROPOSEREMOVETRUSTEEPROPOSAL: &[u8] = b"propose_remove_trustee_proposal";
+
+
+pub const PROPOSEREMOVEARBITRARPROPOSAL: &[u8] = b"propose_remove_arbitrar_proposal";
 
     

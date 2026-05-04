@@ -1,10 +1,10 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{AUTHORITY_CANDIDATE, CANDIDATE_PROFILE, CHALLENGEAUTHORITY, PROPERTY_SYSTEM_SEEDS, ProposalStatus, REMOVEAUTHORITY}, errors::ErrorCode, state::{AuthorityCandidate, CandidateProfile, ChallengeProposal, ElectAuthority, PropertySystemAccount}};
+use crate::{common::{AUTHORITY_CANDIDATE, CANDIDATE_PROFILE,  PROPERTY_SYSTEM_SEEDS, ProposalStatus, REMOVEARBITRARAUTHORITYPROPOSAL,}, errors::ErrorCode, state::{AuthorityCandidate, CandidateProfile,  ElectAuthority, PropertySystemAccount}};
 
 #[derive(Accounts)]
-
-pub struct  SubmitCandidateForAuthority<'info>{
+#[instruction(proposal_key:Pubkey,property_system_id:u64)]
+pub struct  SubmitCandidateForArbitrarAuthority<'info>{
     
     #[account(
         mut,
@@ -14,44 +14,45 @@ pub struct  SubmitCandidateForAuthority<'info>{
     #[account(
         seeds=[
             PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes(),
+            &property_system_id.to_le_bytes(),
         ],
         bump = property_system.bump
     )]
     pub property_system: Account<'info,PropertySystemAccount>,
 
-     #[account(
-        seeds =[
-            CHALLENGEAUTHORITY,
-            &proposal.proposal_id.to_le_bytes(),
-            property_system.key().as_ref(),
-        ],
-        bump = proposal.bump,
-        constraint = proposal.status == ProposalStatus::Executed @ ErrorCode::ProposalNotExecuted
-    )]
-    pub proposal : Account<'info,ChallengeProposal>,
+    //  #[account(
+    //     seeds =[
+    //         CHALLENGEAUTHORITY,
+    //         &proposal.proposal_id.to_le_bytes(),
+    //         property_system.key().as_ref(),
+    //     ],
+    //     bump = proposal.bump,
+    //     constraint = proposal.status == ProposalStatus::Executed @ ErrorCode::ProposalNotExecuted
+    // )]
+    // pub proposal : Account<'info,ChallengeProposal>,
 
 
     #[account(
         seeds=[
-            REMOVEAUTHORITY,
-            proposal.key().as_ref(),
+            REMOVEARBITRARAUTHORITYPROPOSAL,
             property_system.key().as_ref(),
+            proposal_key.as_ref()
         ],
         bump=removal_proposal.bump,
         constraint = removal_proposal.snapshot_submitted @ ErrorCode::SnapshotNotSubmitted,
-        constraint = removal_proposal.status == ProposalStatus::Passed @ ErrorCode::ProposalNotPassed
+        constraint = removal_proposal.status == ProposalStatus::Active @ ErrorCode::ProposalNotPassed
 
     )]
     pub removal_proposal: Account<'info,ElectAuthority>,
 
     #[account(
+        mut,
         seeds=[
                 CANDIDATE_PROFILE,
                 signer.key().as_ref()
         ],
         bump = candidate_profile.bump,
-        constraint = candidate_profile.is_verified  @ ErrorCode::NotVerfied,
+        // constraint = candidate_profile.is_verified  @ ErrorCode::NotVerfied,
         constraint = !candidate_profile.is_blacklisted @ ErrorCode::Blacklisted 
     )]
     pub candidate_profile : Account<'info,CandidateProfile>,
@@ -61,9 +62,9 @@ pub struct  SubmitCandidateForAuthority<'info>{
         payer= signer,
         seeds=[
             AUTHORITY_CANDIDATE,
-            signer.key().as_ref(),
+            property_system.key().as_ref(), 
             removal_proposal.key().as_ref(),
-            property_system.key().as_ref()       
+            signer.key().as_ref()        
         ],
         bump,
         space = 8 + AuthorityCandidate::SIZE
@@ -74,8 +75,10 @@ pub struct  SubmitCandidateForAuthority<'info>{
 
 }
 
-pub fn submit_candidate_for_authority(
-    ctx:Context<SubmitCandidateForAuthority>
+pub fn submit_candidate_for_arbitrar_authority(
+    ctx:Context<SubmitCandidateForArbitrarAuthority>,
+    _proposal_key:Pubkey,
+    _property_system_id:u64
 )->Result<()>{
 
     

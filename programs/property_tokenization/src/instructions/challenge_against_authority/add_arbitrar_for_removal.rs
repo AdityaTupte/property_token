@@ -1,10 +1,10 @@
-use anchor_lang::prelude::*;
+    use anchor_lang::prelude::*;
 
-use crate::{common::{AuthorityType, CHALLENGEAUTHORITY, OFFENDERRECEIPT, PROPERTY_SYSTEM_SEEDS, ProposalStatus, REMOVETRUSTEEAUTHORITY, REMOVETRUSTEEAUTHORITYPROPOSAL, TRUSTEE_RECEIPT_SEEDS}, errors::ErrorCode, state::{ChallengeProposal, ElectAuthority, OffenderReceipt, PropertySystemAccount, Resignation, TrusteeRecepit}};
+use crate::{common::{ARBITRAR_RECEIPT_SEEDS, AuthorityType, CHALLENGEAUTHORITY, OFFENDERRECEIPT, PROPERTY_SYSTEM_SEEDS, ProposalStatus, REMOVEARBITRARAUTHORITY, REMOVEARBITRARAUTHORITYPROPOSAL,}, errors::ErrorCode, state::{ArbitratorRecepit, ChallengeProposal, ElectAuthority, OffenderReceipt, PropertySystemAccount, Resignation}};
 
 #[derive(Accounts)]
 #[instruction(proposal_id:u64,property_system_id:u64,)]
-pub struct AddTrusteeToRemove<'info>{
+pub struct AddArbitrarToRemove<'info>{
 
     #[account(
         mut,
@@ -12,17 +12,17 @@ pub struct AddTrusteeToRemove<'info>{
     )]
     pub signer: Signer<'info>,
 
-    pub trustee:SystemAccount<'info>,
+    pub arbitrar:SystemAccount<'info>,
 
     #[account(
         seeds = [
-            TRUSTEE_RECEIPT_SEEDS,
+            ARBITRAR_RECEIPT_SEEDS,
             property_system.key().as_ref(),
-            trustee.key().as_ref()
+            arbitrar.key().as_ref()
         ],
-        bump = trustee_receipt.bump,
+        bump = arbitrar_receipt.bump,
     )]
-    pub trustee_receipt: Account<'info,TrusteeRecepit>,
+    pub arbitrar_receipt: Account<'info,ArbitratorRecepit>,
 
     #[account(
         seeds = [
@@ -35,29 +35,18 @@ pub struct AddTrusteeToRemove<'info>{
     )]
     pub challenge_proposal: Account<'info, ChallengeProposal>,
 
-    //  #[account(
-    //     seeds=[
-    //         PROPOSEREMOVETRUSTEEPROPOSAL,
-    //         property_system.key().as_ref(),
-    //         challenge_proposal_key.as_ref(),
-    //     ],
-    //     bump,
-    
-    // )]
-    // pub propose_remove_proposal: Account<'info, ProposeRemoveProposal>,
-
     #[account(
         seeds=[
             OFFENDERRECEIPT,
-            TRUSTEE_RECEIPT_SEEDS,
+            ARBITRAR_RECEIPT_SEEDS,
             property_system.key().as_ref(),
             challenge_proposal.key().as_ref(),
-            trustee.key().as_ref(),
+            arbitrar.key().as_ref(),
         ],
-        bump = trustee_offender_receipt.bump,
-        constraint = trustee_offender_receipt.is_finalized @ ErrorCode::NotFinalized
+        bump = arbitrar_offender_receipt.bump,
+        constraint = arbitrar_offender_receipt.is_finalized @ ErrorCode::NotFinalized
     )]
-    pub trustee_offender_receipt :Account<'info,OffenderReceipt>,
+    pub arbitrar_offender_receipt :Account<'info,OffenderReceipt>,
 
     #[account(
         seeds=[
@@ -72,9 +61,9 @@ pub struct AddTrusteeToRemove<'info>{
         init,
         payer = signer,
         seeds=[
-            REMOVETRUSTEEAUTHORITY,
+            REMOVEARBITRARAUTHORITY,
             property_system.key().as_ref(),
-            trustee.key().as_ref(),  
+            arbitrar.key().as_ref(),  
         ],
         bump,
         space = 8 + Resignation::SIZE
@@ -86,26 +75,26 @@ pub struct AddTrusteeToRemove<'info>{
     #[account(
         mut,
         seeds=[
-            REMOVETRUSTEEAUTHORITYPROPOSAL,
+            REMOVEARBITRARAUTHORITYPROPOSAL,
             property_system.key().as_ref(),
-            challenge_proposal.key().as_ref(),
+            challenge_proposal.key().as_ref()
         ],
-        bump = remove_proposal.bump ,   
+        bump = proposal.bump ,   
     )]
-    pub remove_proposal : Account<'info,ElectAuthority>,
+    pub proposal : Account<'info,ElectAuthority>,
 
     pub system_program:Program<'info,System>,
 
 } 
 
-pub fn add_trustee_for_removal_proposal(
-    ctx:Context<AddTrusteeToRemove>,
+pub fn add_arbitrar_for_removal_proposal(
+    ctx:Context<AddArbitrarToRemove>,
     _proposal_id:u64,
     _property_system_id:u64,
     
 )->Result<()>{
 
-    let  proposal = &mut ctx.accounts.remove_proposal;
+    let  proposal = &mut ctx.accounts.proposal;
     
     let resignation = &mut ctx.accounts.resignation;
 
@@ -113,11 +102,11 @@ pub fn add_trustee_for_removal_proposal(
 
     require!(proposal.arbitrar_approvals_count == 0, ErrorCode::TotalApprovalCountInvalid);
 
-    resignation.authority = ctx.accounts.trustee.key();
+    resignation.authority = ctx.accounts.arbitrar.key();
 
     resignation.property_system = ctx.accounts.property_system.key();
 
-    resignation.authority_type = AuthorityType::TRUSTEE;
+    resignation.authority_type = AuthorityType::ARBITRATOR;
 
     resignation.bump = ctx.bumps.resignation;
 

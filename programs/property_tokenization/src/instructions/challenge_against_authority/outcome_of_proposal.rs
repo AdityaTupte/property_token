@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{CHALLENGEAUTHORITY, COUNTRY_SEED, HARDCODED_PUBKEY, PROPERTY_SYSTEM_SEEDS, ProposalStatus, ReasonType, STATE_AUTHORITY, STATE_SEEDS},errors::ErrorCode, state::{ChallengeProposal, Country, PropertySystemAccount, State, StateAuthority}};
+use crate::{common::{CHALLENGEAUTHORITY,  HARDCODED_PUBKEY, PROPERTY_SYSTEM_SEEDS, ProposalStatus, ReasonType, },errors::ErrorCode, state::{ChallengeProposal,  PropertySystemAccount,}};
 
 
 

@@ -1,24 +1,33 @@
 use anchor_lang::prelude::*;
-use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint, TokenAccount, TokenInterface}};
+use anchor_spl::{
+    associated_token::AssociatedToken,
+    token_interface::{Mint, TokenAccount, TokenInterface},
+};
 
-use crate::{common::{AuthorityType, CHALLENGEAUTHORITY, PROPERTY_SYSTEM_SEEDS,  ProposalStatus,   REMOVETRUSTEEAUTHORITYPROPOSAL}, errors::ErrorCode, state::{ChallengeProposal, ElectAuthority, PropertySystemAccount, }};
+use crate::{
+    common::{
+        AuthorityType, ProposalStatus,  CHALLENGEAUTHORITY, PROPERTY_SYSTEM_SEEDS,
+         REMOVEARBITRARAUTHORITYPROPOSAL,
+    },
+    errors::ErrorCode,
+    state::{ChallengeProposal, ElectAuthority, PropertySystemAccount, 
+}};
 
 #[derive(Accounts)]
 #[instruction(proposal_id:u64,property_system_id:u64)]
-pub struct RemoveGuiltyTrusteeAuthority<'info>{
-
+pub struct RemoveGuiltyArbitrarAuthority<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
 
     #[account(
         associated_token::mint = mint,
         associated_token::authority = signer,
-        associated_token::token_program= token_program,
+        associated_token::token_program = token_program,
     )]
-    pub ata : InterfaceAccount<'info,TokenAccount>,
+    pub ata: Box<InterfaceAccount<'info, TokenAccount>>,
 
     #[account(
-        seeds =[
+        seeds = [
             CHALLENGEAUTHORITY,
             property_system.key().as_ref(),
             &proposal_id.to_le_bytes(),
@@ -26,67 +35,61 @@ pub struct RemoveGuiltyTrusteeAuthority<'info>{
         bump = proposal.bump,
         constraint = proposal.status == ProposalStatus::Executed @ ErrorCode::ProposalNotExecuted
     )]
-    pub proposal : Account<'info,ChallengeProposal>,
-
+    pub proposal: Box<Account<'info, ChallengeProposal>>,
 
     #[account(
-            seeds=[
+        seeds=[
             PROPERTY_SYSTEM_SEEDS,
             &property_system_id.to_le_bytes()
         ],
         bump = property_system.bump,
-        
     )]
-    pub property_system: Account<'info,PropertySystemAccount>, 
+    pub property_system: Box<Account<'info, PropertySystemAccount>>,
 
     // #[account(
     //     init,
     //     payer = signer,
     //     seeds=[
-    //         PROPOSEREMOVETRUSTEEPROPOSAL,
+    //         PROPOSEREMOVEARBITRARPROPOSAL,
     //         property_system.key().as_ref(),
     //         proposal.key().as_ref(),
     //     ],
     //     bump,
-    //     space = 8 +ProposeRemoveProposal::SIZE
+    //     space = 8 + ProposeRemoveProposal::SIZE
     // )]
-    // pub propose_remove_proposal: Account<'info,ProposeRemoveProposal>,
-
+    // pub propose_remove_proposal: Box<Account<'info, ProposeRemoveProposal>>,
 
     #[account(
         init,
         payer = signer,
         seeds=[
-            REMOVETRUSTEEAUTHORITYPROPOSAL,
+            REMOVEARBITRARAUTHORITYPROPOSAL,
             property_system.key().as_ref(),
             proposal.key().as_ref(),
         ],
         bump,
-        space = 8 + ElectAuthority::SIZE, 
+        space = 8 + ElectAuthority::SIZE,
     )]
-    pub removal_proposal : Account<'info,ElectAuthority>,
+    pub removal_proposal: Box<Account<'info, ElectAuthority>>,
 
-    pub system_program : Program<'info,System>,
+    pub system_program: Program<'info, System>,
 
-     #[account(
+    #[account(
         address = property_system.governance_mint @ ErrorCode::InvalidMint
     )]
-    pub mint: InterfaceAccount<'info,Mint>,
+    pub mint: Box<InterfaceAccount<'info, Mint>>,
 
     pub associated_token_program: Program<'info, AssociatedToken>,
 
-    pub token_program:Interface<'info,TokenInterface>,
-    
-
+    pub token_program: Interface<'info, TokenInterface>,
 }
 
-pub fn removal_of_trustee_proposal(
-    ctx:Context<RemoveGuiltyTrusteeAuthority>,
-    _proposal_id:u64,
-    _property_system_id:u64
-)->Result<()>{
-
-    let proposal = &ctx.accounts.proposal;
+pub fn removal_of_arbitrar_proposal(
+    ctx: Context<RemoveGuiltyArbitrarAuthority>,
+    _proposal_id: u64,
+    _property_system_id: u64,
+) -> Result<()> {
+   let proposal = &ctx.accounts.proposal;
 
     let remove_proposal = &mut ctx.accounts.removal_proposal;
 
@@ -98,7 +101,7 @@ pub fn removal_of_trustee_proposal(
 
     require!(ctx.accounts.ata.amount > 0 , ErrorCode::InsufficentBalance);
 
-    let supply =ctx.accounts.mint.supply;
+    let supply = ctx.accounts.mint.supply;
 
     
 
@@ -119,7 +122,7 @@ pub fn removal_of_trustee_proposal(
 
     // remove_proposal.total_authority_to_resign += 1;
 
-    remove_proposal.authority_type = AuthorityType::TRUSTEE;
+    remove_proposal.authority_type = AuthorityType::ARBITRATOR;
 
     remove_proposal.status = ProposalStatus::Draft;
 

@@ -12,7 +12,7 @@ pub fn finalize_authority<U:AuthorityGovernance>(
     require!( 
         Clock::get()?.unix_timestamp >
         *proposal.challenge_new_authority_deadline(),
-        ErrorCode::ChallegeDeadlineNotExpired
+        ErrorCode::ChallengeeDeadlineNotExpired
     );
 
     

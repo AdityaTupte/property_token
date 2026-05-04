@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{ AuthorityType, CHALLENGEAUTHORITY, OFFENDERRECEIPT, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEE_RECEIPT_SEEDS}, errors::ErrorCode, state::{ArbitratorRecepit, ChallengeProposal, OffenderReceipt, PropertySystemAccount, TrusteeRecepit}};
+use crate::{common::{ AuthorityType, CHALLENGEAUTHORITY, OFFENDERRECEIPT, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEE_RECEIPT_SEEDS}, errors::ErrorCode, state::{ ChallengeProposal, OffenderReceipt, PropertySystemAccount, TrusteeRecepit}};
 
 
 

@@ -3,6 +3,10 @@ use anchor_lang::prelude::*;
 #[error_code]
 pub enum ErrorCode{
 
+     #[msg("")]
+    FinalizeCheckNotLive,
+
+
     #[msg("authority is not selected already")]
     AuthorityNotSelected,
 
@@ -45,8 +49,8 @@ pub enum ErrorCode{
     #[msg("the candidate submission is not started yet or deadline is reached")]
     CandidateSubmissionDeadline,
 
-    #[msg("the voting for authority is not started yet or deadline is reached")]
-    AuthorityVotingDeadline,
+    #[msg("the voting for authority deadline is reached")]
+        AuthorityVotingDeadline,
 
     #[msg("the authority type does not match the requirement type")]
     AuthotityTypeNotMatched,
@@ -330,11 +334,8 @@ pub enum ErrorCode{
     #[msg("the challenge deadline had been reached")]
     ChallegeDeadlineExpired,
      
-    #[msg("the change deadline had been reached")]
-    ChangeDeadlineExpired,
-
-    #[msg("the challenge deadline had been reached")]
-    ChallegeDeadlineNotExpired,
+    #[msg("the challenge deadline not reached")]
+    ChallengeeDeadlineNotExpired,
 
     #[msg("the challenge deadline not reached yet")]
     ChallegeDeadlineNotStart,

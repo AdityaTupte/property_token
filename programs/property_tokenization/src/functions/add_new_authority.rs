@@ -38,6 +38,8 @@ require!(
 
     require!(counter.count < *item.total_authority_to_resign() , ErrorCode::AuthorityLimitReached );
 
+    // require!(counter.count+1 == ranking ,ErrorCode::AuthorityLimitReached);
+
     counter.count +=1;
 
     authority_candidate.selected = true;

@@ -11,6 +11,7 @@ pub mod add_new_authority;
 pub mod challenge_authority;
 pub mod finalize_authority;
 pub mod finalize_candidate;
+pub mod finalized_candidate_for_remove_proposal;
 // pub mod treasury_distribution;
 pub mod check_duplicate_owners;
 
@@ -29,5 +30,6 @@ pub use add_new_authority::*;
 pub use challenge_authority::*;
 pub use finalize_authority::*;
 pub use finalize_candidate::*;  
+ pub use finalized_candidate_for_remove_proposal::*;
 // pub use treasury_distribution::*;
 pub use check_duplicate_owners::*;

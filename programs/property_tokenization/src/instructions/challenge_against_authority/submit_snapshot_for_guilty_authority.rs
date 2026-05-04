@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{ HARDCODED_PUBKEY, PROPERTY_SYSTEM_SEEDS, ProposalStatus, REMOVEAUTHORITY}, errors::ErrorCode, functions::submit_authority, state::{ChallengeProposal, ElectAuthority, PropertySystemAccount}};
+use crate::{common::{ HARDCODED_PUBKEY, PROPERTY_SYSTEM_SEEDS, ProposalStatus, }, errors::ErrorCode, functions::submit_authority, state::{ ElectAuthority, PropertySystemAccount}};
 
 
 
@@ -27,12 +27,12 @@ pub struct SubmitSnapshotForGuiltyAuthority<'info>{
 
     #[account(
         mut,
-        seeds=[
-            REMOVEAUTHORITY,
-            property_system.key().as_ref(),
-            challenge_proposal_key.as_ref()
-        ],
-        bump=removal_proposal.bump,
+        // seeds=[
+        //     REMOVETRUSTEEAUTHORITYPROPOSAL,
+        //     property_system.key().as_ref(),
+        //     challenge_proposal_key.as_ref()
+        // ],
+        // bump=removal_proposal.bump,
         constraint = removal_proposal.status == ProposalStatus::Draft @ ErrorCode::NotInDraft
     )]
     pub removal_proposal: Account<'info,ElectAuthority>,

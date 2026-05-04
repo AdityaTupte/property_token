@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::common::{AuthorityType, MAX_TRUSTEES, ProposalStatus, ProposalType, ReasonType};
+use crate::common::{  ProposalStatus, ProposalType, ReasonType};
 
 
 

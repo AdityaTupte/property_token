@@ -8,6 +8,7 @@ pub mod country_proposal;
 // pub mod new_threshold_proposal;
 // pub mod new_threshold_vote_receipt;
 pub mod elect_authority;
+pub mod propose_remove_proposal;
 
 pub use sell_property_proposal::*;
 pub use voter_reciept::*;
@@ -19,3 +20,4 @@ pub use country_proposal::*;
 // pub use new_threshold_proposal::*;
 // pub use new_threshold_vote_receipt::*;
 pub use elect_authority::*;
+pub use propose_remove_proposal::*;

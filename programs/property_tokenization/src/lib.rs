@@ -783,7 +783,7 @@ pub fn finalize_arbitrar_candidate_profile_for_challenge_proposal(
 
 
 pub fn remove_trustee_guilt_authority_proposal(
-    ctx:Context<RemoveTrusteeGuiltyAuthority>,
+    ctx:Context<RemoveGuiltyTrusteeAuthority>,
     proposal_id:u64,
     property_system_id:u64
 )->Result<()>{
@@ -792,20 +792,60 @@ pub fn remove_trustee_guilt_authority_proposal(
     challenge_against_authority::removal_of_trustee_proposal(ctx, proposal_id, property_system_id)?;
 
     Ok(())
+}
+
+pub fn remove_arbitrar_guilt_authority_proposal(
+    ctx:Context<RemoveGuiltyArbitrarAuthority>,
+    proposal_id:u64,
+    property_system_id:u64
+)->Result<()>{
+
+
+    challenge_against_authority::removal_of_arbitrar_proposal(ctx, proposal_id, property_system_id)?;
+
+    Ok(())
 
 }
+
+
 
 pub fn add_trustee_for_removal(
     ctx:Context<AddTrusteeToRemove>,
     proposal_id:u64,
     property_system_id:u64,
-    
+  
 )->Result<()>{
 
     challenge_against_authority::add_trustee_for_removal_proposal(ctx, proposal_id, property_system_id)?;
 
     Ok(())
 }
+
+pub fn add_arbitrar_for_removal(
+    ctx:Context<AddArbitrarToRemove>,
+    proposal_id:u64,
+    property_system_id:u64,
+    
+)->Result<()>{
+
+    challenge_against_authority::add_arbitrar_for_removal_proposal(ctx, proposal_id, property_system_id)?;
+
+    Ok(())
+}
+
+pub fn ask_snapshot_for_remove_proposal(
+
+    ctx:Context<AskForSnapshotOFRemoveProposal>
+
+)->Result<()>{
+
+    challenge_against_authority::ask_snapshot_for_remove_proposal(ctx)?;
+
+    Ok(())
+
+}
+
+
 
 pub fn submit_snapshot_for_removal_proposal(
     ctx:Context<SubmitSnapshotForGuiltyAuthority>,
@@ -817,5 +857,172 @@ pub fn submit_snapshot_for_removal_proposal(
 
     Ok(())
 }
+
+pub fn submit_candidate_for_trustee_authority_for_remove_proposal(
+    ctx:Context<SubmitCandidateForTrusteeAuthority>,
+    proposal_key:Pubkey,
+    property_system_id:u64
+)->Result<()>{
+
+    challenge_against_authority::submit_candidate_for_trustee_authority(ctx, proposal_key, property_system_id)?;
+
+    Ok(())
+}
+
+pub fn submit_candidate_for_arbitrar_authority_for_remove_proposal(
+    ctx:Context<SubmitCandidateForArbitrarAuthority>,
+    proposal_key:Pubkey,
+    property_system_id:u64
+)->Result<()>{
+
+    challenge_against_authority::submit_candidate_for_arbitrar_authority(ctx, proposal_key, property_system_id)?;
+
+    Ok(())
+}
+
+
+
+pub fn vote_for_new_trustee_authority_for_removal_proposal(
+    ctx:Context<VoteForNewTrusteeAuthority>,
+    proposal_key:Pubkey,property_system_id:u64,
+    candidate_key:Pubkey,
+    proof: Vec<[u8; 32]>,
+    voting_power : u64,
+)->Result<()>{
+
+    challenge_against_authority::vote_for_new_trustee_authority(ctx, proposal_key, property_system_id,candidate_key, proof, voting_power)?;
+
+    Ok(())
+}
+
+pub fn vote_for_new_arbitrar_authority_for_removal_proposal(
+    ctx:Context<VoteForNewArbitrarAuthority>,
+    proposal_key:Pubkey,property_system_id:u64,
+    candidate_key:Pubkey,
+    proof: Vec<[u8; 32]>,
+    voting_power : u64,
+)->Result<()>{
+
+    challenge_against_authority::vote_for_new_arbitrar_authority(ctx, proposal_key, property_system_id,candidate_key, proof, voting_power)?;
+
+    Ok(())
+}
+
+
+pub fn finalize_remove_proposal(
+        ctx:Context<FinalizeRemoveAuthority>
+)->Result<()>{
+
+    challenge_against_authority::finalize_remove_proposal(ctx)?;
+
+    Ok(())
+
+}
+
+
+
+
+pub fn add_new_authority_for_trustee_remove_proposal(
+     ctx:Context<AddNewTrusteeAuthority>,
+     proposal_key:Pubkey,
+    candidate_key:Pubkey,
+    property_system_id:u64,
+    proposal_id:u64,
+    ranking:u8,
+)->Result<()>{
+
+    challenge_against_authority::add_new_authority_for_remove_proposal(ctx,proposal_key, candidate_key, property_system_id, proposal_id, ranking)?;
+
+    Ok(())
+}
+
+pub fn add_new_authority_for_arbitrar_remove_proposal(
+     ctx:Context<AddNewArbitrarAuthority>,
+     proposal_key:Pubkey,
+    candidate_key:Pubkey,
+    property_system_id:u64,
+    proposal_id:u64,
+    ranking:u8,
+)->Result<()>{
+
+    challenge_against_authority::add_new_arbitrar_authority_for_remove_proposal(ctx,proposal_key, candidate_key, property_system_id, proposal_id, ranking)?;
+
+    Ok(())
+}
+
+
+pub fn adjust_ranking_of_new_authority_for_remove_proposal(
+    ctx:Context<AdjustAuthorityRanking>,
+    proposal_key:Pubkey,
+    property_system:Pubkey,
+    candidate_key1:Pubkey,
+    candidate_key2:Pubkey,
+    ranking1:u8,
+    ranking2:u8
+)->Result<()>{
+
+    challenge_against_authority::adjust_arbitrar_ranking(ctx,proposal_key, property_system, candidate_key1, candidate_key2, ranking1, ranking2)?;
+
+    Ok(())
+}   
+
+
+pub fn challenge_new_authority_of_removal_prposal(
+    ctx:Context<RemovalProposalChallengeNewAuthority>,
+    proposal_key:Pubkey,property_system_id:u64,challenge_from_key:Pubkey,challenge_to_key:Pubkey,ranking:u8
+)->Result<()>{
+
+    challenge_against_authority::challenge_new_authority(ctx, proposal_key, property_system_id, challenge_from_key, challenge_to_key, ranking)?;
+
+    Ok(())
+}
+
+pub fn remove_old_trustee_remove_proposal(
+    ctx:Context<RemoveOldTrustee>,
+    proposal_id:u64,
+    proposal_key:Pubkey,
+    property_system_id:u64,
+    trustee:Pubkey
+)->Result<()>{
+    
+    challenge_against_authority::remove_old_trustee(ctx, proposal_id, proposal_key, property_system_id, trustee)?;
+
+    Ok(())
+}
+
+pub fn remove_old_arbitrar_remove_proposal(
+    ctx:Context<RemoveOldArbitrar>,
+    proposal_id:u64,
+    proposal_key:Pubkey,
+    property_system_id:u64,
+    arbitrar:Pubkey
+)->Result<()>{
+    
+    challenge_against_authority::remove_old_arbitrar(ctx, proposal_id, proposal_key, property_system_id, arbitrar)?;
+
+    Ok(())
+}
+
+pub fn finalize_new_trustee_for_remove_proposal(
+    ctx:Context<FinalizeNewTrustee>,
+     candidate_pubkey:Pubkey,proposal_id:u64,property_system_id:u64,proposal_key:Pubkey,
+)->Result<()>{
+
+    challenge_against_authority::finalize_new_trustee(ctx, candidate_pubkey, proposal_id, property_system_id, proposal_key)?;
+
+    Ok(())
+}
+
+
+pub fn finalize_new_arbitrar_for_remove_proposal(
+    ctx:Context<FinalizeNewArbitrar>,
+     candidate_pubkey:Pubkey,proposal_id:u64,property_system_id:u64,proposal_key:Pubkey,
+)->Result<()>{
+
+    challenge_against_authority::finalize_new_arbitrar(ctx, candidate_pubkey, proposal_id, property_system_id, proposal_key)?;
+
+    Ok(())
+}
+
 
 }

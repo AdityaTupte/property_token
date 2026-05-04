@@ -1,6 +1,6 @@
 use anchor_lang::prelude::{ *};
 
-use crate::{common::{ARBITRAR_RECEIPT_SEEDS, CANDIDATE_PROFILE, CHALLENGEAUTHORITY, OFFENDERRECEIPT, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEE_RECEIPT_SEEDS}, errors::ErrorCode, state::{CandidateProfile, ChallengeProposal, OffenderReceipt, PropertySystemAccount, trustee_recepit}};
+use crate::{common::{ CANDIDATE_PROFILE, CHALLENGEAUTHORITY, OFFENDERRECEIPT, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEE_RECEIPT_SEEDS}, errors::ErrorCode, state::{CandidateProfile, ChallengeProposal, OffenderReceipt, PropertySystemAccount,}};
 
 #[derive(Accounts)]
 #[instruction(proposal_id:u64,property_system_id:u64,candidate_key:Pubkey)]

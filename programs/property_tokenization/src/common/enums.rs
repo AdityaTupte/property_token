@@ -22,11 +22,12 @@ pub enum ProposalType {
     USEREINVESTMENT,
     REVENUETHRESHOLDCHANGE ,
     CHALLLENGEAUTHORITY,
-    REMOVEAUTHORITY
+    REMOVEAUTHORITY,
+    PROPOSEREMOVEPROPOSAL
 }
 
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone,Copy, PartialEq, Eq)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone,Copy, PartialEq, Eq,)]
 pub enum AuthorityType {
     TRUSTEE,
     ARBITRATOR 
