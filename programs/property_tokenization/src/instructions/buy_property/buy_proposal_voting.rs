@@ -93,7 +93,7 @@ pub struct BuyProposalVoting<'info>{
         property_system.governance_mint,
         proposal_key,
         receipt_bump,
-        BUYPROPERTY
+        
     )?;
 
 

@@ -1,29 +1,44 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{PROPERTY_SYSTEM_SEEDS, SAFETYPROPOSAL}, errors::ErrorCode, state::{PropertySystemAccount, SafetyProposal, TrusteeRegistry}};
+use crate::{common::{PROPERTY_SYSTEM_SEEDS, SAFETYPROPOSAL, TRUSTEEREGISTRYSEEDS, TRUSTEE_RECEIPT_SEEDS}, state::{PropertySystemAccount, SafetyProposal, TrusteeRecepit, TrusteeRegistry}};
 
 #[derive(Accounts)]
-#[instruction(proposal_id:u64)]
+#[instruction(proposal_id:u64,property_system_id:u64,)]
 pub struct UseSafetyTokensProposal<'info>{
 
     #[account(
         mut,
-        constraint = trustee_registry.trustees.contains(&trustee.key()) @ ErrorCode::NotAuthorized
+        // constraint = trustee_registry.trustees.contains(&trustee.key()) @ ErrorCode::NotAuthorized
     )]
     pub trustee: Signer<'info>,
+
+     #[account(
+        seeds = [
+            TRUSTEE_RECEIPT_SEEDS,
+            property_system.key().as_ref(),
+            trustee.key().as_ref()
+        ],
+        bump = trustee_receipt.bump,
+    )]
+    pub trustee_receipt: Account<'info,TrusteeRecepit>,
 
 
     #[account(
         seeds=[
             PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes(),
+            &property_system_id.to_le_bytes(),
         ],
         bump = property_system.bump
     )]
     pub property_system: Account<'info,PropertySystemAccount>,
 
     #[account(
-        constraint =  property_system.trustee_registry == trustee_registry.key() @ ErrorCode::InvalidTrusteeRegsitry
+        seeds=[
+            TRUSTEEREGISTRYSEEDS,
+            property_system.key().as_ref()
+        ],
+        bump,
+        // constraint =  property_system.trustee_registry == trustee_registry.key() @ ErrorCode::InvalidTrusteeRegistry
     )]
     pub trustee_registry : Account<'info,TrusteeRegistry>,
 
@@ -51,7 +66,8 @@ pub struct UseSafetyTokensProposal<'info>{
 
 pub fn create_use_safety_proposal(
     ctx:Context<UseSafetyTokensProposal>,
-    proposal_id :u64,
+     proposal_id :u64,
+    _property_system_id:u64,
     amount_required:u64,
     reason_hash:[u8;32],
 )->Result<()>{
@@ -68,6 +84,4 @@ pub fn create_use_safety_proposal(
     Ok(())
 
 }
-
-
 

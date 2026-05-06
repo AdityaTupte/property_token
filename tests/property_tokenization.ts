@@ -5030,6 +5030,8 @@ it("accept lease",async()=>{
   program.programId
 );
 
+ 
+
   const treasury_ata = getAssociatedTokenAddressSync(
     mintKeypair.publicKey,
     treasury,
@@ -5175,6 +5177,275 @@ it("pay rent2", async () => {
 //   // console.log(acc);
 
 // })
+
+const [safety_key] = anchor.web3.PublicKey.findProgramAddressSync(
+  [
+   Buffer.from("safetyproposal"),
+   propertySystemPda.toBuffer(),
+   id.toArrayLike(Buffer,"le",8) 
+  ],
+  program.programId
+);
+
+
+it("create safety proposal",async()=>{
+
+const merkleRoot2 = buildMerkleRoot([
+    buildAuthorityLeaf(receiver1.publicKey, key2, governanceMint, 100,1),
+    buildAuthorityLeaf(receiver2.publicKey, key2, governanceMint, 100,1),
+    buildAuthorityLeaf(receiver3.publicKey, key2, governanceMint, 100,1),
+    buildAuthorityLeaf(receiver4.publicKey, key2, governanceMint, 100,1),
+    buildAuthorityLeaf(receiver5.publicKey, key2, governanceMint, 100,1),
+    buildAuthorityLeaf(receiver6.publicKey, key2, governanceMint, 100,1)
+  ]);
+
+  await program.methods.tokenTransferCreateUseSafetyProposal(
+    id,
+    id,
+    new anchor.BN(1000),
+    merkleRoot2,
+  ).accounts({
+    trustee:candidate3.publicKey,
+    receipentWallet:wallet.publicKey
+  }).signers([candidate3]).rpc()
+
+
+})
+
+
+
+it("arbitrar vote for safety proposal",async()=>{
+
+  
+await program.methods.tokenTransferArbitrarApprovalSafetyProposal(
+
+  id,
+  id
+
+).accounts(
+  {signer:candidate3.publicKey}
+).signers([candidate3]).rpc()
+
+await program.methods.tokenTransferArbitrarApprovalSafetyProposal(
+
+  id,
+  id
+
+).accounts(
+  {signer:pro4.publicKey}
+).signers([pro4]).rpc()
+
+
+})
+
+
+it("submit safety submit merkle root",async()=>{
+
+    const merkleRoot = buildMerkleRoot([
+    buildAuthorityLeaf(receiver1.publicKey, safety_key, governanceMint, 100,2),
+    buildAuthorityLeaf(receiver2.publicKey, safety_key, governanceMint, 100,2),
+    buildAuthorityLeaf(receiver3.publicKey, safety_key, governanceMint, 100,2),
+    buildAuthorityLeaf(receiver4.publicKey, safety_key, governanceMint, 100,2),
+    buildAuthorityLeaf(receiver5.publicKey, safety_key, governanceMint, 100,2),
+    buildAuthorityLeaf(receiver6.publicKey, safety_key, governanceMint, 100,2)
+  ]);
+
+
+
+  await program.methods.tokenTransferSubmitSnapshotSafetyProposal(
+      propertySystemPda,
+      id,
+      merkleRoot,
+      2,2,
+      new anchor.BN(200),
+  ).accounts(
+    wallet.payer
+  ).rpc()
+
+
+})
+
+
+
+it("skip time to voting end",async() =>{
+  advanceClockBy(svm, 2n*24n*60n*60n);
+
+})
+
+it("vote for safety proposal",async()=>{
+
+  const acc = await program.account.safetyProposal.fetch(safety_key);
+
+  console.log(acc);
+  
+
+
+   const snapshotEntries = [
+    { voter: receiver1.publicKey, votingPower: 100,authoritytype:2 },
+    { voter: receiver2.publicKey, votingPower: 100,authoritytype:2  },
+    { voter: receiver3.publicKey, votingPower: 100,authoritytype:2  },
+     { voter: receiver4.publicKey, votingPower: 100 ,authoritytype:2 },
+      { voter: receiver5.publicKey, votingPower: 100,authoritytype:2  },
+       { voter: receiver6.publicKey, votingPower: 100 ,authoritytype:2 },
+  ];
+
+   const voter1proof = buildAuthorityProof(
+    snapshotEntries,
+    0,
+    safety_key,
+    governanceMint
+  );
+
+
+  await program.methods.tokenTransferVoteForSubmitProposal(
+    id,
+    id,
+    voter1proof,
+    new anchor.BN(100),
+    true
+  ).accounts(
+    {
+      signer:receiver1.publicKey
+    }
+  ).signers([receiver1]).rpc()
+
+
+
+   const voter2proof = buildAuthorityProof(
+    snapshotEntries,
+    1,
+    safety_key,
+    governanceMint
+  );
+
+
+  await program.methods.tokenTransferVoteForSubmitProposal(
+    id,
+    id,
+    voter2proof,
+    new anchor.BN(100),
+    true
+  ).accounts(
+    {
+      signer:receiver2.publicKey
+    }
+  ).signers([receiver2]).rpc()
+
+     const voter3proof = buildAuthorityProof(
+    snapshotEntries,
+    2,
+    safety_key,
+    governanceMint
+  );
+
+
+  await program.methods.tokenTransferVoteForSubmitProposal(
+    id,
+    id,
+    voter3proof,
+    new anchor.BN(100),
+    true
+  ).accounts(
+    {
+      signer:receiver3.publicKey
+    }
+  ).signers([receiver3]).rpc()
+
+})
+it("skip time to voting end",async() =>{
+  advanceClockBy(svm, 2n*24n*60n*60n);
+
+})
+
+  const [safety] = PublicKey.findProgramAddressSync(
+  [
+    Buffer.from("safety"),
+    propertySystemPda.toBuffer(),
+  ],
+  program.programId
+);
+
+  const safety_ata = getAssociatedTokenAddressSync(
+    mintKeypair.publicKey,
+    safety,
+    true,
+    TOKEN_2022_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
+it("finalize the safety proposal",async()=>{
+
+
+
+   await createAssociatedTokenAccount(
+  connection,
+  wallet.payer,
+  mintKeypair.publicKey,
+  safety,
+  undefined,
+  TOKEN_2022_PROGRAM_ID,
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  true
+ );
+
+
+
+
+
+
+  mintTo(
+    connection,
+    wallet.payer,
+    mintKeypair.publicKey,
+    safety_ata,
+    wallet.publicKey,
+    10000000000,
+    undefined,
+    undefined,
+    TOKEN_2022_PROGRAM_ID
+  );
+
+
+
+
+
+  await program.methods.tokenTransferFinalizeSafetyProposal(
+      id,
+      propertySystemPda
+
+  ).accounts(wallet.payer).rpc()
+
+  //   const acc = await program.account.safetyProposal.fetch(safety_key);
+
+
+ 
+  
+
+})
+
+
+it("execute safety propsal",async()=>{
+
+
+
+  await program.methods.tokenTransferExecuteSafetyProposal(
+    id,
+    id
+  ).accounts({
+    trustee:candidate3.publicKey,
+    mint:mintKeypair.publicKey,
+    tokenProgram:TOKEN_2022_PROGRAM_ID,
+    recepientWallet:wallet.publicKey
+  }).signers([candidate3]).rpc()
+
+   const acc5 = await getAccount(
+    connection,safety_ata,undefined,TOKEN_2022_PROGRAM_ID
+  )
+
+  console.log(acc5);
+
+})
+
 
 
   });

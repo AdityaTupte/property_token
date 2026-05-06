@@ -1081,4 +1081,111 @@ pub fn pay_rent(
 }
 
 
+///// token transfer
+
+
+
+
+pub fn token_transfer_create_use_safety_proposal(
+    ctx:Context<UseSafetyTokensProposal>,
+    proposal_id:u64,
+    property_system_id:u64,
+    amount_required:u64,
+    reason_hash:[u8;32],
+)->Result<()>{
+
+    token_transfer_proposal::create_use_safety_proposal(ctx,proposal_id, property_system_id,  amount_required, reason_hash)?;
+
+    Ok(())
+
+}
+
+
+
+pub fn token_transfer_arbitrar_approval_safety_proposal(
+     ctx:Context<SafetyArbitrarVote>,
+    proposal_id : u64,property_system_id:u64
+)->Result<()>{
+
+token_transfer_proposal::arbitrar_vote(ctx, proposal_id, property_system_id)?;
+
+
+Ok(())
+}
+
+
+pub fn token_transfer_submit_snapshot_safety_proposal(
+    ctx:Context<SubmitSnapshot>,
+    property_system_account:Pubkey,proposal_id:u64,
+    merkle_root : [u8;32],
+    closing_days_gap : u8,
+    deadline_days : u8 ,
+    vote_threshold :u64,
+)->Result<()>{
+
+token_transfer_proposal::saftey_submit_snapshot(ctx, property_system_account, proposal_id, merkle_root, closing_days_gap, deadline_days, vote_threshold)?;
+
+
+            Ok(())
+}
+
+pub fn token_transfer_vote_for_submit_proposal(
+ctx:Context<Voting>,
+        proposal_id:u64,property_system_id:u64,
+        proof: Vec<[u8; 32]>,
+        voting_power : u64,
+        yes_or_no : bool,
+    )->Result<()>{
+    
+        token_transfer_proposal::vote(ctx, proposal_id, property_system_id, proof, voting_power, yes_or_no)?;
+
+    Ok(())
+
+}
+
+
+pub fn token_transfer_finalize_safety_proposal(
+         ctx:Context<Finalize>,
+         proposal_id:u64,property_system:Pubkey
+)->Result<()>{
+
+
+    token_transfer_proposal::finalize_safety_proposal(ctx, proposal_id, property_system)?;
+
+
+    Ok(())
+
+}
+
+
+pub fn token_transfer_execute_safety_proposal(
+          ctx:Context<ExecuteSafety>,
+    proposal_id:u64,property_system_id:u64
+)->Result<()>{
+
+
+    token_transfer_proposal::execute_safety_proposal(ctx, proposal_id, property_system_id)?;
+
+
+    Ok(())
+
+}
+
+pub fn token_transfer_delete_safety_proposal(
+          ctx:Context<DeleteFailProposal>,
+    proposal_id:u64,property_system_id:u64
+)->Result<()>{
+
+
+    token_transfer_proposal::delete_buy_proposal(ctx, proposal_id, property_system_id)?;
+
+
+    Ok(())
+
+}
+
+
+
+
+
 }

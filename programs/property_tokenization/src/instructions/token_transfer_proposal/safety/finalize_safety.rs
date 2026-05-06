@@ -4,6 +4,7 @@ use crate::{ common::SAFETYPROPOSAL, functions::finalize, state::SafetyProposal}
 
 
 #[derive(Accounts)]
+#[instruction(proposal_id:u64,property_system:Pubkey)]
 pub struct Finalize<'info>{
 
     #[account()]
@@ -11,10 +12,11 @@ pub struct Finalize<'info>{
 
 
     #[account(
+        mut,
         seeds=[
             SAFETYPROPOSAL,
-            proposal.property_system.as_ref(),
-            &proposal.proposal_id.to_le_bytes(),
+            property_system.as_ref(),
+            &proposal_id.to_le_bytes(),
         ],
         bump = proposal.bump
     )]
@@ -22,7 +24,10 @@ pub struct Finalize<'info>{
 }
 
 
-pub fn finalize_sell_proposal(ctx:Context<Finalize>)->Result<()>{
+pub fn finalize_safety_proposal(
+    ctx:Context<Finalize>,
+    _proposal_id:u64,_property_system:Pubkey
+)->Result<()>{
 
     let proposal = &mut *ctx.accounts.proposal; 
 

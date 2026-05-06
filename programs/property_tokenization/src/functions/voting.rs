@@ -15,11 +15,10 @@ pub fn voting<T:Governance , U:Receipt>(
     governance_mint:Pubkey,
     proposal_key:Pubkey,
     recepit_bump :u8,
-    proposal_type : &[u8]
 )->Result<()>{
 
     let leaf = keccak::hashv(&[
-        proposal_type,
+       &[*item.proposal_type() as u8],
         signer.as_ref(),
         proposal_key.as_ref(),
         governance_mint.as_ref(),

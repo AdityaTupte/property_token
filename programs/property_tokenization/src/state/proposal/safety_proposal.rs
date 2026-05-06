@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{MAX_ARBITRATOR, ProposalStatus, ProposalType}, constant::{BaseProposal, Governance},};
+use crate::{common::{ ProposalStatus, ProposalType}, traits::{BaseProposal, Governance},};
 
 
 #[account]
@@ -18,7 +18,7 @@ pub struct SafetyProposal{
 
     pub merkle_root: [u8; 32],
 
-    pub arbitrar_approvals: Vec<Pubkey>,
+    pub arbitrar_approvals_count: u8,
 
     pub is_arbitrar_approved : bool,
 
@@ -46,30 +46,28 @@ pub struct SafetyProposal{
 
     pub bump : u8,
 
-}
-
-impl SafetyProposal {
-    pub const SIZE:usize = 
-                    
-                    8 +
-                    8 +
-                    32 +
-                    32 +
-                    32 +
-                    32 +
-                    4 + (32 * MAX_ARBITRATOR) + 
-                    1 +
-                    8 +
-                    8 +
-                    8 +
-                    8 +
-                    8 +
-                    8 +
-                    1 + 
-                    1 + 
-                    1 +
-                    8 +
-                    1 ;
+}impl SafetyProposal {
+    pub const SIZE: usize =
+        8 +  // proposal_id
+        8 +  // amount_required
+        32 + // reason_hash
+        32 + // property_system
+        32 + // recepient_wallet
+        32 + // merkle_root
+        1 +  // arbitrar_approvals_count
+        1 +  // is_arbitrar_approved
+        8 +  // total_voting_power
+        8 +  // votes_for
+        8 +  // votes_against
+        8 +  // vote_threshold
+        8 +  // start_time
+        8 +  // end_time
+        1 +  // status
+        1 +  // snapshot_submitted
+        1 +  // proposal_type
+        8 +  // deadline
+        8 +  // slot
+        1;   // bump
 
     pub fn initialize(
         &mut self,
@@ -112,8 +110,8 @@ impl BaseProposal for SafetyProposal {
         &mut self.merkle_root
     }
 
-    fn arbitrar_list(&mut self) -> &mut Vec<Pubkey> {
-        &mut self.arbitrar_approvals
+    fn arbitrar_total_count(&mut self) -> &mut u8 {
+        &mut self.arbitrar_approvals_count
     }
 
     fn arbitrar_approved(&mut self) -> &mut bool {

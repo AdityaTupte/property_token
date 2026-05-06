@@ -1,26 +1,32 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{PROPERTY_SYSTEM_SEEDS, SAFETYPROPOSAL}, functions::delete_proposal, state::{PropertySystemAccount, SafetyProposal, TrusteeRegistry}};
+use crate::{common::{PROPERTY_SYSTEM_SEEDS, SAFETYPROPOSAL, TRUSTEE_RECEIPT_SEEDS}, functions::delete_proposal, state::{PropertySystemAccount, SafetyProposal, TrusteeRecepit, TrusteeRegistry}};
 
 
 #[derive(Accounts)]
+#[instruction(proposal_id:u64,property_system_id:u64)]
 pub struct DeleteFailProposal<'info>{
 
     #[account(
-        constraint = property_system.trustee_registry == trustee_registry.key() 
+        seeds = [
+            TRUSTEE_RECEIPT_SEEDS,
+            property_system.key().as_ref(),
+            trustee.key().as_ref()
+        ],
+        bump = trustee_receipt.bump,
     )]
-    pub trustee_registry : Account<'info,TrusteeRegistry>,
+    pub trustee_receipt: Account<'info,TrusteeRecepit>,
 
     #[account(
         mut,
-        constraint = trustee_registry.trustees.contains(&trustee.key())
+        // constraint = trustee_registry.trustees.contains(&trustee.key())
     )]
     pub trustee : Signer<'info>,
 
     #[account(
         seeds=[
             PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes(),
+            &property_system_id.to_le_bytes(),
         ],
         bump = property_system.bump
     )]
@@ -31,7 +37,7 @@ pub struct DeleteFailProposal<'info>{
         seeds=[
             SAFETYPROPOSAL,
             property_system.key().as_ref(),
-            &proposal.proposal_id.to_le_bytes(),
+            &proposal_id.to_le_bytes(),
         ],
         bump = proposal.bump,
         constraint = proposal.property_system  == property_system.key(),
@@ -42,7 +48,10 @@ pub struct DeleteFailProposal<'info>{
 }  
 
 
-pub fn delete_buy_proposal(ctx:Context<DeleteFailProposal>) ->Result<()>{
+pub fn delete_buy_proposal(
+    ctx:Context<DeleteFailProposal>,
+    _proposal_id:u64,_property_system_id:u64
+) ->Result<()>{
 
     let proposal = &mut *ctx.accounts.proposal;
 

@@ -1,28 +1,28 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{ProposalStatus, SAFETYPROPOSAL}, errors::ErrorCode, functions::submit, state::SafetyProposal};
+use crate::{common::{HARDCODED_PUBKEY, ProposalStatus, SAFETYPROPOSAL}, errors::ErrorCode, functions::submit, state::SafetyProposal};
 
 
 
 #[derive(Accounts)]
+#[instruction(property_system_account:Pubkey,proposal_id:u64)]
 pub struct SubmitSnapshot<'info>{
 
-    #[account(
-        constraint = proposal.arbitrar_approvals.contains(&signer.key()),
-        constraint = proposal.is_arbitrar_approved
+    #[account(mut,
+    address = HARDCODED_PUBKEY  @ ErrorCode::UnAuthorized,
     )]
-    pub signer : Signer<'info>,
+    pub signer: Signer<'info>,
 
     #[account(
         mut,
         seeds=[
             SAFETYPROPOSAL,
-            proposal.property_system.as_ref(),
-            &proposal.proposal_id.to_le_bytes(),
+            property_system_account.as_ref(),
+            &proposal_id.to_le_bytes(),
         ],
         bump = proposal.bump,
         constraint = !proposal.snapshot_submitted @ ErrorCode::SnapshotAlreadySubmitted,
-        constraint = proposal.status == ProposalStatus::Draft @ ErrorCode::NotInDraft
+        constraint = proposal.status == ProposalStatus::Approved @ ErrorCode::ProposalNotApproved
     )]
     pub proposal : Account<'info,SafetyProposal>,
 
@@ -30,6 +30,7 @@ pub struct SubmitSnapshot<'info>{
 
 pub fn saftey_submit_snapshot(
     ctx:Context<SubmitSnapshot>,
+    _property_system_account:Pubkey,_proposal_id:u64,
     merkle_root : [u8;32],
     closing_days_gap : u8,
     deadline_days : u8 ,

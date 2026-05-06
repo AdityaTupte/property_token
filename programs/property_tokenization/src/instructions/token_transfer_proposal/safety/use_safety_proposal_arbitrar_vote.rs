@@ -1,32 +1,46 @@
 use anchor_lang::prelude::{ *};
 
-use crate::{common::{ARBITRAR_REGISTRYSEEDS, PROPERTY_SYSTEM_SEEDS, SAFETYPROPOSAL}, errors::ErrorCode, functions::arbitrar_approval, state::{ArbitratorRegistry, PropertySystemAccount, SafetyProposal}};
+use crate::{common::{ ARBITRAR_RECEIPT_SEEDS, ARBITRAR_REGISTRYSEEDS, ARBITRAR_SAFETY_PROPOSAL_VOTE_RECEIPT_SEEDS, PROPERTY_SYSTEM_SEEDS, ProposalStatus, ProposalType, SAFETYPROPOSAL, VOTERRECIEPT}, errors::ErrorCode, functions::arbitrar_approval, state::{ArbitratorRecepit, ArbitratorRegistry, ArbitratorVoteReceipts, PropertySystemAccount, SafetyProposal}};
 
 #[derive(Accounts)]
-pub struct ArbitrarVote<'info>{
+#[instruction(proposal_id : u64,property_system_id:u64)]
+pub struct SafetyArbitrarVote<'info>{
 
-    #[account(constraint = arbitrar_registry.arbitrator.contains(&signer.key()) @ ErrorCode::NotAuthorized)]
+    #[account(
+        mut,
+      //  constraint = arbitrar_registry.arbitrator.contains(&signer.key()) @ ErrorCode::NotAuthorized
+    )]
     pub signer : Signer<'info>,
+
+    #[account(
+        seeds = [
+            ARBITRAR_RECEIPT_SEEDS,
+            property_system.key().as_ref(),
+            signer.key().as_ref()
+        ],
+        bump = arbitrar_receipt.bump,
+    )]
+    pub arbitrar_receipt: Account<'info,ArbitratorRecepit>,
 
     #[account(
         mut,
         seeds=[
             SAFETYPROPOSAL,
             property_system.key().as_ref(),
-            &proposal.proposal_id.to_le_bytes(),
+            &proposal_id.to_le_bytes(),
         ],
         bump = proposal.bump,
-       // constraint = proposal.property_system == property_system.key() @ ErrorCode::InvalidProposal 
+      constraint = proposal.status == ProposalStatus::Draft @ ErrorCode::NotInDraft
     )]
     pub proposal: Account<'info,SafetyProposal>,
 
     #[account(
         seeds=[
             PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes(),
+            &property_system_id.to_le_bytes(),
         ],
         bump = property_system.bump,
-        constraint = property_system.arbitrator_registry == arbitrar_registry.key() @ ErrorCode::PropertySystemInvalidForRegistry
+        // constraint = property_system.arbitrator_registry == arbitrar_registry.key() @ ErrorCode::PropertySystemInvalidForRegistry
     )]
     pub property_system:Account<'info,PropertySystemAccount>,
 
@@ -40,10 +54,30 @@ pub struct ArbitrarVote<'info>{
     )]
     pub arbitrar_registry: Account<'info,ArbitratorRegistry>,
 
+
+    #[account(
+        init,
+        payer = signer,
+        seeds=[
+            ARBITRAR_SAFETY_PROPOSAL_VOTE_RECEIPT_SEEDS,
+            property_system.key().as_ref(), 
+            signer.key().as_ref(), 
+            proposal.key().as_ref()
+        ],
+        bump,
+        space = 8 +ArbitratorVoteReceipts::SIZE
+    )]
+    
+    pub arbitrar_voter: Account<'info,ArbitratorVoteReceipts>,
+    
+    pub system_program:Program<'info,System>,
+
+
 }
 
 pub fn arbitrar_vote(
-    ctx:Context<ArbitrarVote>,
+    ctx:Context<SafetyArbitrarVote>,
+    _proposal_id : u64,_property_system_id:u64
 )->Result<()>{
 
     let proposal_key =  ctx.accounts.proposal.key();
@@ -55,7 +89,14 @@ pub fn arbitrar_vote(
     let property_system = &mut ctx.accounts.property_system;
     
 
-    arbitrar_approval(proposal, signer, proposal_key, property_system.governance_mint)?;
+
+     arbitrar_approval(
+        proposal,
+        proposal_key,
+         &mut  ctx.accounts.arbitrar_registry,
+          &mut ctx.accounts.arbitrar_voter, 
+          signer,
+         property_system.governance_mint, property_system.key())?;   
 
     Ok(())
 

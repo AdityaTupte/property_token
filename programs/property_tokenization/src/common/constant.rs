@@ -70,6 +70,10 @@ pub const ARBITRAR_BUY_PROPOSAL_VOTE_RECEIPT_SEEDS : &[u8] = b"ArbitrarBuyPropos
 
 pub const ARBITRAR_LEASE_PROPOSAL_VOTE_RECEIPT_SEEDS : &[u8] = b"ArbitrarLeaseProposalReceipt";
 
+
+
+pub const ARBITRAR_SAFETY_PROPOSAL_VOTE_RECEIPT_SEEDS : &[u8] = b"ArbitrarSafetyProposalReceipt";
+
 pub const TREASURYSEEDS : &[u8] = b"treasury";
 
 pub const DIVIDENDSEEDS : &[u8] = b"dividend";
