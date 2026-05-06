@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{constant::AuthorityGovernance, errors::ErrorCode, state::{AuthorityCandidate, RankCounter, RankingAccount}, };
+use crate::{traits::AuthorityGovernance, errors::ErrorCode, state::{AuthorityCandidate, RankCounter, RankingAccount}, };
 
 
 pub fn add_new_authority<T:AuthorityGovernance,>(

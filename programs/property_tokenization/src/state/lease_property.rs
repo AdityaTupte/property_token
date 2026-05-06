@@ -41,6 +41,22 @@ pub struct  LeaseProperty{
 
 }
 
-impl LeaseProperty  {
-    pub const SIZE : usize = 32 + 8 + 32+ 32 + 1+ 1 +8 + 8 +8 + 8  +8 +32 +8 +8 +32 +1 ;
+impl LeaseProperty {
+    pub const SIZE: usize =
+        32 + // property_system
+        8  + // lease_id
+        32 + // property
+        32 + // lessee
+        1  + // status
+        8  + // rent_amount
+        8  + // security_deposit
+        8  + // periodic_pay
+        8  + // next_payment
+        8  + // late_payment_fee_per_day
+        8  + // last_payment
+        32 + // agreement_hash
+        8  + // lease_start_time
+        8  + // lease_end_time
+        32 + // neutral
+        1;   // bump
 }

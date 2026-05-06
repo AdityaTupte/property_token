@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{AuthorityType, ProposalStatus}, constant::{AuthorityGovernance, AuthorityRegistry}, errors::ErrorCode, state::{AuthorityCandidate, CandidateProfile,}};
+use crate::{common::{AuthorityType, ProposalStatus}, traits::{AuthorityGovernance, AuthorityRegistry}, errors::ErrorCode, state::{AuthorityCandidate, CandidateProfile,}};
 
 
 

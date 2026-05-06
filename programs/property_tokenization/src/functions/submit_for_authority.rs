@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::ProposalStatus, constant::AuthorityGovernance, errors::ErrorCode};
+use crate::{common::ProposalStatus, traits::AuthorityGovernance, errors::ErrorCode};
 
 
    pub fn submit_authority<T:AuthorityGovernance>(

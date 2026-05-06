@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_spl::associated_token::spl_associated_token_account::solana_program::keccak;
-use crate::constant::{Governance, Receipt};
+use crate::traits::{Governance, Receipt};
 use crate::errors::ErrorCode;
 use crate::functions::verify_proof;
 

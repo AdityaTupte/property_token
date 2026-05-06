@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::constant::{Receipt};
+use crate::traits::{Receipt};
 
 #[account]
 pub struct VoterReciept{

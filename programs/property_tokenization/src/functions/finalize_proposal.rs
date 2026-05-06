@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::ProposalStatus, constant::Governance, errors::ErrorCode};
+use crate::{common::ProposalStatus, traits::Governance, errors::ErrorCode};
 
 pub fn finalize<T:Governance>(
     item:&mut T

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::ProposalStatus, constant::Governance, errors::ErrorCode};
+use crate::{common::ProposalStatus, traits::Governance, errors::ErrorCode};
 
 pub fn delete_proposal<T:Governance>(
     item:&mut T

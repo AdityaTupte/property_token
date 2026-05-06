@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{AuthorityType, ProposalStatus}, constant::{AuthorityGovernance, BaseProposal}};
+use crate::{common::{AuthorityType, ProposalStatus}, traits::{AuthorityGovernance, BaseProposal}};
 
 #[account]
 pub struct ElectAuthority{

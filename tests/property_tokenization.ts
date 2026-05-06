@@ -14,7 +14,8 @@ import {
   createMint,
   createAssociatedTokenAccount,
   createMintToInstruction,
-  mintTo
+  mintTo,
+  getTransferFeeConfig,
 } from "@solana/spl-token";
 
 import {
@@ -71,6 +72,8 @@ class LiteSvmConnection {
   }
 
   async getLatestBlockhash() {
+    this.svm.expireBlockhash();
+
     return {
       blockhash: this.svm.latestBlockhash().toString(),
       lastValidBlockHeight: 0,
@@ -1358,6 +1361,15 @@ it("approve property proposal",async()=>{
   
   });
 
+const [property_key] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("property"),
+      propertyId.toArrayLike(Buffer, "le", 8),
+      state_pda_key.toBuffer()
+    ],
+    program.programId,
+  )
+
 
   it("execute property",async()=>{
 
@@ -1371,14 +1383,6 @@ it("approve property proposal",async()=>{
     }).signers([state_auth1]).rpc();
 
 
-const [property_key] = anchor.web3.PublicKey.findProgramAddressSync(
-    [
-      Buffer.from("property"),
-      propertyId.toArrayLike(Buffer, "le", 8),
-      state_pda_key.toBuffer()
-    ],
-    program.programId,
-  )
 
 
   //second
@@ -4822,6 +4826,355 @@ console.log(acc);
 
 })
 
+const lease = Keypair.generate();
+
+ let id = new anchor.BN(1);
+
+it("initalize lease ",async()=>{
+  await connection.requestAirdrop(lease.publicKey, 1e9);
+
+   const merkleRoot2 = buildMerkleRoot([
+    buildAuthorityLeaf(receiver1.publicKey, key2, governanceMint, 100,1),
+    buildAuthorityLeaf(receiver2.publicKey, key2, governanceMint, 100,1),
+    buildAuthorityLeaf(receiver3.publicKey, key2, governanceMint, 100,1),
+    buildAuthorityLeaf(receiver4.publicKey, key2, governanceMint, 100,1),
+    buildAuthorityLeaf(receiver5.publicKey, key2, governanceMint, 100,1),
+    buildAuthorityLeaf(receiver6.publicKey, key2, governanceMint, 100,1)
+  ]);
+
+
+  await program.methods.initializeLeaseProposal(
+    new anchor.BN(1),
+    new anchor.BN(1),
+    state_pda_key,
+    new anchor.BN(1),
+    new anchor.BN(9999),
+    new anchor.BN(10000),
+    merkleRoot2,
+    9,
+   new anchor.BN(900),
+    new anchor.BN(3)
+  ).accounts(
+    {
+      trustee:candidate2.publicKey,
+      neutral:wallet.publicKey,
+      lessee:lease.publicKey,
+    }
+  ).signers([candidate2]).rpc();
+
+
+ 
+
+})
+
+
+const [prop_key] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("lease_property_proposal"),
+      propertySystemPda.toBuffer(),
+      property_key.toBuffer(),
+      id.toArrayLike(Buffer,"le",8)
+    ],
+    program.programId
+
+  )
+
+  const [lease_key] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("lease_property"),
+      propertySystemPda.toBuffer(),
+      property_key.toBuffer(),
+      id.toArrayLike(Buffer,"le",8)
+      
+    ],
+    program.programId
+
+  )
+
+
+
+  
+
+it("arbitrar approve",async()=>{
+
+
+  await program.methods.arbitrarApprovalForLease(
+    id,
+    property_key,
+    id
+  ).accounts(
+    {
+      arbitrar:candidate2.publicKey
+    }
+  ).signers([candidate2]).rpc()
+
+   await program.methods.arbitrarApprovalForLease(
+    id,
+    property_key,
+    id
+  ).accounts(
+    {
+      arbitrar:candidate3.publicKey
+    }
+  ).signers([candidate3]).rpc()
+
+  // await program.methods.arbitrarApprovalForLease(
+  //   id,
+  //   property_key,
+  //   id
+  // ).accounts(
+  //   {
+  //     arbitrar:pro3.publicKey
+  //   }
+  // ).signers([pro3]).rpc()
+
+  
+  
+// systemId.toArrayLike(Buffer, "le", 8),
+  
+
+
+
+})
+
+const mintKeypair = Keypair.generate();
+
+it("create transaction mint mint",async()=>{
+
+  
+  
+ const transaction_mint = await createMint(
+    connection,
+    wallet.payer,
+    wallet.publicKey,
+    undefined,
+    5,
+    mintKeypair,
+    undefined,
+    TOKEN_2022_PROGRAM_ID
+ );
+
+ const associatedTokenAddress = getAssociatedTokenAddressSync(
+  transaction_mint,
+  lease.publicKey,
+  false,
+  TOKEN_2022_PROGRAM_ID,
+  ASSOCIATED_TOKEN_PROGRAM_ID
+ );
+
+ await createAssociatedTokenAccount(
+  connection,
+  wallet.payer,
+  transaction_mint,
+  lease.publicKey,
+  undefined,
+  TOKEN_2022_PROGRAM_ID,
+  ASSOCIATED_TOKEN_PROGRAM_ID
+ );
+
+ await mintTo(
+  connection,
+  wallet.payer,
+  transaction_mint,
+  associatedTokenAddress,
+  wallet.publicKey,
+  1000000,
+  undefined,
+  undefined,
+  TOKEN_2022_PROGRAM_ID
+ );
+  
+
+
+})
+  const leaseAta = getAssociatedTokenAddressSync(
+    mintKeypair.publicKey,
+    lease.publicKey,
+    false,
+    TOKEN_2022_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
+
+  const lease_property_ata = getAssociatedTokenAddressSync(
+    mintKeypair.publicKey,
+    lease_key,
+    true,
+    TOKEN_2022_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
+
+it("accept lease",async()=>{
+
+  await program.methods.leaseAccept(
+    id,
+    id,
+  ).accounts(
+    {
+      signer:lease.publicKey,
+      mint:mintKeypair.publicKey,
+      property:property_key,
+      neutral:wallet.publicKey,
+      tokenProgram:TOKEN_2022_PROGRAM_ID,
+    }
+  ).signers([lease]).rpc()
+
+
+
+  const [treasury] = PublicKey.findProgramAddressSync(
+  [
+    Buffer.from("treasury"),
+    propertySystemPda.toBuffer(),
+  ],
+  program.programId
+);
+
+  const treasury_ata = getAssociatedTokenAddressSync(
+    mintKeypair.publicKey,
+    treasury,
+    true,
+    TOKEN_2022_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
+
+
+
+
+  
+
+
+  const treasuryAta = await getAccount(
+    connection as any,
+    treasury_ata,
+    undefined,
+    TOKEN_2022_PROGRAM_ID
+  );
+
+  const leaseAtaAccount = await getAccount(
+    connection as any,
+    leaseAta,
+    undefined,
+    TOKEN_2022_PROGRAM_ID
+  );
+
+
+
+
+  // console.log("treasiry ATA account:", treasury_ata.toBase58());
+  // console.log("treasiry ATA data:", treasuryAta);
+
+
+  // console.log("de[posit] ATA data:", lease_propertyAta);
+
+  // const acc = await program.account.leaseProperty.fetch(lease_key);
+
+  // console.log(acc)
+
+
+
+
+
+})
+
+
+
+it("pay rent",async()=>{
+  advanceClockBy(svm, 3n * 24n * 60n * 60n);
+
+  await program.methods.payRent(
+    propertySystemPda,
+    id,
+    property_key,
+    
+  ).accounts(
+    {
+      signer:lease.publicKey,
+      mint:mintKeypair.publicKey,
+      tokenProgram:TOKEN_2022_PROGRAM_ID,
+    }
+  ).signers([lease]).rpc()
+
+
+
+  
+  // const acc = await program.account.leaseProperty.fetch(lease_key);
+
+  // console.log(acc);
+
+})
+
+
+
+
+it("pay rent2", async () => {
+  advanceClockBy(svm, 20n * 24n * 60n * 60n);
+
+
+   
+  // const leaseAtaAccount = await getAccount(
+  //   connection as any,
+  //   leaseAta,
+  //   undefined,
+  //   TOKEN_2022_PROGRAM_ID
+  // );
+  // console.log("lease ATA account:", leaseAta.toBase58());
+  // console.log("lease ATA data:", leaseAtaAccount);
+  
+
+  await program.methods.payRent(
+    propertySystemPda,
+    id,
+    property_key,
+  ).accounts(
+    {
+      signer: lease.publicKey,
+      mint: mintKeypair.publicKey,
+      tokenProgram: TOKEN_2022_PROGRAM_ID,
+    }
+  ).signers([lease]).rpc()
+
+   
+  const leaseAtaAccount2 = await getAccount(
+    connection as any,
+    leaseAta,
+    undefined,
+    TOKEN_2022_PROGRAM_ID
+  );
+  console.log("lease ATA account:", leaseAta.toBase58());
+  console.log("lease ATA data:", leaseAtaAccount2);
+  
+
+
+
+})
+
+
+// it("pay rent3",async()=>{
+//   advanceClockBy(svm, 3n * 24n * 60n * 60n);
+
+//   await program.methods.payRent(
+//     propertySystemPda,
+//     id,
+//     property_key,
+    
+//   ).accounts(
+//     {
+//       signer:lease.publicKey,
+//       mint:mintKeypair.publicKey,
+//       tokenProgram:TOKEN_2022_PROGRAM_ID,
+//     }
+//   ).signers([lease]).rpc()
+
+
+
+  
+//   // const acc = await program.account.leaseProperty.fetch(lease_key);
+
+//   // console.log(acc);
+
+// })
 
 
   });

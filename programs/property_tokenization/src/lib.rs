@@ -3,7 +3,7 @@ pub mod instructions;
 pub mod state;
 pub mod events;
 pub mod errors;
-pub mod constant;
+pub mod traits;
 pub mod common;
 pub mod functions;
 use crate::instructions::*;
@@ -528,7 +528,7 @@ pub fn finalize_new_trustee(
 
 pub fn arbitrar_resign(ctx:Context<NewArbitrarElectionProposal>, proposal_id:u64, property_system_id:u64)->Result<()>{
 
-    resign_and_elect_new_arbitrar::new_trustee_election_proposal(ctx, proposal_id, property_system_id)?;
+    resign_and_elect_new_arbitrar::new_arbitrar_election_proposal(ctx, proposal_id, property_system_id)?;
 
     Ok(())
 
@@ -919,9 +919,6 @@ pub fn finalize_remove_proposal(
 
 }
 
-
-
-
 pub fn add_new_authority_for_trustee_remove_proposal(
      ctx:Context<AddNewTrusteeAuthority>,
      proposal_key:Pubkey,
@@ -1022,6 +1019,65 @@ pub fn finalize_new_arbitrar_for_remove_proposal(
     challenge_against_authority::finalize_new_arbitrar(ctx, candidate_pubkey, proposal_id, property_system_id, proposal_key)?;
 
     Ok(())
+}
+
+ //////
+ 
+
+
+pub fn initialize_lease_proposal(
+    ctx:Context<InitializeLeaseProposal>,
+    lease_id :u64,
+    property_id:u64,
+    state_pubkey:Pubkey,
+    property_system_id:u64,
+    rent : u64,
+    security_deposit:u64,
+    agreement_hash :[u8;32],
+    end_time_in_days : u32,
+    late_payment_fee_per_day : u64,
+    periodic_pay : i64,
+)->Result<()>{
+
+    lease_property::initialize_lease_proposal(ctx, lease_id, property_id, state_pubkey,property_system_id, rent, security_deposit, agreement_hash, end_time_in_days, late_payment_fee_per_day, periodic_pay)?;
+
+    Ok(())
+
+}
+
+
+pub fn arbitrar_approval_for_lease(
+    ctx:Context<ArbitrarApprovalForLease>,
+    lease_id:u64,property:Pubkey,property_system_id:u64
+)->Result<()>{
+
+    lease_property::arbitrar_approval_for_lease(ctx, lease_id, property,property_system_id)?;
+
+    Ok(())
+}
+
+
+pub fn lease_accept(
+        ctx:Context<LesseeAcceptance>,
+    property_system_id:u64,lease_id:u64
+)->Result<()>{
+
+    lease_property::lessee_acceptance(ctx,  property_system_id, lease_id)?;
+
+    Ok(())
+
+}
+
+
+pub fn pay_rent(
+        ctx:Context<PayRent>,
+    property_system:Pubkey,lease_id:u64,lease_property:Pubkey
+)->Result<()>{
+
+    lease_property::pay_rent(ctx, property_system, lease_id, lease_property)?;
+
+    Ok(())
+
 }
 
 

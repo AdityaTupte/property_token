@@ -75,7 +75,7 @@ pub struct NewArbitrarElectionProposal<'info>{
 
 } 
 
-pub fn new_trustee_election_proposal(
+pub fn new_arbitrar_election_proposal(
     ctx:Context<NewArbitrarElectionProposal>,
     proposal_id:u64,
 

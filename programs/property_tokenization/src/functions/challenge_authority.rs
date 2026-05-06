@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{constant::AuthorityGovernance,errors::ErrorCode, state::{AuthorityCandidate, RankingAccount} };
+use crate::{traits::AuthorityGovernance,errors::ErrorCode, state::{AuthorityCandidate, RankingAccount} };
 
 
 

@@ -1,16 +1,17 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint,transfer_checked, TokenAccount, TokenInterface, TransferChecked}};
 
-use crate::{common::{HARDCODED_PUBKEY, LEASE_PROPERTY, LEASE_PROPERTY_PROPOSAL, LeaseStatus, PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TREASURYSEEDS}, errors::ErrorCode, state::{LeaseProperty, LeaseProposal, PropertyAccount, PropertySystemAccount, TreasuryPda}};
+use crate::{common::{ LEASE_PROPERTY, LEASE_PROPERTY_PROPOSAL, LeaseStatus, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TREASURYSEEDS}, errors::ErrorCode, state::{LeaseProperty, LeaseProposal, PropertyAccount, PropertySystemAccount, TreasuryPda}};
 
 
 
 #[derive(Accounts)]
+#[instruction(property_system_id:u64,lease_id:u64)]
 pub struct LesseeAcceptance<'info>{
 
     #[account(
         mut,
-        constraint = proposal.lessee == signer.key() @ ErrorCode::NotAuthorized 
+        constraint = proposal.lessee == signer.key() @ ErrorCode::UnAuthorized 
     )]
     pub signer : Signer<'info>,
 
@@ -20,8 +21,9 @@ pub struct LesseeAcceptance<'info>{
         payer = signer,
         seeds=[
             LEASE_PROPERTY,
-            &proposal.lease_id.to_le_bytes(),
-            property.key().as_ref()
+            property_system.key().as_ref(),
+            property.key().as_ref(),
+            &lease_id.to_le_bytes(),
         ],
         bump,
         space = 8 + LeaseProperty::SIZE
@@ -45,6 +47,7 @@ pub struct LesseeAcceptance<'info>{
 
 
     #[account(
+        mut,
         associated_token::mint = mint,
         associated_token::authority = signer,
         associated_token::token_program = token_program,
@@ -52,12 +55,12 @@ pub struct LesseeAcceptance<'info>{
     pub signer_ata : InterfaceAccount<'info,TokenAccount>,
 
     #[account(
-        seeds = [
-                    PROPERTY_SEED,
-                    &property.property_id.to_le_bytes(),
-                    property.state_pubkey.as_ref(),
-            ],
-            bump = property.bump,
+        // seeds = [
+        //             PROPERTY_SEED,
+        //             &property.property_id.to_le_bytes(),
+        //             property.state_pubkey.as_ref(),
+        //     ],
+        //     bump = property.bump,
             constraint = !property.is_leased @ ErrorCode::LeaseActivated
            
     )]
@@ -66,7 +69,7 @@ pub struct LesseeAcceptance<'info>{
     #[account(
         seeds=[
             PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes(),
+            &property_system_id.to_le_bytes(),
         ],
         bump = property_system.bump
     )]
@@ -90,10 +93,12 @@ pub struct LesseeAcceptance<'info>{
     pub treasury_ata : InterfaceAccount<'info,TokenAccount>,
 
     #[account(
+        mut,
         seeds=[
             LEASE_PROPERTY_PROPOSAL,
-            &proposal.lease_id.to_le_bytes(),
+            property_system.key().as_ref(),
             property.key().as_ref(),
+            &lease_id.to_le_bytes(),
         ],
         bump= proposal.bump ,
          constraint = proposal.property == property.key() @ ErrorCode::InvalidProposal,
@@ -103,7 +108,7 @@ pub struct LesseeAcceptance<'info>{
     pub system_program : Program<'info,System>,
     
     #[account(
-        address = HARDCODED_PUBKEY
+        // address = HARDCODED_PUBKEY
     )]
     pub mint : InterfaceAccount<'info,Mint>,
 
@@ -116,16 +121,22 @@ pub struct LesseeAcceptance<'info>{
 
 
 pub fn lessee_acceptance(
-    ctx:Context<LesseeAcceptance>
+    ctx:Context<LesseeAcceptance>,
+    _property_system_id:u64,_lease_id:u64
 )->Result<()>{
+
 
     let now  = Clock::get()?.unix_timestamp;
 
     let proposal = &mut ctx.accounts.proposal;
 
+    require!(proposal.lessee == ctx.accounts.signer.key(),ErrorCode::UnAuthorized);
+
     let lease = &mut ctx.accounts.lease;
 
     require!(now <= proposal.lessee_acceptance_deadline , ErrorCode::DeadlineReached );
+
+    lease.lessee = proposal.lessee;
 
     lease.lease_start_time = now;
 
@@ -155,7 +166,20 @@ pub fn lessee_acceptance(
 
     lease.late_payment_fee_per_day = proposal.late_payment_fee_per_day  ;
 
-    lease.periodic_pay = proposal.periodic_pay  ;
+
+    let periodic_payment_in_sec = proposal.periodic_pay
+                                        .checked_mul(24*60*60)
+                                        .ok_or(ErrorCode::MathOverflow)?;
+
+
+    lease.periodic_pay = periodic_payment_in_sec;
+
+    lease.next_payment = periodic_payment_in_sec
+                                .checked_add(now)
+                                .ok_or(ErrorCode::MathOverflow)?;
+
+
+    lease.bump = ctx.bumps.lease;
 
     let decimals = ctx.accounts.mint.decimals;
 

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{ProposalStatus, ProposalType}, constant::{BaseProposal, Governance}};
+use crate::{common::{ProposalStatus, ProposalType}, traits::{BaseProposal, Governance}};
 
 #[account]
 

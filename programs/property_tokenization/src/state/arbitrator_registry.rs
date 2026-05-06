@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::constant::AuthorityRegistry;
+use crate::traits::AuthorityRegistry;
 
 
 

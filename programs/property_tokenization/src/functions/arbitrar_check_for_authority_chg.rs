@@ -1,4 +1,4 @@
-use crate::{common::ProposalStatus, constant::AuthorityGovernance, events::{ SnapshotRequestedForAuthority}, state::{ VoteReceiptForAuthorityElection}};
+use crate::{common::ProposalStatus, traits::AuthorityGovernance, events::{ SnapshotRequestedForAuthority}, state::{ VoteReceiptForAuthorityElection}};
 use anchor_lang::prelude::*;
 
 

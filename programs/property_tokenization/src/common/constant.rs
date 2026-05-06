@@ -68,6 +68,8 @@ pub const ARBITRAR_SELL_PROPOSAL_VOTE_RECEIPT_SEEDS : &[u8] = b"ArbitrarSellProp
 
 pub const ARBITRAR_BUY_PROPOSAL_VOTE_RECEIPT_SEEDS : &[u8] = b"ArbitrarBuyProposalReceipt";
 
+pub const ARBITRAR_LEASE_PROPOSAL_VOTE_RECEIPT_SEEDS : &[u8] = b"ArbitrarLeaseProposalReceipt";
+
 pub const TREASURYSEEDS : &[u8] = b"treasury";
 
 pub const DIVIDENDSEEDS : &[u8] = b"dividend";
@@ -119,9 +121,9 @@ pub const REMOVETRUSTEEAUTHORITY :&[u8] = b"remove_trustee_authority";
 
 pub const REMOVEARBITRARAUTHORITY :&[u8] = b"remove_arbitrar_authority";
 
-pub const LEASE_PROPERTY_PROPOSAL : &[u8] = b" lease_property_proposal";
+pub const LEASE_PROPERTY_PROPOSAL : &[u8] = b"lease_property_proposal";
 
-pub const LEASE_PROPERTY : &[u8] = b" lease_property";
+pub const LEASE_PROPERTY : &[u8] = b"lease_property";
 
 
 pub const TRUSTEE_SALARY : &[u8] = b"trustee_salary";

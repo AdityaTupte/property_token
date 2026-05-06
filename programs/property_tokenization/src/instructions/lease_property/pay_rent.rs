@@ -1,21 +1,23 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{ associated_token::AssociatedToken, token_interface::{Mint, TokenAccount, TokenInterface, TransferChecked, transfer_checked}};
 
-use crate::{common::{HARDCODED_PUBKEY, LEASE_PROPERTY, LeaseStatus, TREASURYSEEDS}, errors::ErrorCode,  state::{LeaseProperty, TreasuryPda}};
+use crate::{common::{ LEASE_PROPERTY, LeaseStatus, TREASURYSEEDS}, errors::ErrorCode,  state::{LeaseProperty, TreasuryPda}};
 
 
 #[derive(Accounts)]
-
+#[instruction(property_system:Pubkey,lease_id:u64,lease_property:Pubkey)]
 pub struct PayRent<'info>{
 
     #[account(
-        constraint = signer.key() == lease.lessee @ ErrorCode::NotAuthorized
+        constraint = signer.key() == lease.lessee @ ErrorCode::UnAuthorized
     )]
     pub signer: Signer<'info>,
     
     #[account(
+        mut,
         associated_token::mint = mint,
         associated_token::authority = signer,
+         associated_token::token_program = token_program
     )]
     pub signer_ata : InterfaceAccount<'info,TokenAccount>,
 
@@ -23,7 +25,7 @@ pub struct PayRent<'info>{
         mut,
         seeds=[
                 TREASURYSEEDS,
-                lease.property_system.as_ref(),
+                property_system.as_ref(),
         ],
         bump = treasury.bump
     )]
@@ -33,14 +35,17 @@ pub struct PayRent<'info>{
         mut,
         associated_token::mint = mint,
         associated_token::authority = treasury,
+        associated_token::token_program = token_program
     )]
     pub treasury_ata : InterfaceAccount<'info,TokenAccount>,
 
     #[account(
+        mut,
         seeds=[
             LEASE_PROPERTY,
-            &lease.lease_id.to_le_bytes(),
-            lease.property.as_ref()
+            property_system.key().as_ref(),
+            lease_property.as_ref(),
+            &lease_id.to_le_bytes(),
         ],
         bump= lease.bump,
         constraint = lease.status == LeaseStatus::Active @ ErrorCode::LeaseNotActivated,
@@ -48,7 +53,7 @@ pub struct PayRent<'info>{
     pub lease : Account<'info,LeaseProperty>,
 
     #[account(
-        address = HARDCODED_PUBKEY,
+        // address = HARDCODED_PUBKEY,
     )]
     pub mint : InterfaceAccount<'info,Mint>,
 
@@ -59,7 +64,8 @@ pub struct PayRent<'info>{
 }
 
  pub fn pay_rent(
-    ctx:Context<PayRent>
+    ctx:Context<PayRent>,
+    _property_system:Pubkey,_lease_id:u64,_lease_property:Pubkey,
  )->Result<()>{
 
 
@@ -76,10 +82,18 @@ pub struct PayRent<'info>{
     .checked_add(86400)
     .ok_or(ErrorCode::MathOverflow)?;
 
-    let late_time = now.saturating_sub(grace_deadline);
+    let days_late = if now <= grace_deadline {
+        0
+    } else {
+        let late_time = now
+            .checked_sub(grace_deadline)
+            .ok_or(ErrorCode::MathOverflow)? as u64;
 
- 
-    let days_late = (late_time as u64 + 86400 - 1) / 86400;
+        late_time
+            .checked_add(86400 - 1)
+            .ok_or(ErrorCode::MathOverflow)?
+            / 86400
+    };
    
     let late_fee = lease.late_payment_fee_per_day
     .checked_mul(days_late)

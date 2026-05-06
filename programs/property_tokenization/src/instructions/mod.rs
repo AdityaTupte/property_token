@@ -10,7 +10,7 @@ pub mod create_candidate_profile;
 pub mod resign_and_elect_new_trustee;
 pub mod resign_and_elect_new_arbitrar;
 pub mod challenge_against_authority;
-// pub mod lease_propoerty;
+pub mod lease_property;
 // pub mod treasury_distribution;
 // pub mod salary_distribution;
 
@@ -26,6 +26,6 @@ pub use create_candidate_profile::*;
 pub use resign_and_elect_new_trustee::*;
 pub use resign_and_elect_new_arbitrar::*;
 pub use challenge_against_authority::*;
-// pub use lease_propoerty::*;
+pub use lease_property::*;
 // pub use treasury_distribution::*;
 // pub use salary_distribution::*;

@@ -13,7 +13,7 @@ pub struct LeaseProposal{
 
     pub is_arbitrar_approved : bool,
 
-    pub arbitrar_approval : Vec<Pubkey>,
+    pub arbitrar_approval_count : u8,
 
     pub initailized_at :i64,
 
@@ -46,7 +46,7 @@ pub struct LeaseProposal{
 }
 
 impl LeaseProposal{
-    pub const SIZE : usize = 32 + 8 + 1 + 4+ (32*MAX_ARBITRATOR) + 8 + 32 +32 + 8 +8 +1 + 8  +8 +32 + 8 +8 +8 +32 +1;
+    pub const SIZE : usize = 32 + 8 + 1 +1 + 8 + 32 +32 + 8 +8 +1 + 8  +8 +32 + 8 +8 +8 +32 +1;
 }
 
 

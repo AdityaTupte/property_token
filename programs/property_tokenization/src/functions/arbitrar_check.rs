@@ -1,4 +1,4 @@
-use crate::{common::ProposalStatus, constant::Governance, events::SnapshotRequested, state::{ArbitratorRegistry, ArbitratorVoteReceipts}};
+use crate::{common::ProposalStatus, traits::Governance, events::SnapshotRequested, state::{ArbitratorRegistry, ArbitratorVoteReceipts}};
 use anchor_lang::{prelude::*};
 
 
