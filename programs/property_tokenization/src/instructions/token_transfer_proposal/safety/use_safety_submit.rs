@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{HARDCODED_PUBKEY, ProposalStatus, SAFETYPROPOSAL}, errors::ErrorCode, functions::submit, state::SafetyProposal};
+use crate::{common::{HARDCODED_PUBKEY, ProposalStatus, SAFETYPROPOSAL}, errors::ErrorCode, functions::submit, state::TokenTransferProposal, };
 
 
 
@@ -24,7 +24,7 @@ pub struct SubmitSnapshot<'info>{
         constraint = !proposal.snapshot_submitted @ ErrorCode::SnapshotAlreadySubmitted,
         constraint = proposal.status == ProposalStatus::Approved @ ErrorCode::ProposalNotApproved
     )]
-    pub proposal : Account<'info,SafetyProposal>,
+    pub proposal : Account<'info,TokenTransferProposal>,
 
 }
 

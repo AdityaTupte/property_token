@@ -1,11 +1,11 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{PROPERTY_SYSTEM_SEEDS, SAFETYPROPOSAL, TRUSTEE_RECEIPT_SEEDS}, functions::delete_proposal, state::{PropertySystemAccount, SafetyProposal, TrusteeRecepit, TrusteeRegistry}};
+use crate::{common::{PROPERTY_SYSTEM_SEEDS, SAFETYPROPOSAL, TRUSTEE_RECEIPT_SEEDS}, functions::delete_proposal, state::{PropertySystemAccount, TokenTransferProposal, TrusteeRecepit, TrusteeRegistry}};
 
 
 #[derive(Accounts)]
 #[instruction(proposal_id:u64,property_system_id:u64)]
-pub struct DeleteFailProposal<'info>{
+pub struct DeleteSafetyFailProposal<'info>{
 
     #[account(
         seeds = [
@@ -43,13 +43,13 @@ pub struct DeleteFailProposal<'info>{
         constraint = proposal.property_system  == property_system.key(),
         close = trustee
     )]
-    pub proposal : Account<'info,SafetyProposal>,
+    pub proposal : Account<'info,TokenTransferProposal>,
 
 }  
 
 
-pub fn delete_buy_proposal(
-    ctx:Context<DeleteFailProposal>,
+pub fn delete_buy_safety_proposal(
+    ctx:Context<DeleteSafetyFailProposal>,
     _proposal_id:u64,_property_system_id:u64
 ) ->Result<()>{
 

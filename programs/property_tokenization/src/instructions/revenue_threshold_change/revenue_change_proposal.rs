@@ -1,21 +1,31 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{PROPERTY_SYSTEM_SEEDS, RT_CHG_PROPOSAL_SEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, state::{PropertySystemAccount, RTChgProposal, TrusteeRegistry}};
+use crate::{common::{PROPERTY_SYSTEM_SEEDS, RT_CHG_PROPOSAL_SEEDS, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, state::{PropertySystemAccount, RTChgProposal,  TrusteeRecepit, TrusteeRegistry}};
 
 #[derive(Accounts)]
-#[instruction(proposal_id:u64)]
+#[instruction(proposal_id:u64,property_system_id:u64)]
 pub struct RTProposal<'info>{
 
     #[account(
         mut,
-        constraint = trustee_registry.trustees.contains(&trustee.key()) @ ErrorCode::NotAuthorized
+        // constraint = trustee_registry.trustees.contains(&trustee.key()) @ ErrorCode::NotAuthorized
     )]
     pub trustee:Signer<'info>,
 
     #[account(
+        seeds = [
+            TRUSTEE_RECEIPT_SEEDS,
+            property_system.key().as_ref(),
+            trustee.key().as_ref()
+        ],
+        bump = trustee_receipt.bump,
+    )]
+    pub trustee_receipt: Account<'info,TrusteeRecepit>,
+
+    #[account(
         seeds=[
             PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes(),
+            &property_system_id.to_le_bytes(),
         ],
         bump = property_system.bump,
     )]
@@ -35,8 +45,8 @@ pub struct RTProposal<'info>{
         payer = trustee,
         seeds=[
             RT_CHG_PROPOSAL_SEEDS,
+            property_system.key().as_ref(),
             &proposal_id.to_le_bytes(),
-            property_system.key().as_ref()
         ],
         bump,
         space = 8 + RTChgProposal::SIZE
@@ -49,7 +59,8 @@ pub struct RTProposal<'info>{
 
 pub fn rt_proposal(
     ctx:Context<RTProposal>,
-    proposal_id:u64
+    proposal_id:u64,
+    _property_system_id:u64
 )->Result<()>{
 
     let proposal = &mut ctx.accounts.proposal;

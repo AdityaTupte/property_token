@@ -5274,7 +5274,7 @@ it("skip time to voting end",async() =>{
 
 it("vote for safety proposal",async()=>{
 
-  const acc = await program.account.safetyProposal.fetch(safety_key);
+  const acc = await program.account.tokenTransferProposal.fetch(safety_key);
 
   console.log(acc);
   
@@ -5445,6 +5445,8 @@ it("execute safety propsal",async()=>{
   console.log(acc5);
 
 })
+
+
 
 
 

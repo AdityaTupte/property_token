@@ -2,45 +2,63 @@ use anchor_lang::prelude::*;
 use anchor_spl::token_interface::{TokenAccount,Mint,TransferChecked,transfer_checked, TokenInterface};
 use anchor_spl::associated_token::*;
 
-use crate::common::{PROPERTY_SYSTEM_SEEDS, ProposalStatus, REINVESTMENTPDA, USEREINVESTMENTOKEN};
-use crate::state::{ReinvestmentPda, UseReinvestmentProposal};
+use crate::common::{PROPERTY_SYSTEM_SEEDS, ProposalStatus, REINVESTMENTPDA, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS, USEREINVESTMENTOKEN};
+use crate::state::{ReinvestmentPda, TokenTransferProposal, TrusteeRecepit};
 use crate::{errors::ErrorCode, state::{PropertySystemAccount, TrusteeRegistry}};
 
 #[derive(Accounts)]
+#[instruction(proposal_id:u64,property_system_id:u64)]
 pub struct ExecuteReinvestment<'info>{
 
     #[account(
         mut,
-        constraint = trustee_registry.trustees.contains(&trustee.key()) @ ErrorCode::NotAuthorized
+        // constraint = trustee_registry.trustees.contains(&trustee.key()) @ ErrorCode::NotAuthorized
     )]
     pub trustee:Signer<'info>,
+
+     #[account(
+        seeds = [
+            TRUSTEE_RECEIPT_SEEDS,
+            property_system.key().as_ref(),
+            trustee.key().as_ref()
+        ],
+        bump = trustee_receipt.bump,
+    )]
+    pub trustee_receipt: Account<'info,TrusteeRecepit>,
+
 
     #[account(
         mut,
         seeds=[
             USEREINVESTMENTOKEN,
             property_system.key().as_ref(),
-            &proposal.proposal_id.to_le_bytes(),
+            &proposal_id.to_le_bytes(),
         ],
         bump = proposal.bump,
         constraint = proposal.status == ProposalStatus::Passed @ ErrorCode::ProposalNotPassed,
        // constraint = proposal.property_system == property_system.key() @ ErrorCode::InvalidProposal,
     )]
-    pub proposal: Box<Account<'info,UseReinvestmentProposal>>,
+    pub proposal: Box<Account<'info,TokenTransferProposal>>,
 
     #[account(
         seeds=[
             PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes(),
+            &property_system_id.to_le_bytes(),
         ],
         bump = property_system.bump
     )]
     pub property_system: Box<Account<'info,PropertySystemAccount>>,
 
     #[account(
-         constraint =  property_system.trustee_registry == trustee_registry.key() @ ErrorCode::InvalidTrusteeRegsitry
+        seeds=[
+            TRUSTEEREGISTRYSEEDS,
+            property_system.key().as_ref()
+        ],
+        bump,
+        // constraint =  property_system.trustee_registry == trustee_registry.key() @ ErrorCode::InvalidTrusteeRegistry
     )]
-    pub trustee_registry : Box<Account<'info,TrusteeRegistry>>,
+    pub trustee_registry : Account<'info,TrusteeRegistry>,
+
 
 
     #[account(
@@ -56,7 +74,9 @@ pub struct ExecuteReinvestment<'info>{
         mut,
         associated_token::mint = mint,
         associated_token::authority = reinvestment_treasury,
+        associated_token::token_program = token_program
     )]
+  
     pub reinvestment_ata:InterfaceAccount<'info,TokenAccount>,
 
     #[account(
@@ -69,6 +89,7 @@ pub struct ExecuteReinvestment<'info>{
         payer = trustee,
         associated_token::mint = mint,
         associated_token::authority = recepient_wallet,
+        associated_token::token_program = token_program
     )]
     pub recepient_ata: InterfaceAccount<'info, TokenAccount>,
 
@@ -78,7 +99,10 @@ pub struct ExecuteReinvestment<'info>{
     pub system_program : Program<'info,System>,
 } 
 
-pub fn execute_reivestment_proposal(ctx:Context<ExecuteReinvestment>)->Result<()>{
+pub fn execute_reivestment_proposal(
+    ctx:Context<ExecuteReinvestment>,
+    _proposal_id:u64,_property_system_id:u64
+)->Result<()>{
 
     let amount = ctx.accounts.proposal.amount_required;
 

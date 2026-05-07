@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{PROPERTY_SYSTEM_SEEDS, ProposalStatus, ProposalType, SAFETYPROPOSAL, VOTERRECIEPT}, errors::ErrorCode, functions::voting, state::{PropertySystemAccount, SafetyProposal, VoterReciept}};
+use crate::{common::{PROPERTY_SYSTEM_SEEDS, ProposalStatus, ProposalType, SAFETYPROPOSAL, VOTERRECIEPT}, errors::ErrorCode, functions::voting, state::{PropertySystemAccount, TokenTransferProposal, VoterReciept}};
 
 
 
@@ -24,7 +24,7 @@ pub struct Voting<'info>{
          constraint = proposal.status == ProposalStatus::Active @ ErrorCode::ProposalNotActive
     )]
 
-    pub proposal : Account<'info,SafetyProposal>,
+    pub proposal : Account<'info,TokenTransferProposal>,
 
     #[account(
         seeds=[

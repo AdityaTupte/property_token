@@ -5,7 +5,8 @@ use crate::{common::RT_CHG_PROPOSAL_SEEDS, functions::finalize, state::RTChgProp
 
 
 #[derive(Accounts)]
-pub struct Finalize<'info>{
+#[instruction(proposal_id:u64,property_system_account:Pubkey)]
+pub struct RTChgFinalize<'info>{
 
 
     #[account()]
@@ -15,8 +16,9 @@ pub struct Finalize<'info>{
     #[account(
         seeds=[
             RT_CHG_PROPOSAL_SEEDS,
-            &proposal.proposal_id.to_le_bytes(),
-            proposal.property_system.key().as_ref()
+            property_system_account.as_ref(),
+            &proposal_id.to_le_bytes(),
+            
         ],
         bump = proposal.bump
     )]
@@ -24,7 +26,7 @@ pub struct Finalize<'info>{
 }
 
 
-pub fn finalize_rtc_proposal(ctx:Context<Finalize>)->Result<()>{
+pub fn finalize_rtc_proposal(ctx:Context<RTChgFinalize>)->Result<()>{
 
     let proposal = &mut *ctx.accounts.proposal; 
 
@@ -37,11 +39,7 @@ pub fn finalize_rtc_proposal(ctx:Context<Finalize>)->Result<()>{
 
     finalize(proposal)?;
 
-    proposal.voting_for_threshold_deadline = voting_end_time;
-
-    proposal.add_new_threshold_deadline = new_threshold_submission_deadline;
-
-    proposal.challenge_new_threshold_deadline = challenge_end_time; 
+    
 
     Ok(())
 }

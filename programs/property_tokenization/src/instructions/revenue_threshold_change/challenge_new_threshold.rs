@@ -4,6 +4,7 @@ use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, R
 
 
 #[derive(Accounts)]
+#[instruction(property_system_id:u64,proposal_id:u64,existing_new_threshold_signer:Pubkey,challenge_new_threshold_signer:Pubkey,)]
 pub struct ChallengeNewThreshold<'info>{
 
     #[account()]
@@ -12,7 +13,7 @@ pub struct ChallengeNewThreshold<'info>{
     #[account(
         seeds=[
             PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes(),
+            &property_system_id.to_le_bytes(),
         ],
         bump = property_system.bump,
     )]
@@ -21,8 +22,8 @@ pub struct ChallengeNewThreshold<'info>{
     #[account(
         seeds=[
             RT_CHG_PROPOSAL_SEEDS,
-            &proposal.proposal_id.to_le_bytes(),
-            property_system.key().as_ref()
+            property_system.key().as_ref(),
+            &proposal_id.to_le_bytes(),
         ],
         bump,
         constraint = proposal.status  == ProposalStatus::Passed @ ErrorCode::ProposalNotPassed
@@ -33,7 +34,7 @@ pub struct ChallengeNewThreshold<'info>{
         seeds=[
             PROPOSE_THRESHOLD,
             proposal.key().as_ref(),
-            existing_new_threshold.signer.as_ref()
+            existing_new_threshold_signer.as_ref()
         ],
         bump=existing_new_threshold.bump,
     )]
@@ -43,7 +44,7 @@ pub struct ChallengeNewThreshold<'info>{
         seeds=[
             PROPOSE_THRESHOLD,
             proposal.key().as_ref(),
-            challenge_new_threshold.signer.as_ref()
+            challenge_new_threshold_signer.as_ref()
         ],
         bump=challenge_new_threshold.bump,
     )]
@@ -61,10 +62,11 @@ pub fn challenge_new_threshold(ctx:Context<ChallengeNewThreshold>)->Result<()>{
 
     let challenge_threshold = & ctx.accounts.challenge_new_threshold;
 
+    require!( current_time > proposal.add_new_threshold_deadline ,ErrorCode::ChallegeDeadlineNotStart);
+
 
     require!(
-        current_time > proposal.add_new_threshold_deadline &&
-        current_time < proposal.challenge_new_threshold_deadline,
+               current_time < proposal.challenge_new_threshold_deadline,
         ErrorCode::ChallegeDeadlineExpired
     );
 

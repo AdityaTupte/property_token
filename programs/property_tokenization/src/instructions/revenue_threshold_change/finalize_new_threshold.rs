@@ -3,6 +3,7 @@ use anchor_lang::prelude::*;
 use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, RT_CHG_PROPOSAL_SEEDS, THRESHOLD}, errors::ErrorCode, state::{NEWTHRESHOLDPROPOSAL, PropertySystemAccount, RTChgProposal, Threshold}};
 
 #[derive(Accounts)]
+#[instruction(property_system_id:u64,new_threshold_signer:Pubkey)]
 pub struct FinalizeNewThreshold<'info>{
 
     #[account()]
@@ -11,8 +12,9 @@ pub struct FinalizeNewThreshold<'info>{
      #[account(
         seeds=[
             RT_CHG_PROPOSAL_SEEDS,
+            property_system.key().as_ref(),
             &proposal.proposal_id.to_le_bytes(),
-            property_system.key().as_ref()
+            
         ],
         bump,
         constraint = proposal.status  == ProposalStatus::Passed @ ErrorCode::ProposalNotPassed,
@@ -23,7 +25,7 @@ pub struct FinalizeNewThreshold<'info>{
      #[account(
         seeds=[
             PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes(),
+            &property_system_id.to_le_bytes(),
         ],
         bump = property_system.bump,
     )]
@@ -44,7 +46,7 @@ pub struct FinalizeNewThreshold<'info>{
         seeds=[
             PROPOSE_THRESHOLD,
             proposal.key().as_ref(),
-            new_threshold.signer.as_ref()
+            new_threshold_signer.as_ref()
         ],
         bump=new_threshold.bump,
     )]
@@ -64,7 +66,7 @@ pub fn finalize_new_threshold(
 
     let proposal = &mut ctx.accounts.proposal;
 
-    require!(current_time > proposal.challenge_new_threshold_deadline,ErrorCode::ChallegeDeadlineNotExpired);
+    require!(current_time > proposal.challenge_new_threshold_deadline,ErrorCode::ChallengeeDeadlineNotExpired);
 
     existing_thrshold.trustee_salary_threshold = new_threshold.new_trustee_salary_threshold;
 

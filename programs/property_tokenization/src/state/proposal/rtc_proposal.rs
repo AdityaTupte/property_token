@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{MAX_ARBITRATOR, ProposalStatus, ProposalType}, constant::{BaseProposal, Governance}};
+use crate::{common::{ ProposalStatus, ProposalType}, traits::{BaseProposal, Governance}};
 
 #[account]
 pub struct RTChgProposal{
@@ -13,7 +13,7 @@ pub struct RTChgProposal{
 
     pub merkle_root: [u8; 32],
 
-    pub arbitrar_approvals: Vec<Pubkey>,
+    pub arbitrar_approvals_count: u8,
 
     pub is_arbitrar_approved : bool,
 
@@ -55,7 +55,7 @@ impl RTChgProposal {
                     32+ 
                     8 +
                     32 +
-                    4 + (32* MAX_ARBITRATOR) +
+                    1+
                     1 +
                     8 +
                     8 +
@@ -108,8 +108,8 @@ impl BaseProposal for RTChgProposal {
         &mut self.merkle_root
     }
 
-    fn arbitrar_list(&mut self) -> &mut Vec<Pubkey> {
-        &mut self.arbitrar_approvals
+    fn arbitrar_total_count(&mut self) -> &mut u8 {
+        &mut self.arbitrar_approvals_count
     }
 
     fn arbitrar_approved(&mut self) -> &mut bool {

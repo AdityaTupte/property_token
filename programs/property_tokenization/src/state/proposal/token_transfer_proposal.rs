@@ -4,7 +4,7 @@ use crate::{common::{ ProposalStatus, ProposalType}, traits::{BaseProposal, Gove
 
 
 #[account]
-pub struct SafetyProposal{
+pub struct TokenTransferProposal{
 
     pub proposal_id : u64,
 
@@ -46,7 +46,7 @@ pub struct SafetyProposal{
 
     pub bump : u8,
 
-}impl SafetyProposal {
+}impl TokenTransferProposal {
     pub const SIZE: usize =
         8 +  // proposal_id
         8 +  // amount_required
@@ -96,11 +96,10 @@ pub struct SafetyProposal{
 
         self.status = ProposalStatus::Draft;
 
-        self.proposal_type = ProposalType::USESAFETY;
 
     }             
  }
-impl BaseProposal for SafetyProposal {
+impl BaseProposal for TokenTransferProposal {
 
     fn proposal_id(&mut self) -> &mut u64 {
         &mut self.proposal_id
@@ -136,7 +135,7 @@ impl BaseProposal for SafetyProposal {
 }
 
 
-impl Governance for SafetyProposal {
+impl Governance for TokenTransferProposal {
 
     fn start_time(&mut self) -> &mut i64 {
         &mut self.start_time

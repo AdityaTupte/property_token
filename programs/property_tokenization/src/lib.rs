@@ -1081,7 +1081,7 @@ pub fn pay_rent(
 }
 
 
-///// token transfer
+///// token transfer  safety
 
 
 
@@ -1172,17 +1172,120 @@ pub fn token_transfer_execute_safety_proposal(
 }
 
 pub fn token_transfer_delete_safety_proposal(
-          ctx:Context<DeleteFailProposal>,
+          ctx:Context<DeleteSafetyFailProposal>,
     proposal_id:u64,property_system_id:u64
 )->Result<()>{
 
 
-    token_transfer_proposal::delete_buy_proposal(ctx, proposal_id, property_system_id)?;
+    token_transfer_proposal::delete_buy_safety_proposal(ctx, proposal_id, property_system_id)?;
 
 
     Ok(())
 
 }
+
+//token transfer reinvestment
+
+
+
+pub fn token_transfer_create_use_reinvest_proposal(
+    ctx:Context<UseReinvestmentTokensProposal>,
+    proposal_id:u64,
+    property_system_id:u64,
+    amount_required:u64,
+    reason_hash:[u8;32],
+)->Result<()>{
+
+    token_transfer_proposal::create_use_reinvest_proposal(ctx,proposal_id, property_system_id,  amount_required, reason_hash)?;
+
+    Ok(())
+
+}
+
+
+
+pub fn token_transfer_arbitrar_approval_reivest_proposal(
+     ctx:Context<ReinvestArbitrarVote>,
+    proposal_id : u64,property_system_id:u64
+)->Result<()>{
+
+token_transfer_proposal::arbitrar_vote_for_reivest(ctx, proposal_id, property_system_id)?;
+
+
+Ok(())
+}
+
+
+pub fn token_transfer_submit_snapshot_reinvest_proposal(
+    ctx:Context<ReinvestSubmitSnapshot>,
+    property_system_account:Pubkey,proposal_id:u64,
+    merkle_root : [u8;32],
+    closing_days_gap : u8,
+    deadline_days : u8 ,
+    vote_threshold :u64,
+)->Result<()>{
+
+token_transfer_proposal::reinvest_submit_snapshot(ctx, property_system_account, proposal_id, merkle_root, closing_days_gap, deadline_days, vote_threshold)?;
+
+
+            Ok(())
+}
+
+pub fn token_transfer_vote_for_reinvest_proposal(
+ctx:Context<ReinvestVoting>,
+        proposal_id:u64,property_system_id:u64,
+        proof: Vec<[u8; 32]>,
+        voting_power : u64,
+        yes_or_no : bool,
+    )->Result<()>{
+    
+        token_transfer_proposal::reivestment_vote(ctx, proposal_id, property_system_id, proof, voting_power, yes_or_no)?;
+
+    Ok(())
+
+}
+
+
+pub fn token_transfer_finalize_reivest_proposal(
+         ctx:Context<ReinvestFinalize>,
+         proposal_id:u64,property_system:Pubkey
+)->Result<()>{
+
+
+    token_transfer_proposal::finalize_reinvest_proposal(ctx, proposal_id, property_system)?;
+
+
+    Ok(())
+
+}
+
+
+pub fn token_transfer_execute_reinvest_proposal(
+          ctx:Context<ExecuteReinvestment>,
+    proposal_id:u64,property_system_id:u64
+)->Result<()>{
+
+
+    token_transfer_proposal::execute_reivestment_proposal(ctx, proposal_id, property_system_id)?;
+
+
+    Ok(())
+
+}
+
+pub fn token_transfer_delete_reinvest_proposal(
+          ctx:Context<DeleteFailReinvestProposal>,
+    proposal_id:u64,property_system_id:u64
+)->Result<()>{
+
+
+    token_transfer_proposal::delete_reinvest_proposal(ctx, proposal_id, property_system_id)?;
+
+
+    Ok(())
+
+}
+
 
 
 

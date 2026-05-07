@@ -6,6 +6,8 @@ pub enum ErrorCode{
      #[msg("")]
     FinalizeCheckNotLive,
 
+    #[msg("threshold change deadline reached")]
+    ChangeDeadlineExpire,
 
     #[msg("authority is not selected already")]
     AuthorityNotSelected,

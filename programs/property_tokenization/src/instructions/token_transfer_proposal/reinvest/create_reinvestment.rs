@@ -1,29 +1,46 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{PROPERTY_SYSTEM_SEEDS, USEREINVESTMENTOKEN}, errors::ErrorCode, state::{PropertySystemAccount, TrusteeRegistry, UseReinvestmentProposal}};
+use crate::{common::{PROPERTY_SYSTEM_SEEDS, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS, USEREINVESTMENTOKEN}, errors::ErrorCode, state::{PropertySystemAccount, TokenTransferProposal, TrusteeRecepit, TrusteeRegistry,}};
 
 #[derive(Accounts)]
-#[instruction(proposal_id:u64)]
+#[instruction(proposal_id:u64,property_system_id:u64,)]
 pub struct UseReinvestmentTokensProposal<'info>{
 
     #[account(
         mut,
-        constraint = trustee_registry.trustees.contains(&trustee.key()) @ ErrorCode::NotAuthorized
+       // constraint = trustee_registry.trustees.contains(&trustee.key()) @ ErrorCode::NotAuthorized
     )]
     pub trustee: Signer<'info>,
 
 
-    #[account(
+     #[account(
+        seeds = [
+            TRUSTEE_RECEIPT_SEEDS,
+            property_system.key().as_ref(),
+            trustee.key().as_ref()
+        ],
+        bump = trustee_receipt.bump,
+    )]
+    pub trustee_receipt: Account<'info,TrusteeRecepit>,
+
+
+        #[account(
         seeds=[
             PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes(),
+            &property_system_id.to_le_bytes(),
         ],
         bump = property_system.bump
     )]
     pub property_system: Account<'info,PropertySystemAccount>,
 
+
     #[account(
-        constraint =  property_system.trustee_registry == trustee_registry.key() @ ErrorCode::InvalidTrusteeRegsitry
+        seeds=[
+            TRUSTEEREGISTRYSEEDS,
+            property_system.key().as_ref()
+        ],
+        bump,
+        // constraint =  property_system.trustee_registry == trustee_registry.key() @ ErrorCode::InvalidTrusteeRegistry
     )]
     pub trustee_registry : Account<'info,TrusteeRegistry>,
 
@@ -37,9 +54,9 @@ pub struct UseReinvestmentTokensProposal<'info>{
                 &proposal_id.to_le_bytes(),
         ],
         bump,
-        space = 8 + UseReinvestmentProposal::SIZE
+        space = 8 + TokenTransferProposal::SIZE
     )]
-    pub proposal : Account<'info,UseReinvestmentProposal>,
+    pub proposal : Account<'info,TokenTransferProposal>,
 
     pub receipent_wallet : SystemAccount<'info>,
 
@@ -51,9 +68,11 @@ pub struct UseReinvestmentTokensProposal<'info>{
 
 pub fn create_use_reinvest_proposal(
     ctx:Context<UseReinvestmentTokensProposal>,
-    proposal_id :u64,
+     proposal_id :u64,
+    _property_system_id:u64,
     amount_required:u64,
     reason_hash:[u8;32],
+
 )->Result<()>{
 
     let property_system = &mut ctx.accounts.property_system;
@@ -64,6 +83,8 @@ pub fn create_use_reinvest_proposal(
 
     proposal.initialize(proposal_id, property_system.key(), amount_required, reason_hash, *receipent_wallet.key,ctx.bumps.proposal,property_system.total_token_supply);
     
+    proposal.proposal_type = crate::common::ProposalType::USEREINVESTMENT;
+
     Ok(())
 
 }

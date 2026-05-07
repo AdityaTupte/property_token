@@ -6,6 +6,7 @@ use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, R
 
 
 #[derive(Accounts)]
+#[instruction(proposal_id:u64,property_system_id:u64)]
 pub struct ProposeNewThreshold<'info>{
 
     #[account(
@@ -21,8 +22,9 @@ pub struct ProposeNewThreshold<'info>{
     #[account(
         seeds=[
             RT_CHG_PROPOSAL_SEEDS,
-            &proposal.proposal_id.to_le_bytes(),
-            property_system.key().as_ref()
+            property_system.key().as_ref(),
+            &proposal_id.to_le_bytes(),
+            
         ],
         bump = proposal.bump,
         constraint = proposal.status  == ProposalStatus::Passed @ ErrorCode::ProposalNotPassed,
@@ -32,7 +34,7 @@ pub struct ProposeNewThreshold<'info>{
     #[account(
         seeds=[
             PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes(),
+            &property_system_id.to_le_bytes(),
         ],
         bump = property_system.bump,
     )]
@@ -75,6 +77,12 @@ pub fn propose_new_threshold(
 
     let new_threshold = &mut ctx.accounts.new_threshold;
 
+    let current_time = Clock::get()?.unix_timestamp;
+
+    require!(
+        current_time < ctx.accounts.proposal.threshold_submission_deadline,
+        ErrorCode::ThresholdSubmissionEnd
+    );
     
 
     let leaf = keccak::hashv(&[
@@ -97,12 +105,7 @@ pub fn propose_new_threshold(
     require!(total == 100, ErrorCode::InvalidThreshold);
 
 
-    let current_time = Clock::get()?.unix_timestamp;
-
-    require!(
-        current_time < ctx.accounts.proposal.threshold_submission_deadline,
-        ErrorCode::ThresholdSubmissionEnd
-    );
+    
 
     new_threshold.property_system = ctx.accounts.property_system.key();
 

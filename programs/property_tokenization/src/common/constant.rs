@@ -70,9 +70,11 @@ pub const ARBITRAR_BUY_PROPOSAL_VOTE_RECEIPT_SEEDS : &[u8] = b"ArbitrarBuyPropos
 
 pub const ARBITRAR_LEASE_PROPOSAL_VOTE_RECEIPT_SEEDS : &[u8] = b"ArbitrarLeaseProposalReceipt";
 
-
+  pub const ARBITRAR_THRESOLD_CHANGE_PROPOSAL_VOTE_RECEIPT_SEEDS : &[u8] = b"ArbitrarRTChgProposalReceipt";
 
 pub const ARBITRAR_SAFETY_PROPOSAL_VOTE_RECEIPT_SEEDS : &[u8] = b"ArbitrarSafetyProposalReceipt";
+
+pub const ARBITRAR_REINVEST_PROPOSAL_VOTE_RECEIPT_SEEDS : &[u8] = b"ArbitrarReinvestProposalReceipt";
 
 pub const TREASURYSEEDS : &[u8] = b"treasury";
 

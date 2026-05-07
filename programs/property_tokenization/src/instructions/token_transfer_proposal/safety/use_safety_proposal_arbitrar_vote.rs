@@ -1,6 +1,6 @@
 use anchor_lang::prelude::{ *};
 
-use crate::{common::{ ARBITRAR_RECEIPT_SEEDS, ARBITRAR_REGISTRYSEEDS, ARBITRAR_SAFETY_PROPOSAL_VOTE_RECEIPT_SEEDS, PROPERTY_SYSTEM_SEEDS, ProposalStatus, ProposalType, SAFETYPROPOSAL, VOTERRECIEPT}, errors::ErrorCode, functions::arbitrar_approval, state::{ArbitratorRecepit, ArbitratorRegistry, ArbitratorVoteReceipts, PropertySystemAccount, SafetyProposal}};
+use crate::{common::{ ARBITRAR_RECEIPT_SEEDS, ARBITRAR_REGISTRYSEEDS, ARBITRAR_SAFETY_PROPOSAL_VOTE_RECEIPT_SEEDS, PROPERTY_SYSTEM_SEEDS, ProposalStatus, ProposalType, SAFETYPROPOSAL, VOTERRECIEPT}, errors::ErrorCode, functions::arbitrar_approval, state::{ArbitratorRecepit, ArbitratorRegistry, ArbitratorVoteReceipts, PropertySystemAccount, TokenTransferProposal, }};
 
 #[derive(Accounts)]
 #[instruction(proposal_id : u64,property_system_id:u64)]
@@ -32,7 +32,7 @@ pub struct SafetyArbitrarVote<'info>{
         bump = proposal.bump,
       constraint = proposal.status == ProposalStatus::Draft @ ErrorCode::NotInDraft
     )]
-    pub proposal: Account<'info,SafetyProposal>,
+    pub proposal: Account<'info,TokenTransferProposal>,
 
     #[account(
         seeds=[

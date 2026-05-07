@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{PROPERTY_SYSTEM_SEEDS, SAFETYPROPOSAL, TRUSTEEREGISTRYSEEDS, TRUSTEE_RECEIPT_SEEDS}, state::{PropertySystemAccount, SafetyProposal, TrusteeRecepit, TrusteeRegistry}};
+use crate::{common::{PROPERTY_SYSTEM_SEEDS, SAFETYPROPOSAL, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS}, state::{PropertySystemAccount,  TokenTransferProposal, TrusteeRecepit, TrusteeRegistry}};
 
 #[derive(Accounts)]
 #[instruction(proposal_id:u64,property_system_id:u64,)]
@@ -52,9 +52,9 @@ pub struct UseSafetyTokensProposal<'info>{
                 &proposal_id.to_le_bytes(),
         ],
         bump,
-        space = 8 + SafetyProposal::SIZE
+        space = 8 + TokenTransferProposal::SIZE
     )]
-    pub proposal : Account<'info,SafetyProposal>,
+    pub proposal : Account<'info,TokenTransferProposal>,
 
     pub receipent_wallet : SystemAccount<'info>,
 
@@ -81,6 +81,8 @@ pub fn create_use_safety_proposal(
 
     proposal.initialize(proposal_id, property_system.key(), amount_required, reason_hash, *receipent_wallet.key,ctx.bumps.proposal,property_system.total_token_supply);
     
+    proposal.proposal_type = crate::common::ProposalType::USESAFETY;
+
     Ok(())
 
 }

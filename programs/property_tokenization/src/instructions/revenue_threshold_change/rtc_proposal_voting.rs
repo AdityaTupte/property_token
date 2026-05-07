@@ -1,19 +1,22 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{ProposalStatus, RT_CHG_PROPOSAL_SEEDS, VOTERRECIEPT}, errors::ErrorCode, functions::voting, state::{PropertySystemAccount, RTChgProposal, VoterReciept}};
+use crate::{common::{PROPERTY_SYSTEM_SEEDS, ProposalStatus, RT_CHG_PROPOSAL_SEEDS, VOTERRECIEPT}, errors::ErrorCode, functions::voting, state::{PropertySystemAccount, RTChgProposal, VoterReciept}};
 
 #[derive(Accounts)]
+#[instruction(proposal_id:u64,property_system_id:u64)]
 pub struct Voting<'info>{
 
-    #[account(mut)]
+    #[account(
+        mut
+    )]
     pub signer: Signer<'info>,
 
     #[account(
         mut,
         seeds=[
             RT_CHG_PROPOSAL_SEEDS,
-            &proposal.proposal_id.to_le_bytes(),
-            property_system.key().as_ref()
+            property_system.key().as_ref(),
+            &proposal_id.to_le_bytes(),
         ],
         bump = proposal.bump,
          constraint = proposal.snapshot_submitted @ ErrorCode::SnapshotNotSubmitted,
@@ -25,9 +28,16 @@ pub struct Voting<'info>{
 
 
     #[account(
+        seeds=[
+            PROPERTY_SYSTEM_SEEDS,
+            &property_system_id.to_le_bytes()
+        ],
+        bump= property_system.bump,
+
         constraint = proposal.property_system == property_system.key() @ ErrorCode::InvalidProposal
     )]
     pub property_system: Account<'info,PropertySystemAccount>,
+
 
     #[account(
         init,
@@ -50,6 +60,8 @@ pub struct Voting<'info>{
 
     pub fn vote(
         ctx:Context<Voting>,
+        _proposal_id:u64,
+        _property_system_id:u64,
         proof: Vec<[u8; 32]>,
         voting_power : u64,
         yes_or_no : bool,
@@ -83,8 +95,9 @@ pub struct Voting<'info>{
         property_system.governance_mint,
         proposal_key,
         recepit_bump,
-        RT_CHG_PROPOSAL_SEEDS,
+        
     )?;
+
 
 
     Ok(())

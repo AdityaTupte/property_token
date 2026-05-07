@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{ common::SAFETYPROPOSAL, functions::finalize, state::SafetyProposal};
+use crate::{ common::SAFETYPROPOSAL, functions::finalize, state::TokenTransferProposal,};
 
 
 #[derive(Accounts)]
@@ -20,7 +20,7 @@ pub struct Finalize<'info>{
         ],
         bump = proposal.bump
     )]
-    pub proposal : Account<'info,SafetyProposal>
+    pub proposal : Account<'info,TokenTransferProposal>
 }
 
 

@@ -3,8 +3,8 @@ use anchor_spl::token_interface::{TokenAccount,Mint,TransferChecked,transfer_che
 use anchor_spl::associated_token::*;
 
 use crate::common::{PROPERTY_SYSTEM_SEEDS, ProposalStatus, SAFETYPDA, SAFETYPROPOSAL, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS};
-use crate::state::TrusteeRecepit;
-use crate::{ errors::ErrorCode, state::{PropertySystemAccount, SafetyPda, SafetyProposal, TrusteeRegistry}};
+use crate::state::{TokenTransferProposal, TrusteeRecepit};
+use crate::{ errors::ErrorCode, state::{PropertySystemAccount, SafetyPda,  TrusteeRegistry}};
 
 
 #[derive(Accounts)]
@@ -38,7 +38,7 @@ pub struct ExecuteSafety<'info>{
         constraint = proposal.status == ProposalStatus::Passed @ ErrorCode::ProposalNotPassed,
         constraint = proposal.property_system == property_system.key() @ ErrorCode::InvalidProposal,
     )]
-    pub proposal: Box<Account<'info,SafetyProposal>>,
+    pub proposal: Box<Account<'info,TokenTransferProposal>>,
 
     #[account(
         seeds=[

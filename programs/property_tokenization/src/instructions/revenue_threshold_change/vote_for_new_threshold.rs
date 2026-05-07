@@ -6,7 +6,7 @@ use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, R
 
 
 #[derive(Accounts)]
-
+#[instruction(new_threshold_creator:Pubkey,proposal_id:u64,property_system_id:u64)]
  pub struct VoteForNewThreshold<'info>{
 
     #[account(
@@ -20,10 +20,11 @@ use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, R
     pub mint : InterfaceAccount<'info,Mint>,
 
     #[account(
+        mut,
         seeds=[
             PROPOSE_THRESHOLD,
             proposal.key().as_ref(),
-            new_threshold.signer.as_ref()
+            new_threshold_creator.as_ref()
         ],
         bump = new_threshold.bump
     )]
@@ -32,7 +33,7 @@ use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, R
     #[account(
         seeds=[
             RT_CHG_PROPOSAL_SEEDS,
-            &proposal.proposal_id.to_le_bytes(),
+            &proposal_id.to_le_bytes(),
             property_system.key().as_ref()
         ],
         bump = proposal.bump,
@@ -43,7 +44,7 @@ use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, R
      #[account(
         seeds=[
             PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes(),
+            &property_system_id.to_le_bytes(),
         ],
         bump = property_system.bump,
     )]
@@ -76,11 +77,14 @@ pub fn vote_for_new_threshold(
 
     let proposal = &mut ctx.accounts.proposal;
 
+    require!( current_time > proposal.threshold_submission_deadline ,ErrorCode::VotingPeriodNotStarted);
+
     require!(
-        current_time > proposal.threshold_submission_deadline &&
         current_time < proposal.voting_for_threshold_deadline,
         ErrorCode::VotingPeriodExpired 
     );
+
+
 
 
     let leaf = keccak::hashv(&[
