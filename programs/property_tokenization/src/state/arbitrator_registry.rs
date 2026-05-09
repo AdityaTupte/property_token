@@ -19,6 +19,8 @@ pub vote_threshold: u8,                         // Minimum approvals required fo
 
 pub claim_deadline_ts : i64,
 
+pub total_salary_allocated : u64,
+
 pub bump: u8,                              // PDA bump seed for address derivation
 
 
@@ -27,7 +29,7 @@ pub bump: u8,                              // PDA bump seed for address derivati
 impl ArbitratorRegistry {
     
     // pub const SIZE : usize = 32 + 4 + (MAX_ARBITRATOR  * 32) +  1 + 1 + 8 +1 ; 
-    pub const SIZE : usize = 32 +  1 + 1  +1 + 8 +1 ; 
+    pub const SIZE : usize = 32 +  1 + 1  +1 + 8 + 8 +1 ; 
 }
 
 impl AuthorityRegistry for ArbitratorRegistry  {

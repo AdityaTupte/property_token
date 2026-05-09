@@ -30,13 +30,6 @@ pub fn finalize_rtc_proposal(ctx:Context<RTChgFinalize>)->Result<()>{
 
     let proposal = &mut *ctx.accounts.proposal; 
 
-
-    let voting_end_time = proposal.threshold_submission_deadline + ( 24 * 60 *60  * 3 );
-
-    let new_threshold_submission_deadline = proposal.threshold_submission_deadline + ( 24 * 60 *60  * 4 );
-
-    let challenge_end_time = proposal.threshold_submission_deadline + ( 24 * 60 *60  * 6 );
-
     finalize(proposal)?;
 
     

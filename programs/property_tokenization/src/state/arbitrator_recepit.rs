@@ -7,6 +7,7 @@ use anchor_lang::prelude::*;
 pub struct ArbitratorRecepit {
 
     pub property_system_account: Pubkey,
+    pub new_transaction_time : i64,
     pub arbitrator: Pubkey,
     pub bump: u8,
 
@@ -15,5 +16,5 @@ pub struct ArbitratorRecepit {
 
 impl ArbitratorRecepit {
     
-    pub const SIZE : usize = 32 + 32 + 1 ;    
+    pub const SIZE : usize = 32 + 8+ 32 + 1 ;    
 }

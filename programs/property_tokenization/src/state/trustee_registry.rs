@@ -18,6 +18,8 @@ pub vote_threshold: u8,                       // Minimum approvals required for 
 
 pub claim_deadline_ts : i64,
 
+pub total_salary_allocated : u64,
+
 pub bump: u8,                            // PDA bump seed for address derivation
 
 }
@@ -25,7 +27,7 @@ pub bump: u8,                            // PDA bump seed for address derivation
 impl TrusteeRegistry {
     
     // pub const SIZE : usize = 32 + 4 + (MAX_TRUSTEES  * 32) +  1 + 1 + 8 + 1 ; 
-    pub const SIZE : usize = 32 + 1 +  1 + 1 + 8 + 1 ;
+    pub const SIZE : usize = 32 + 1 +  1 + 1 + 8  + 8+ 1 ;
 }
 
 impl AuthorityRegistry for TrusteeRegistry  {

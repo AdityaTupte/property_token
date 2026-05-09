@@ -1,16 +1,17 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint, TokenAccount, TokenInterface}};
 
-use crate::{common::{ARBITRAR_REGISTRYSEEDS, DIVIDENDSEEDS, PROPERTY_SYSTEM_SEEDS, REINVESTMENTPDA, SAFETYPDA, THRESHOLD, TREASURYSEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, functions::{ transfer_fro_treasury}, state::{ArbitratorRegistry, DividendPda, PropertySystemAccount, ReinvestmentPda, SafetyPda, Threshold, TreasuryPda, TrusteeRegistry}};
+use crate::{common::{ARBITRAR_REGISTRYSEEDS, DIVIDENDSEEDS, PROPERTY_SYSTEM_SEEDS, REINVESTMENTPDA, SAFETYPDA, THRESHOLD, TREASURYSEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, functions::transfer_fro_treasury, state::{ArbitratorRegistry, DividendPda, PropertySystemAccount, ReinvestmentPda, SafetyPda, Threshold, TreasuryPda, TrusteeRegistry, arbitrator_registry, trustee_registry}};
 
 #[derive(Accounts)]
+#[instruction(property_system_id:u64)]
 pub struct TreasuryDistribution<'info>{
 
 
     #[account(
         seeds=[
             PROPERTY_SYSTEM_SEEDS,
-            &property_system.property_system_id.to_le_bytes(),
+            &property_system_id.to_le_bytes(),
         ],
         bump = property_system.bump
     )]
@@ -39,6 +40,7 @@ pub struct TreasuryDistribution<'info>{
         mut,
         associated_token::mint = mint,
         associated_token::authority = treasury_pda,
+        associated_token::token_program = token_program,
     )]
     pub treasury_ata : Box<InterfaceAccount<'info,TokenAccount>>,
 
@@ -55,6 +57,7 @@ pub struct TreasuryDistribution<'info>{
         mut,
         associated_token::mint = mint,
         associated_token::authority = dividend_ata,
+        associated_token::token_program = token_program,
     )]
     pub dividend_ata : Box<InterfaceAccount<'info,TokenAccount>>,
 
@@ -71,6 +74,7 @@ pub struct TreasuryDistribution<'info>{
         mut,
         associated_token::mint = mint,
         associated_token::authority = reinvestment_pda,
+        associated_token::token_program = token_program,
     )]
     pub reinvestment_ata : Box<InterfaceAccount<'info,TokenAccount>>,
 
@@ -88,6 +92,7 @@ pub struct TreasuryDistribution<'info>{
         mut,
         associated_token::mint = mint,
         associated_token::authority = safety_pda,
+        associated_token::token_program = token_program,
     )]
     pub safety_ata : Box<InterfaceAccount<'info,TokenAccount>>,
 
@@ -105,6 +110,7 @@ pub struct TreasuryDistribution<'info>{
         mut,
         associated_token::mint = mint,
         associated_token::authority = trustee_pda,
+        associated_token::token_program = token_program,
     )]
     pub trustee_ata : Box<InterfaceAccount<'info,TokenAccount>>,
 
@@ -113,6 +119,7 @@ pub struct TreasuryDistribution<'info>{
         seeds=[
             ARBITRAR_REGISTRYSEEDS,
             property_system.key().as_ref(),
+            
         ],
         bump = arbitrar_pda.bump
     )]
@@ -122,6 +129,7 @@ pub struct TreasuryDistribution<'info>{
         mut,
         associated_token::mint = mint,
         associated_token::authority = arbitrar_pda,
+        associated_token::token_program = token_program,
     )]
     pub arbitrar_ata : Box<InterfaceAccount<'info,TokenAccount>>,
 
@@ -144,6 +152,10 @@ pub fn treasury_distribution(
     let threshold = &ctx.accounts.thershold;
 
     let treasury = &mut ctx.accounts.treasury_pda;
+
+    let trustee_registry = &mut ctx.accounts.trustee_pda ;
+
+    let arbitrator_registry = &mut ctx.accounts.arbitrar_pda ;
 
     let now = Clock::get()?.unix_timestamp;
 
@@ -205,11 +217,13 @@ pub fn treasury_distribution(
 
     treasury.last_distribution_ts = now;
 
+   
+
     let salary_claim_deadline = now.checked_add(30*60*60*24).ok_or(ErrorCode::MathOverflow)?; 
 
-    ctx.accounts.trustee_pda.claim_deadline_ts = salary_claim_deadline;
+    trustee_registry.claim_deadline_ts = salary_claim_deadline;
 
-    ctx.accounts.arbitrar_pda.claim_deadline_ts = salary_claim_deadline;
+    arbitrator_registry.claim_deadline_ts = salary_claim_deadline;
 
     //for trusteee
    transfer_fro_treasury(
@@ -261,6 +275,14 @@ pub fn treasury_distribution(
         treasury, 
         &ctx.accounts.token_program, 
         signer_seeds)?;
+
+    trustee_registry.total_salary_allocated = amount_for_trustee
+                                                    .checked_add(ctx.accounts.trustee_ata.amount)
+                                                    .ok_or(ErrorCode::MathOverflow)?;
+
+    arbitrator_registry.total_salary_allocated = amount_for_arbitrar
+                                                    .checked_add(ctx.accounts.arbitrar_ata.amount)
+                                                    .ok_or(ErrorCode::MathOverflow)?;
 
 
     Ok(())

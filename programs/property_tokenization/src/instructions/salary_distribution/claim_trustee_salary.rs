@@ -1,16 +1,16 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint,TransferChecked, transfer_checked, TokenAccount, TokenInterface}};
 
-use crate::{common::{HARDCODED_PUBKEY, PROPERTY_SYSTEM_SEEDS, TRUSTEE_SALARY, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode,  state::{PropertySystemAccount, SalaryPda, TrusteeRegistry}};
+use crate::{common::{HARDCODED_PUBKEY, PROPERTY_SYSTEM_SEEDS, TRUSTEE_RECEIPT_SEEDS, TRUSTEE_SALARY, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode,  state::{PropertySystemAccount, SalaryPda, TrusteeRecepit, TrusteeRegistry}};
 
 #[derive(Accounts)]
-
+#[instruction(property_system_id:u64)]
 pub struct ClaimTrusteeSalary<'info>{
 
 #[account(
     seeds=[
         PROPERTY_SYSTEM_SEEDS,
-        &property_system.property_system_id.to_be_bytes()
+        &property_system_id.to_be_bytes()
     ],
     bump= property_system.bump
 )]
@@ -20,22 +20,35 @@ pub property_system : Account<'info,PropertySystemAccount>,
 pub trustee:SystemAccount<'info>,
 
 #[account(
+        seeds = [
+            TRUSTEE_RECEIPT_SEEDS,
+            property_system.key().as_ref(),
+            trustee.key().as_ref()
+        ],
+        bump = trustee_receipt.bump,
+    )]
+    pub trustee_receipt: Account<'info,TrusteeRecepit>,
+
+
+
+#[account(
     associated_token::mint= mint,
     associated_token::authority = trustee, 
+    associated_token::token_program = token_program
 )]
 pub trustee_ata : InterfaceAccount<'info,TokenAccount>,
 
-#[account(
-    init_if_needed,
-    payer = trustee_registry_ata,
-    seeds=[
-            TRUSTEE_SALARY,
-            property_system.key().as_ref()
-    ],
-    bump,
-    space = 8 + SalaryPda::SIZE
-)]
-pub trustee_salary_pda : Account<'info,SalaryPda>,
+// #[account(
+//     init_if_needed,
+//     payer = trustee_registry_ata,
+//     seeds=[
+//             TRUSTEE_SALARY,
+//             property_system.key().as_ref()
+//     ],
+//     bump,
+//     space = 8 + SalaryPda::SIZE
+// )]
+// pub trustee_salary_pda : Account<'info,SalaryPda>,
 
 #[account(
     seeds=[
@@ -43,7 +56,7 @@ pub trustee_salary_pda : Account<'info,SalaryPda>,
         property_system.key().as_ref()
     ],
     bump = trustee_registry.bump,
-    constraint = trustee_registry.trustees.contains(&trustee.key()) @ ErrorCode::NotAuthorized
+    // constraint = trustee_registry.trustees.contains(&trustee.key()) @ ErrorCode::NotAuthorized
 )]
 pub trustee_registry : Account<'info,TrusteeRegistry>,
 
@@ -51,13 +64,14 @@ pub trustee_registry : Account<'info,TrusteeRegistry>,
     mut,
     associated_token::mint = mint,
     associated_token::authority = trustee, 
+    associated_token::token_program = token_program
 )]
 pub trustee_registry_ata : InterfaceAccount<'info,TokenAccount>,
 
 pub system_program : Program<'info,System>,
 
 #[account(
-    address = HARDCODED_PUBKEY
+    // address = HARDCODED_PUBKEY
 )]
 pub mint : InterfaceAccount<'info,Mint>,
 
@@ -70,20 +84,26 @@ pub token_program : Interface<'info,TokenInterface>,
 
 
 pub fn claim_trustee_salary(
-    ctx:Context<ClaimTrusteeSalary>
+    ctx:Context<ClaimTrusteeSalary>,
+    property_system_id:u64
 )->Result<()>{
+
 
     let trustee_registry_pda = &mut ctx.accounts.trustee_registry;
 
-    let trustee_salary_pda = &mut ctx.accounts.trustee_salary_pda;
+    let trustee_receipt = &mut ctx.accounts.trustee_receipt;
 
-    require!(trustee_registry_pda.claim_deadline_ts > trustee_salary_pda.new_transaction_time,ErrorCode::DeadlineReached);
+    // let trustee_salary_pda = &mut ctx.accounts.trustee_salary_pda;
 
-    let salary = ctx.accounts.trustee_registry_ata.amount
-                                            .checked_div(trustee_registry_pda.trustees.len() as u64)
+    require!(trustee_registry_pda.claim_deadline_ts > trustee_receipt.new_transaction_time,ErrorCode::DeadlineReached);
+
+    if trustee_receipt.new_transaction_time != 0 as i64  {
+
+        let salary = trustee_registry_pda.total_salary_allocated
+                                            .checked_div(trustee_registry_pda.total_trustees as u64)
                                             .ok_or(ErrorCode::MathOverflow)?;
 
-    trustee_salary_pda.new_transaction_time = trustee_registry_pda.claim_deadline_ts;
+    trustee_receipt.new_transaction_time = trustee_registry_pda.claim_deadline_ts;
 
     let property_sys_key =   ctx.accounts.property_system.key();
 
@@ -108,6 +128,12 @@ pub fn claim_trustee_salary(
     let decimal = ctx.accounts.mint.decimals;
 
     transfer_checked(ctx1,salary, decimal)?;
+
+    }
+
+    else {
+        trustee_receipt.new_transaction_time = trustee_registry_pda.claim_deadline_ts;
+    }
 
     Ok(())
 

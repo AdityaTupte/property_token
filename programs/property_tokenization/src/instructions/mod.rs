@@ -11,8 +11,8 @@ pub mod resign_and_elect_new_trustee;
 pub mod resign_and_elect_new_arbitrar;
 pub mod challenge_against_authority;
 pub mod lease_property;
-// pub mod treasury_distribution;
-// pub mod salary_distribution;
+pub mod treasury_distribution;
+pub mod salary_distribution;
 
 pub use property_system::*;
 pub use country_creation::*;
@@ -27,5 +27,5 @@ pub use resign_and_elect_new_trustee::*;
 pub use resign_and_elect_new_arbitrar::*;
 pub use challenge_against_authority::*;
 pub use lease_property::*;
-// pub use treasury_distribution::*;
-// pub use salary_distribution::*;
+pub use treasury_distribution::*;
+pub use salary_distribution::*;

@@ -8,6 +8,8 @@ pub struct TrusteeRecepit {
 
     pub property_system_account: Pubkey,
 
+    pub new_transaction_time : i64,
+
     pub trustee: Pubkey,
 
     pub bump: u8,
@@ -17,5 +19,5 @@ pub struct TrusteeRecepit {
 
 impl TrusteeRecepit {
     
-    pub const SIZE : usize = 32 + 32 + 1 ;    
+    pub const SIZE : usize = 32 + 8 + 32 + 1 ;    
 }
