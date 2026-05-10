@@ -5448,6 +5448,570 @@ it("execute safety propsal",async()=>{
 
 
 
+  const [reinvestment] = PublicKey.findProgramAddressSync(
+  [
+    Buffer.from("reinvestment"),
+    propertySystemPda.toBuffer(),
+  ],
+  program.programId
+);
+
+
+
+ const associatedTokenAddress = getAssociatedTokenAddressSync(
+  mintKeypair.publicKey,
+  reinvestment,
+  true,
+  TOKEN_2022_PROGRAM_ID,
+  ASSOCIATED_TOKEN_PROGRAM_ID
+ );
+
+it("mint token in reinvestment pda", async()=>{
+
+
+
+ await createAssociatedTokenAccount(
+  connection,
+  wallet.payer,
+  mintKeypair.publicKey,
+  reinvestment,
+  undefined,
+  TOKEN_2022_PROGRAM_ID,
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  true
+ );
+
+
+
+
+ await mintTo(
+  connection,
+  wallet.payer,
+  mintKeypair.publicKey,
+  associatedTokenAddress,
+  wallet.publicKey,
+  1000000,
+  undefined,
+  undefined,
+  TOKEN_2022_PROGRAM_ID
+ );
+
+
+
+})
+
+it("create reinvestment proposal",async()=>{
+
+    const merkleRoot2 = buildMerkleRoot([
+    buildAuthorityLeaf(receiver1.publicKey, key2, governanceMint, 100,1),
+    buildAuthorityLeaf(receiver2.publicKey, key2, governanceMint, 100,1),
+    buildAuthorityLeaf(receiver3.publicKey, key2, governanceMint, 100,1),
+    buildAuthorityLeaf(receiver4.publicKey, key2, governanceMint, 100,1),
+    buildAuthorityLeaf(receiver5.publicKey, key2, governanceMint, 100,1),
+    buildAuthorityLeaf(receiver6.publicKey, key2, governanceMint, 100,1)
+  ]);
+
+  await program.methods.tokenTransferCreateUseReinvestProposal(
+    id,
+    id,
+    new anchor.BN(100),
+    merkleRoot2
+  ).accounts({
+    trustee:pro4.publicKey,
+    receipentWallet:wallet.publicKey
+  }).signers([pro4]).rpc();
+
+
+})
+
+it("arbitrar_vote",async()=>{
+
+await program.methods.tokenTransferArbitrarApprovalReivestProposal(
+
+  id,
+  id
+
+).accounts(
+  {signer:candidate3.publicKey}
+).signers([candidate3]).rpc()
+
+await program.methods.tokenTransferArbitrarApprovalReivestProposal(
+
+  id,
+  id
+
+).accounts(
+  {signer:pro4.publicKey}
+).signers([pro4]).rpc()
+
+
+
+
+
+})
+
+const [reivest_proposal] = anchor.web3.PublicKey.findProgramAddressSync(
+  [
+   Buffer.from("use_reinvestment_token"),
+   propertySystemPda.toBuffer(),
+   id.toArrayLike(Buffer,"le",8) 
+  ],
+  program.programId
+);
+
+
+it("submit reivest submit merkle root",async()=>{
+
+    const merkleRoot = buildMerkleRoot([
+    buildAuthorityLeaf(receiver1.publicKey, reivest_proposal, governanceMint, 100,3),
+    buildAuthorityLeaf(receiver2.publicKey, reivest_proposal, governanceMint, 100,3),
+    buildAuthorityLeaf(receiver3.publicKey, reivest_proposal, governanceMint, 100,3),
+    buildAuthorityLeaf(receiver4.publicKey, reivest_proposal, governanceMint, 100,3),
+    buildAuthorityLeaf(receiver5.publicKey, reivest_proposal, governanceMint, 100,3),
+    buildAuthorityLeaf(receiver6.publicKey, reivest_proposal, governanceMint, 100,3)
+  ]);
+
+
+
+  await program.methods.tokenTransferSubmitSnapshotReinvestProposal(
+      propertySystemPda,
+      id,
+      merkleRoot,
+      2,2,
+      new anchor.BN(200),
+  ).accounts(
+    wallet.payer
+  ).rpc()
+
+
+})
+
+
+it("skip time to voting end",async() =>{
+  advanceClockBy(svm, 2n*24n*60n*60n);
+
+})
+
+it("vote for reinvest proposal",async()=>{
+
+  // const acc = await program.account.tokenTransferProposal.fetch(reinvestment);
+
+  // console.log(acc);
+  
+
+
+   const snapshotEntries = [
+    { voter: receiver1.publicKey, votingPower: 100,authoritytype:3 },
+    { voter: receiver2.publicKey, votingPower: 100,authoritytype:3  },
+    { voter: receiver3.publicKey, votingPower: 100,authoritytype:3  },
+     { voter: receiver4.publicKey, votingPower: 100 ,authoritytype:3 },
+      { voter: receiver5.publicKey, votingPower: 100,authoritytype:3  },
+       { voter: receiver6.publicKey, votingPower: 100 ,authoritytype:3 },
+  ];
+
+   const voter1proof = buildAuthorityProof(
+    snapshotEntries,
+    0,
+    reivest_proposal,
+    governanceMint
+  );
+
+
+  await program.methods.tokenTransferVoteForReinvestProposal(
+    id,
+    id,
+    voter1proof,
+    new anchor.BN(100),
+    true
+  ).accounts(
+    {
+      signer:receiver1.publicKey
+    }
+  ).signers([receiver1]).rpc()
+
+
+
+   const voter2proof = buildAuthorityProof(
+    snapshotEntries,
+    1,
+    reivest_proposal,
+    governanceMint
+  );
+
+
+  await program.methods.tokenTransferVoteForReinvestProposal(
+    id,
+    id,
+    voter2proof,
+    new anchor.BN(100),
+    true
+  ).accounts(
+    {
+      signer:receiver2.publicKey
+    }
+  ).signers([receiver2]).rpc()
+
+     const voter3proof = buildAuthorityProof(
+    snapshotEntries,
+    2,
+    reivest_proposal,
+    governanceMint
+  );
+
+
+  await program.methods.tokenTransferVoteForReinvestProposal(
+    id,
+    id,
+    voter3proof,
+    new anchor.BN(100),
+    true
+  ).accounts(
+    {
+      signer:receiver3.publicKey
+    }
+  ).signers([receiver3]).rpc()
+
+})
+
+
+it("skip time to voting end",async() =>{
+  advanceClockBy(svm, 2n*24n*60n*60n);
+
+})
+
+it("finalize the reivest proposal",async()=>{
+
+
+
+
+  await program.methods.tokenTransferFinalizeReivestProposal(
+      id,
+      propertySystemPda
+
+  ).accounts(wallet.payer).rpc()
+
+  //   const acc = await program.account.safetyProposal.fetch(safety_key);
+
+
+ 
+  
+
+})
+
+
+it("execute reinvest propsal",async()=>{
+
+
+ 
+
+  await program.methods.tokenTransferExecuteReinvestProposal(
+    id,
+    id
+  ).accounts({
+    trustee:candidate3.publicKey,
+    mint:mintKeypair.publicKey,
+    tokenProgram:TOKEN_2022_PROGRAM_ID,
+    recepientWallet:wallet.publicKey
+  }).signers([candidate3]).rpc()
+
+   const acc5 = await getAccount(
+    connection,associatedTokenAddress,undefined,TOKEN_2022_PROGRAM_ID
+  )
+
+  console.log(acc5);
+
+})
+
+
+it("treasury distribution",async()=>{
+
+  
+     const [reinvestment] = PublicKey.findProgramAddressSync(
+  [
+    Buffer.from("reinvestment"),
+    propertySystemPda.toBuffer(),
+  ],
+  program.programId
+);
+
+
+   const reinvestmentassociatedTokenAddressbefore = getAssociatedTokenAddressSync(
+    mintKeypair.publicKey,
+    reinvestment,
+    true,
+    TOKEN_2022_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
+
+     const reivestatabefore = await getAccount(
+    connection,reinvestmentassociatedTokenAddressbefore,undefined,TOKEN_2022_PROGRAM_ID
+  )
+
+  console.log("reivestata before",reivestatabefore);
+
+
+//   const [thresholdPda] = PublicKey.findProgramAddressSync(
+//   [
+//     Buffer.from("threshold"),
+//     propertySystemPda.toBuffer(),
+//   ],
+//   program.programId
+// );
+
+//   const thresholdAcc = await program.account.threshold.fetch(thresholdPda);
+
+
+//   console.log(thresholdAcc);
+
+  const [treasury] = PublicKey.findProgramAddressSync(
+  [
+    Buffer.from("treasury"),
+    propertySystemPda.toBuffer(),
+  ],
+  program.programId
+);
+
+ const treasuryassociatedTokenAddress = getAssociatedTokenAddressSync(
+    mintKeypair.publicKey,
+    treasury,
+    true,
+    TOKEN_2022_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
+
+     const treasuryata = await getAccount(
+    connection,treasuryassociatedTokenAddress,undefined,TOKEN_2022_PROGRAM_ID
+  )
+
+  console.log("treasuryata",treasuryata);
+  
+  
+
+  await program.methods.treasuryDistribution(
+    id,
+  ).accounts(
+    {
+      payer:wallet.publicKey,
+      tokenProgram:TOKEN_2022_PROGRAM_ID,
+      mint:mintKeypair.publicKey
+    }
+  ).signers([wallet.payer]).rpc()
+
+  
+
+  
+  const [dividend] = PublicKey.findProgramAddressSync(
+  [
+    Buffer.from("dividend"),
+    propertySystemPda.toBuffer(),
+  ],
+  program.programId
+);
+
+  const dividendassociatedTokenAddress = getAssociatedTokenAddressSync(
+    mintKeypair.publicKey,
+    dividend,
+    true,
+    TOKEN_2022_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
+
+     const dividendata = await getAccount(
+    connection,dividendassociatedTokenAddress,undefined,TOKEN_2022_PROGRAM_ID
+  )
+
+  console.log("dividendata",dividendata);
+  
+  
+
+
+  const reinvestmentassociatedTokenAddress = getAssociatedTokenAddressSync(
+    mintKeypair.publicKey,
+    reinvestment,
+    true,
+    TOKEN_2022_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
+
+     const reivestata = await getAccount(
+    connection,reinvestmentassociatedTokenAddress,undefined,TOKEN_2022_PROGRAM_ID
+  )
+
+  console.log("reivestata",reivestata);
+
+      const [safety] = PublicKey.findProgramAddressSync(
+  [
+    Buffer.from("safety"),
+    propertySystemPda.toBuffer(),
+  ],
+  program.programId
+);
+
+  const safetymentassociatedTokenAddress = getAssociatedTokenAddressSync(
+    mintKeypair.publicKey,
+    safety,
+    true,
+    TOKEN_2022_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
+
+     const safetyata = await getAccount(
+    connection,safetymentassociatedTokenAddress,undefined,TOKEN_2022_PROGRAM_ID
+  )
+
+console.log("safetyata",safetyata);
+     const [trustee_registry] = PublicKey.findProgramAddressSync(
+  [
+    Buffer.from("trustee_registry"),
+    propertySystemPda.toBuffer(),
+  ],
+  program.programId
+);
+
+  const trustee_registryassociatedTokenAddress = getAssociatedTokenAddressSync(
+    mintKeypair.publicKey,
+    trustee_registry,
+    true,
+    TOKEN_2022_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
+
+     const trustee_registryata = await getAccount(
+    connection,trustee_registryassociatedTokenAddress,undefined,TOKEN_2022_PROGRAM_ID
+  )
+console.log("trustee_registryata",trustee_registryata);
+
+
+     const [arbitrator_registry] = PublicKey.findProgramAddressSync(
+  [
+    Buffer.from("arbitrator_registry"),
+    propertySystemPda.toBuffer(),
+  ],
+  program.programId
+);
+
+  const arbitrator_registryassociatedTokenAddress = getAssociatedTokenAddressSync(
+    mintKeypair.publicKey,
+    arbitrator_registry,
+    true,
+    TOKEN_2022_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
+
+     const arbitrator_registryata = await getAccount(
+    connection,arbitrator_registryassociatedTokenAddress,undefined,TOKEN_2022_PROGRAM_ID
+  )
+
+console.log("arbitrator_registryata",arbitrator_registryata);
+})
+
+
+
+
+it(" salary claim",async()=>{
+
+
+  await program.methods.trusteeSalaryClaim(
+    id,
+  ).accounts({
+    signer :candidate3.publicKey,
+    trustee:candidate3.publicKey,
+    mint:mintKeypair.publicKey,
+    tokenProgram:TOKEN_2022_PROGRAM_ID
+  }).signers([candidate3]).rpc()
+
+  await program.methods.arbitrarSalaryClaim(
+    id,
+  ).accounts({
+    signer :candidate3.publicKey,
+    arbitrar:candidate3.publicKey,
+    mint:mintKeypair.publicKey,
+    tokenProgram:TOKEN_2022_PROGRAM_ID
+  }).signers([candidate3]).rpc()
+
+  const trustee_registryassociatedTokenAddress = getAssociatedTokenAddressSync(
+    mintKeypair.publicKey,
+    candidate3.publicKey,
+    false,
+    TOKEN_2022_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
+
+     const arbitrator_registryata = await getAccount(
+    connection,trustee_registryassociatedTokenAddress,undefined,TOKEN_2022_PROGRAM_ID
+  )
+
+console.log("trustee1",arbitrator_registryata);
+
+
+})
+
+it("skip time to voting end",async() =>{
+  advanceClockBy(svm, 32n*24n*60n*60n);
+
+})
+
+it("hjfdsaf",async()=>{
+
+
+  await program.methods.treasuryDistribution(
+    id,
+  ).accounts(
+    {
+      payer:wallet.publicKey,
+      tokenProgram:TOKEN_2022_PROGRAM_ID,
+      mint:mintKeypair.publicKey
+    }
+  ).signers([wallet.payer]).rpc()
+
+})
+
+it("salary claim2",async()=>{
+
+
+  await program.methods.trusteeSalaryClaim(
+    id,
+  ).accounts({
+    signer :candidate3.publicKey,
+    trustee:candidate3.publicKey,
+    mint:mintKeypair.publicKey,
+    tokenProgram:TOKEN_2022_PROGRAM_ID
+  }).signers([candidate3]).rpc()
+
+  const trustee_registryassociatedTokenAddress = getAssociatedTokenAddressSync(
+    mintKeypair.publicKey,
+    candidate3.publicKey,
+    false,
+    TOKEN_2022_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
+    await program.methods.arbitrarSalaryClaim(
+    id,
+  ).accounts({
+    signer :candidate3.publicKey,
+    arbitrar:candidate3.publicKey,
+    mint:mintKeypair.publicKey,
+    tokenProgram:TOKEN_2022_PROGRAM_ID
+  }).signers([candidate3]).rpc()
+
+     const arbitrator_registryata = await getAccount(
+    connection,trustee_registryassociatedTokenAddress,undefined,TOKEN_2022_PROGRAM_ID
+  )
+
+console.log("trustee1",arbitrator_registryata);
+
+
+})
+
 
 
   });

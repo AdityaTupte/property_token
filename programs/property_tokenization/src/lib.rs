@@ -1115,7 +1115,7 @@ Ok(())
 
 
 pub fn token_transfer_submit_snapshot_safety_proposal(
-    ctx:Context<SubmitSnapshot>,
+    ctx:Context<SafetySubmitSnapshot>,
     property_system_account:Pubkey,proposal_id:u64,
     merkle_root : [u8;32],
     closing_days_gap : u8,
@@ -1130,7 +1130,7 @@ token_transfer_proposal::saftey_submit_snapshot(ctx, property_system_account, pr
 }
 
 pub fn token_transfer_vote_for_submit_proposal(
-ctx:Context<Voting>,
+ctx:Context<SafetyVoting>,
         proposal_id:u64,property_system_id:u64,
         proof: Vec<[u8; 32]>,
         voting_power : u64,
@@ -1287,8 +1287,36 @@ pub fn token_transfer_delete_reinvest_proposal(
 }
 
 
+pub fn treasury_distribution(
+    ctx:Context<TreasuryDistribution>,
+    property_system_id:u64
+)->Result<()>{
+    
+    treasury_distribution::treasury_distribution(ctx, property_system_id)?;
+
+    Ok(())
 
 
+}
 
+pub fn trustee_salary_claim(
+    ctx:Context<ClaimTrusteeSalary>,
+    property_system_id:u64
+)->Result<()>{
+
+    salary_distribution::trustee_salary_claim(ctx, property_system_id)?;
+
+    Ok(())
+}
+
+pub fn arbitrar_salary_claim(
+    ctx:Context<ClaimArbitrarSalary>,
+    property_system_id:u64
+)->Result<()>{
+
+    salary_distribution::claim_arbitrar_salary(ctx, property_system_id)?;
+
+    Ok(())
+}
 
 }

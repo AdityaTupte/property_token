@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint,TransferChecked, transfer_checked, TokenAccount, TokenInterface}};
 
-use crate::{common::{ARBITRAR_REGISTRYSEEDS, ARBITRAR_SALARY, HARDCODED_PUBKEY, PROPERTY_SYSTEM_SEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode,  state::{ArbitratorRecepit, ArbitratorRegistry, PropertySystemAccount, SalaryPda, arbitrator_recepit }};
+use crate::{common::{ARBITRAR_RECEIPT_SEEDS, ARBITRAR_REGISTRYSEEDS, ARBITRAR_SALARY, HARDCODED_PUBKEY, PROPERTY_SYSTEM_SEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode,  state::{ArbitratorRecepit, ArbitratorRegistry, PropertySystemAccount, SalaryPda, arbitrator_recepit }};
 
 #[derive(Accounts)]
 #[instruction(property_system_id:u64)]
@@ -10,18 +10,25 @@ pub struct ClaimArbitrarSalary<'info>{
 #[account(
     seeds=[
         PROPERTY_SYSTEM_SEEDS,
-        &property_system_id.to_be_bytes()
+        &property_system_id.to_le_bytes()
     ],
     bump= property_system.bump
 )]
 pub property_system : Account<'info,PropertySystemAccount>, 
 
+#[account(
+    mut,
+
+)]
+pub signer:Signer<'info>,
+
 #[account()]
 pub arbitrar:SystemAccount<'info>,
 
 #[account(
+    mut,
         seeds = [
-            ARBITRAR_REGISTRYSEEDS,
+            ARBITRAR_RECEIPT_SEEDS,
             property_system.key().as_ref(),
             arbitrar.key().as_ref()
         ],
@@ -31,7 +38,8 @@ pub arbitrar:SystemAccount<'info>,
 
 
 #[account(
-    mut,
+    init_if_needed,
+    payer=signer,
     associated_token::mint= mint,
     associated_token::authority = arbitrar, 
     associated_token::token_program = token_program
@@ -84,9 +92,9 @@ pub token_program : Interface<'info,TokenInterface>,
 }
 
 
-pub fn claim_trustee_salary(
+pub fn claim_arbitrar_salary(
     ctx:Context<ClaimArbitrarSalary>,
-    property_system_id:u64
+    _property_system_id:u64
 )->Result<()>{
 
     let arbitrar_registry_pda = &mut ctx.accounts.arbitrar_registry;
@@ -106,7 +114,8 @@ pub fn claim_trustee_salary(
 
     let signer_seeds: &[&[&[u8]]] = &[&[
                 ARBITRAR_REGISTRYSEEDS,
-                property_sys_key.as_ref()
+                property_sys_key.as_ref(),
+                &[ctx.accounts.arbitrar_registry.bump]
     ]];
     
     let cpi_accounts = TransferChecked{

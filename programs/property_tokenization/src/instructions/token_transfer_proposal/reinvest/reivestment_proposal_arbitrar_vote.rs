@@ -78,7 +78,7 @@ pub struct ReinvestArbitrarVote<'info>{
 
 pub fn arbitrar_vote_for_reivest(
     ctx:Context<ReinvestArbitrarVote>,
-    proposal_id : u64,property_system_id:u64
+    _proposal_id : u64,_property_system_id:u64
 )->Result<()>{
 
     let proposal_key =  ctx.accounts.proposal.key();

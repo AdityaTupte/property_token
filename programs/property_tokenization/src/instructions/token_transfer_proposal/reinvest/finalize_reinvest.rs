@@ -12,6 +12,7 @@ pub struct ReinvestFinalize<'info>{
 
 
     #[account(
+        mut,
         seeds=[
             USEREINVESTMENTOKEN,
             property_system.as_ref(),
@@ -25,7 +26,7 @@ pub struct ReinvestFinalize<'info>{
 
 pub fn finalize_reinvest_proposal(
     ctx:Context<ReinvestFinalize>,
-    proposal_id:u64,property_system:Pubkey
+    _proposal_id:u64,_property_system:Pubkey
 )->Result<()>{
 
     let proposal = &mut *ctx.accounts.proposal; 

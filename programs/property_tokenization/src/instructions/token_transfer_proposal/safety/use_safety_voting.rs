@@ -6,7 +6,7 @@ use crate::{common::{PROPERTY_SYSTEM_SEEDS, ProposalStatus, ProposalType, SAFETY
 
 #[derive(Accounts)]
 #[instruction(proposal_id:u64,property_system_id:u64)]
-pub struct Voting<'info>{
+pub struct SafetyVoting<'info>{
 
     #[account(mut)]
     pub signer: Signer<'info>,
@@ -55,7 +55,7 @@ pub struct Voting<'info>{
 }
 
 pub fn vote(
-        ctx:Context<Voting>,
+        ctx:Context<SafetyVoting>,
         _proposal_id:u64,_property_system_id:u64,
         proof: Vec<[u8; 32]>,
         voting_power : u64,

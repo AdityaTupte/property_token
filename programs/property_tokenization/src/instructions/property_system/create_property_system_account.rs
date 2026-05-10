@@ -253,6 +253,8 @@ pub fn create(
 
     threshold.safety_threshold = safety_threshold;
 
+    threshold.bump = ctx.bumps.threshold;
+
     //treasury_pda
 
     treasury_pda.property_system_accout = property_system_acc.key();

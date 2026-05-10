@@ -7,36 +7,31 @@ use crate::{common::{HARDCODED_PUBKEY, PROPERTY_SYSTEM_SEEDS, TRUSTEE_RECEIPT_SE
 #[instruction(property_system_id:u64)]
 pub struct ClaimTrusteeSalary<'info>{
 
+pub associated_token_program: Program<'info, AssociatedToken>, 
+
+#[account(
+    // address = HARDCODED_PUBKEY
+)]
+pub mint : InterfaceAccount<'info,Mint>,
+
 #[account(
     seeds=[
         PROPERTY_SYSTEM_SEEDS,
-        &property_system_id.to_be_bytes()
+        &property_system_id.to_le_bytes()
     ],
     bump= property_system.bump
 )]
-pub property_system : Account<'info,PropertySystemAccount>, 
-
-#[account()]
-pub trustee:SystemAccount<'info>,
+pub property_system : Account<'info,PropertySystemAccount>,
 
 #[account(
-        seeds = [
-            TRUSTEE_RECEIPT_SEEDS,
-            property_system.key().as_ref(),
-            trustee.key().as_ref()
-        ],
-        bump = trustee_receipt.bump,
-    )]
-    pub trustee_receipt: Account<'info,TrusteeRecepit>,
+    mut,
 
-
-
-#[account(
-    associated_token::mint= mint,
-    associated_token::authority = trustee, 
-    associated_token::token_program = token_program
 )]
-pub trustee_ata : InterfaceAccount<'info,TokenAccount>,
+pub signer:Signer<'info>,
+
+
+
+// pub system_program : Program<'info,System>,
 
 // #[account(
 //     init_if_needed,
@@ -50,7 +45,33 @@ pub trustee_ata : InterfaceAccount<'info,TokenAccount>,
 // )]
 // pub trustee_salary_pda : Account<'info,SalaryPda>,
 
+pub token_program : Interface<'info,TokenInterface>,
+
+#[account()]
+pub trustee:SystemAccount<'info>,
+
 #[account(
+    init_if_needed,
+    payer=signer,
+    associated_token::mint= mint,
+    associated_token::authority = trustee, 
+    associated_token::token_program = token_program
+)]
+pub trustee_ata : InterfaceAccount<'info,TokenAccount>,
+
+#[account(
+    mut,
+        seeds = [
+            TRUSTEE_RECEIPT_SEEDS,
+            property_system.key().as_ref(),
+            trustee.key().as_ref()
+        ],
+        bump = trustee_receipt.bump,
+    )]
+    pub trustee_receipt: Account<'info,TrusteeRecepit>,
+
+#[account(
+    mut,
     seeds=[
         TRUSTEEREGISTRYSEEDS,
         property_system.key().as_ref()
@@ -63,29 +84,19 @@ pub trustee_registry : Account<'info,TrusteeRegistry>,
 #[account(
     mut,
     associated_token::mint = mint,
-    associated_token::authority = trustee, 
+    associated_token::authority = trustee_registry, 
     associated_token::token_program = token_program
 )]
 pub trustee_registry_ata : InterfaceAccount<'info,TokenAccount>,
 
-pub system_program : Program<'info,System>,
-
-#[account(
-    // address = HARDCODED_PUBKEY
-)]
-pub mint : InterfaceAccount<'info,Mint>,
-
-pub associated_token_program: Program<'info, AssociatedToken>,
-
-pub token_program : Interface<'info,TokenInterface>,
-
+pub system_program:Program<'info,System>,
 
 }
 
 
-pub fn claim_trustee_salary(
+pub fn trustee_salary_claim(
     ctx:Context<ClaimTrusteeSalary>,
-    property_system_id:u64
+    _property_system_id:u64
 )->Result<()>{
 
 
@@ -108,10 +119,11 @@ pub fn claim_trustee_salary(
     let property_sys_key =   ctx.accounts.property_system.key();
 
     let signer_seeds: &[&[&[u8]]] = &[&[
-                TRUSTEEREGISTRYSEEDS,
-                property_sys_key.as_ref()
+        TRUSTEEREGISTRYSEEDS,
+        property_sys_key.as_ref(),
+        &[ctx.accounts.trustee_registry.bump],
     ]];
-    
+
     let cpi_accounts = TransferChecked{
         from:ctx.accounts.trustee_registry_ata.to_account_info(),
         mint: ctx.accounts.mint.to_account_info(),

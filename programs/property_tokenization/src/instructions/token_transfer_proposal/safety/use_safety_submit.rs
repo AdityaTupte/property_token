@@ -6,7 +6,7 @@ use crate::{common::{HARDCODED_PUBKEY, ProposalStatus, SAFETYPROPOSAL}, errors::
 
 #[derive(Accounts)]
 #[instruction(property_system_account:Pubkey,proposal_id:u64)]
-pub struct SubmitSnapshot<'info>{
+pub struct SafetySubmitSnapshot<'info>{
 
     #[account(mut,
     address = HARDCODED_PUBKEY  @ ErrorCode::UnAuthorized,
@@ -29,7 +29,7 @@ pub struct SubmitSnapshot<'info>{
 }
 
 pub fn saftey_submit_snapshot(
-    ctx:Context<SubmitSnapshot>,
+    ctx:Context<SafetySubmitSnapshot>,
     _property_system_account:Pubkey,_proposal_id:u64,
     merkle_root : [u8;32],
     closing_days_gap : u8,

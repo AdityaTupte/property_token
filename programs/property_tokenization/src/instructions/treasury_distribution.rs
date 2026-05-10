@@ -1,12 +1,15 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint, TokenAccount, TokenInterface}};
 
-use crate::{common::{ARBITRAR_REGISTRYSEEDS, DIVIDENDSEEDS, PROPERTY_SYSTEM_SEEDS, REINVESTMENTPDA, SAFETYPDA, THRESHOLD, TREASURYSEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, functions::transfer_fro_treasury, state::{ArbitratorRegistry, DividendPda, PropertySystemAccount, ReinvestmentPda, SafetyPda, Threshold, TreasuryPda, TrusteeRegistry, arbitrator_registry, trustee_registry}};
+use crate::{common::{ARBITRAR_REGISTRYSEEDS, DIVIDENDSEEDS, PROPERTY_SYSTEM_SEEDS, REINVESTMENTPDA, SAFETYPDA, THRESHOLD, TREASURYSEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, functions::transfer_fro_treasury, state::{ArbitratorRegistry, DividendPda, PropertySystemAccount, ReinvestmentPda, SafetyPda, Threshold, TreasuryPda, TrusteeRegistry,}};
 
 #[derive(Accounts)]
 #[instruction(property_system_id:u64)]
 pub struct TreasuryDistribution<'info>{
 
+
+    #[account(mut)]
+    pub payer : Signer<'info>,
 
     #[account(
         seeds=[
@@ -37,7 +40,8 @@ pub struct TreasuryDistribution<'info>{
     pub treasury_pda  : Box<Account<'info,TreasuryPda>>,
 
     #[account(
-        mut,
+        init_if_needed,
+        payer = payer,
         associated_token::mint = mint,
         associated_token::authority = treasury_pda,
         associated_token::token_program = token_program,
@@ -54,9 +58,10 @@ pub struct TreasuryDistribution<'info>{
     pub dividend_pda : Box<Account<'info,DividendPda>>,
 
     #[account(
-        mut,
+        init_if_needed,
+        payer = payer,
         associated_token::mint = mint,
-        associated_token::authority = dividend_ata,
+        associated_token::authority = dividend_pda,
         associated_token::token_program = token_program,
     )]
     pub dividend_ata : Box<InterfaceAccount<'info,TokenAccount>>,
@@ -71,7 +76,8 @@ pub struct TreasuryDistribution<'info>{
     pub reinvestment_pda : Box<Account<'info,ReinvestmentPda>>,
 
     #[account(
-        mut,
+        init_if_needed,
+        payer = payer,
         associated_token::mint = mint,
         associated_token::authority = reinvestment_pda,
         associated_token::token_program = token_program,
@@ -89,7 +95,8 @@ pub struct TreasuryDistribution<'info>{
     pub safety_pda : Box<Account<'info,SafetyPda>>,
 
     #[account(
-        mut,
+        init_if_needed,
+        payer = payer,
         associated_token::mint = mint,
         associated_token::authority = safety_pda,
         associated_token::token_program = token_program,
@@ -107,7 +114,8 @@ pub struct TreasuryDistribution<'info>{
     pub trustee_pda : Box<Account<'info,TrusteeRegistry>>,
 
     #[account(
-        mut,
+        init_if_needed,
+        payer = payer,
         associated_token::mint = mint,
         associated_token::authority = trustee_pda,
         associated_token::token_program = token_program,
@@ -126,7 +134,8 @@ pub struct TreasuryDistribution<'info>{
     pub arbitrar_pda : Box<Account<'info,ArbitratorRegistry>>, 
 
     #[account(
-        mut,
+        init_if_needed,
+        payer = payer,
         associated_token::mint = mint,
         associated_token::authority = arbitrar_pda,
         associated_token::token_program = token_program,
@@ -138,14 +147,17 @@ pub struct TreasuryDistribution<'info>{
 
     pub associated_token_program: Program<'info, AssociatedToken>,
 
-    pub token_program : Interface<'info,TokenInterface>
+    pub token_program : Interface<'info,TokenInterface>,
+
+    pub system_program :Program<'info,System>,
     
 
 }
 
 
 pub fn treasury_distribution(
-    ctx:Context<TreasuryDistribution>
+    ctx:Context<TreasuryDistribution>,
+    _property_system_id:u64
 )->Result<()>{
 
 
@@ -163,7 +175,7 @@ pub fn treasury_distribution(
 
     require!(now >= valid_time,ErrorCode::DistributionTimeNotReached);
 
-    let bps = threshold.trustee_salary_threshold.checked_mul(100).ok_or(ErrorCode::MathOverflow)?;
+    let bps = (threshold.trustee_salary_threshold as u64).checked_mul(100).ok_or(ErrorCode::MathOverflow)?;
 
     let treasury_fund = ctx.accounts.treasury_ata.amount;
 
@@ -182,7 +194,7 @@ pub fn treasury_distribution(
                                     .checked_div(10_000)
                                     .ok_or(ErrorCode::MathOverflow)?;
 
-    let bps2 = threshold.arbitrator_salary_threshold.checked_mul(100).ok_or(ErrorCode::MathOverflow)?;
+    let bps2 = (threshold.arbitrator_salary_threshold as u64).checked_mul(100).ok_or(ErrorCode::MathOverflow)?;
 
     let amount_for_arbitrar = treasury_fund
                                     .checked_mul(bps2 as u64)
@@ -190,7 +202,7 @@ pub fn treasury_distribution(
                                     .checked_div(10_000)
                                     .ok_or(ErrorCode::MathOverflow)?;
 
-    let bps3 = threshold.dividend_threshold.checked_mul(100).ok_or(ErrorCode::MathOverflow)?;                            
+    let bps3 = (threshold.dividend_threshold as u64).checked_mul(100).ok_or(ErrorCode::MathOverflow)?;                            
 
     let amount_for_dividend = treasury_fund
                                     .checked_mul(bps3 as u64)
@@ -198,7 +210,7 @@ pub fn treasury_distribution(
                                     .checked_div(10_000)
                                     .ok_or(ErrorCode::MathOverflow)?;
     
-    let bps4 = threshold.reinvestment_threshold.checked_mul(100).ok_or(ErrorCode::MathOverflow)?;
+    let bps4 = (threshold.reinvestment_threshold as u64).checked_mul(100).ok_or(ErrorCode::MathOverflow)?;
 
     let amount_for_reinvestment = treasury_fund
                                     .checked_mul(bps4 as u64)
@@ -206,7 +218,7 @@ pub fn treasury_distribution(
                                     .checked_div(10_000)
                                     .ok_or(ErrorCode::MathOverflow)?;
 
-    let bps5 = threshold.safety_threshold.checked_mul(100).ok_or(ErrorCode::MathOverflow)?;
+    let bps5 = (threshold.safety_threshold as u64).checked_mul(100).ok_or(ErrorCode::MathOverflow)?;
 
     let amount_for_safety = treasury_fund
                                     .checked_mul(bps5 as u64)
