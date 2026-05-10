@@ -2,9 +2,10 @@ use anchor_lang::prelude::*;
 
 use crate::{common::{ PROPERTY_PROPOSAL_SEEDS, PROPERTY_SYSTEM_SEEDS, STATE_AUTHORITY, STATE_SEEDS}, errors::ErrorCode, state::{  PropertyProposal, PropertySystemAccount, State, StateAuthority}};
 
-
+use crate::functions::check_property_system;
 
 #[derive(Accounts)]
+
 #[instruction(country_key:Pubkey,state_name:[u8;32],property_id:u64,property_system_id:u64)]
 pub struct CreatePropertyProposal<'info>{
 
@@ -60,7 +61,7 @@ pub struct CreatePropertyProposal<'info>{
 
     pub system_program: Program<'info,System>,
 }
-
+#[access_control(check_property_system(&ctx.accounts.property_system))]
 pub fn create_proposal(
     ctx:Context<CreatePropertyProposal>,
     _country_key:Pubkey,
@@ -94,4 +95,3 @@ pub fn create_proposal(
 
     Ok(())
 }
-

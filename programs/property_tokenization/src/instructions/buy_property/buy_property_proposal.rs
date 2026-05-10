@@ -4,7 +4,7 @@ use crate::common::{BUYPROPERTY, PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, ProposalS
 use crate::state::{PropertyAccount, PropertyBuyProposal, PropertySellProposal, PropertySystemAccount, ReinvestmentPda, TrusteeRecepit};
 use crate::errors::ErrorCode;
 
-
+use crate::functions::check_property_system;
 #[derive(Accounts)]
 #[instruction(proposal_id : u64,buyer_property_system_id:u64,seller_property_system_account:Pubkey,seller_proposal_id:u64,
     state_pubkey:Pubkey,property_id:u64)]
@@ -98,6 +98,7 @@ pub struct BuyPropertyProposal<'info>{
 
 }
 
+#[access_control(check_property_system(&ctx.accounts.buyer))]
 
 pub fn createbuyproposal(
     ctx:Context<BuyPropertyProposal>,

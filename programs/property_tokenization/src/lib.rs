@@ -166,6 +166,8 @@ pub mod property_tokenization {
             Ok(())
     }
 
+
+
     pub fn create_property_proposal(
         ctx:Context<CreatePropertyProposal>,
         country_key:Pubkey,

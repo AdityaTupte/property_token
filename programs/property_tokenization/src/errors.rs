@@ -33,6 +33,9 @@ pub enum ErrorCode{
     #[msg("the property system is ready for listing ")]
     PropertySystemReadyForListing,
 
+    #[msg("the property system is not ready ")]
+    PropertySystemIsNotReady,
+
     #[msg("the numbers of authority must greater than 0 and less than 200")]
     AuthorityNumberInvalid,
 

@@ -3,7 +3,7 @@ use crate::common::{ PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, SELLPROPERTY, TREASUR
 use crate::errors::ErrorCode;
 use crate::state::{PropertyAccount, PropertySellProposal, PropertySystemAccount, TreasuryPda, TrusteeRecepit,};
 
-
+use crate::functions::check_property_system;
 #[derive(Accounts)]
 #[instruction(proposal_id : u64,property_id:u64,property_system_id:u64,state_pubkey:Pubkey)]
 pub struct SellLandProposal<'info>{
@@ -83,7 +83,7 @@ pub struct SellLandProposal<'info>{
 
 }
 
-
+#[access_control(check_property_system(&ctx.accounts.seller))]
 pub fn create_sell_proposal(ctx:Context<SellLandProposal>,proposal_id: u64,_property_id:u64,_property_system_id:u64,_state_pubkey:Pubkey,sale_price:u64,)->Result<()>{
 
     let seller = &ctx.accounts.seller ;
