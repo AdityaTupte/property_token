@@ -51,7 +51,7 @@ pub fn rtc_submit_snapshot(
 
     submit(proposal, merkle_root, closing_days_gap,vote_threshold,threshold_submission_deadline_days)?;
     
-    proposal.voting_for_threshold_deadline = proposal.challenge_new_threshold_deadline
+    proposal.voting_for_threshold_deadline = proposal.threshold_submission_deadline
                                                             .checked_add(24*60*60*(voting_for_threshold_deadline_days as i64))
                                                             .ok_or(ErrorCode::MathOverflow)?;
     

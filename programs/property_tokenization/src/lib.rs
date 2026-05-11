@@ -720,7 +720,17 @@ pub fn add_arbitrar_offender(
     Ok(())
 
 }
-   
+
+pub fn ask_snapshot_for_challenge_proposal(
+    ctx:Context<AskForSnapshotOFChallengeProposal>,
+    
+)->Result<()>{
+
+    challenge_against_authority::ask_snapshot_for_challenge_proposal(ctx)?;
+
+    Ok(())
+
+}
 
 
 pub fn submit_snaphot_for_voting_on_challenge_proposal(
@@ -1083,6 +1093,30 @@ pub fn pay_rent(
 }
 
 
+pub fn terminate_lease(
+     ctx:Context<TerminateLease>,
+    property_system:Pubkey,lease_id:u64,property_id:u64,state_pubkey:Pubkey,
+    send_security_deposit_to_lessee:u64,
+)->Result<()>{
+
+    lease_property::terminate_lease(ctx, property_system, lease_id, property_id, state_pubkey, send_security_deposit_to_lessee)?;
+
+    Ok(())
+
+}
+
+pub fn finalize_lease(
+     ctx:Context<FinalizeLease>,
+    property_system:Pubkey,lease_id:u64,property_id:u64,state_pubkey:Pubkey,
+    send_security_deposit_to_lessee:u64,
+)->Result<()>{
+
+    lease_property::finalize_lease(ctx, property_system, lease_id, property_id, state_pubkey, send_security_deposit_to_lessee)?;
+
+    Ok(())
+
+}
+
 ///// token transfer  safety
 
 
@@ -1206,12 +1240,12 @@ pub fn token_transfer_create_use_reinvest_proposal(
 
 
 
-pub fn token_transfer_arbitrar_approval_reivest_proposal(
+pub fn token_transfer_arbitrar_approval_reinvest_proposal(
      ctx:Context<ReinvestArbitrarVote>,
     proposal_id : u64,property_system_id:u64
 )->Result<()>{
 
-token_transfer_proposal::arbitrar_vote_for_reivest(ctx, proposal_id, property_system_id)?;
+token_transfer_proposal::arbitrar_vote_for_reinvest(ctx, proposal_id, property_system_id)?;
 
 
 Ok(())
@@ -1248,7 +1282,7 @@ ctx:Context<ReinvestVoting>,
 }
 
 
-pub fn token_transfer_finalize_reivest_proposal(
+pub fn token_transfer_finalize_reinvest_proposal(
          ctx:Context<ReinvestFinalize>,
          proposal_id:u64,property_system:Pubkey
 )->Result<()>{
@@ -1320,5 +1354,137 @@ pub fn arbitrar_salary_claim(
 
     Ok(())
 }
+
+pub fn revenue_change_proposal(
+    ctx:Context<RTProposal>,
+    proposal_id:u64,
+    property_system_id:u64
+)->Result<()>{
+
+    revenue_threshold_change::rt_proposal(ctx, proposal_id, property_system_id)?;
+    Ok(())
+}
+
+
+pub fn revenue_proposal_arbitrar_vote(
+     ctx:Context<RtcArbitrarVote>,
+    proposal_id : u64,property_system_id:u64
+)->Result<()>{
+
+
+    revenue_threshold_change::rtc_proposal_arbitrar_vote(ctx, proposal_id, property_system_id)?;
+    Ok(())
+
+}
+
+pub fn revenue_proposal_submit_snapshot(
+    ctx:Context<SubmitSnapshot>,
+    property_system_account:Pubkey,
+    proposal_id:u64,
+    merkle_root : [u8;32],
+    closing_days_gap : u8,
+    threshold_submission_deadline_days : u8 ,
+    voting_for_threshold_deadline_days : u8,
+    add_new_threshold_deadline_days : u8,
+    challenge_new_threshold_deadline_days : u8,
+    vote_threshold :u64,
+) ->Result<()>{
+
+    revenue_threshold_change::rtc_submit_snapshot(ctx, property_system_account, proposal_id, merkle_root, closing_days_gap, threshold_submission_deadline_days, voting_for_threshold_deadline_days, add_new_threshold_deadline_days, challenge_new_threshold_deadline_days, vote_threshold)?;
+    Ok(())
+
+}
+
+pub fn revenue_proposal_voting(
+    ctx:Context<rtcVoting>,
+        proposal_id:u64,
+        property_system_id:u64,
+        proof: Vec<[u8; 32]>,
+        voting_power : u64,
+        yes_or_no : bool,
+)->Result<()>{
+revenue_threshold_change::vote(ctx, proposal_id, property_system_id, proof, voting_power, yes_or_no)?;
+Ok(())
+
+}
+
+pub fn finalize_rtc_proposal(
+    ctx:Context<RTChgFinalize>,
+    proposal_id:u64,
+    property_system_account:Pubkey
+)->Result<()>{
+
+    revenue_threshold_change::finalize_rtc_proposal(ctx, proposal_id, property_system_account)?;
+    Ok(())
+}
+
+pub fn propose_new_threshold(
+      ctx:Context<ProposeNewThreshold>,
+            proposal_id:u64,property_system_id:u64,
+            proof: Vec<[u8; 32]>,
+            
+            voting_power : u64,
+            
+            new_trustee_salary_threshold : u8,
+            
+            new_arbitrator_salary_threshold : u8,
+
+            new_dividend_threshold: u8,
+
+            new_reinvestment_threshold : u8,
+
+            new_safety_threshold : u8,
+)->Result<()>{
+
+    revenue_threshold_change::propose_new_threshold(ctx, proposal_id, property_system_id, proof, voting_power, new_trustee_salary_threshold, new_arbitrator_salary_threshold, new_dividend_threshold, new_reinvestment_threshold, new_safety_threshold)?;
+
+    Ok(())
+}
+
+
+pub fn vote_for_new_threshold(
+ctx:Context<VoteForNewThreshold>,
+    new_threshold_creator:Pubkey,proposal_id:u64,property_system_id:u64,
+    proof: Vec<[u8; 32]>,
+    voting_power : u64, 
+    
+)->Result<()>{
+
+    revenue_threshold_change::vote_for_new_threshold(ctx, new_threshold_creator, proposal_id, property_system_id, proof, voting_power)?;
+
+    Ok(())
+
+}
+
+pub fn change_to_the_new_threshold(
+    ctx:Context<ChangeToNewThreshold>,proposal_id:u64,property_system_id:u64,new_threshold_signer:Pubkey    
+)->Result<()>{
+
+    revenue_threshold_change::change_to_the_new_threshold(ctx, proposal_id, property_system_id,new_threshold_signer)?;
+    Ok(())
+}
+
+pub fn challenge_new_threshold(
+    ctx:Context<ChallengeNewThreshold>,
+    property_system_id:u64,proposal_id:u64,existing_new_threshold_signer:Pubkey,challenge_new_threshold_signer:Pubkey,
+)->Result<()>{
+
+    revenue_threshold_change::challenge_new_threshold(ctx, property_system_id, proposal_id, existing_new_threshold_signer, challenge_new_threshold_signer)?;
+
+    Ok(())
+}
+
+
+pub fn finalize_new_threshold(
+        ctx:Context<FinalizeNewThreshold>,
+    property_system_id:u64,proposal_id:u64,new_threshold_signer:Pubkey,
+)->Result<()>{
+
+    revenue_threshold_change::finalize_new_threshold(ctx, property_system_id,proposal_id, new_threshold_signer)?;
+
+    Ok(())
+
+}
+
 
 }

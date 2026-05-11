@@ -2,6 +2,7 @@ use anchor_lang::prelude::*;
 
 use crate::{common::{ LEASE_PROPERTY_PROPOSAL, PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, state::{ LeaseProposal, PropertyAccount,  PropertySystemAccount, TrusteeRecepit, TrusteeRegistry}};
 
+use crate::functions::check_property_system;
 
 #[derive(Accounts)]
 #[instruction(lease_id:u64,property_id:u64,state_pubkey:Pubkey,property_system_id:u64)]
@@ -86,7 +87,7 @@ pub struct InitializeLeaseProposal<'info>{
 
 }
 
-
+#[access_control(check_property_system(&ctx.accounts.property_system))]
 pub fn initialize_lease_proposal(
     ctx:Context<InitializeLeaseProposal>,
     lease_id :u64,

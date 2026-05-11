@@ -4,7 +4,7 @@ use crate::{common::{PROPERTY_SYSTEM_SEEDS, ProposalStatus, RT_CHG_PROPOSAL_SEED
 
 #[derive(Accounts)]
 #[instruction(proposal_id:u64,property_system_id:u64)]
-pub struct Voting<'info>{
+pub struct rtcVoting<'info>{
 
     #[account(
         mut
@@ -59,7 +59,7 @@ pub struct Voting<'info>{
 
 
     pub fn vote(
-        ctx:Context<Voting>,
+        ctx:Context<rtcVoting>,
         _proposal_id:u64,
         _property_system_id:u64,
         proof: Vec<[u8; 32]>,

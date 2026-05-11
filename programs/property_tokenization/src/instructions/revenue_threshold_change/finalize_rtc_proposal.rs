@@ -14,6 +14,7 @@ pub struct RTChgFinalize<'info>{
 
 
     #[account(
+        mut,
         seeds=[
             RT_CHG_PROPOSAL_SEEDS,
             property_system_account.as_ref(),
@@ -26,7 +27,7 @@ pub struct RTChgFinalize<'info>{
 }
 
 
-pub fn finalize_rtc_proposal(ctx:Context<RTChgFinalize>)->Result<()>{
+pub fn finalize_rtc_proposal(ctx:Context<RTChgFinalize>,_proposal_id:u64,_property_system_account:Pubkey)->Result<()>{
 
     let proposal = &mut *ctx.accounts.proposal; 
 

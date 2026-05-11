@@ -3,6 +3,7 @@ use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint,Trans
 
 use crate::{common::{HARDCODED_PUBKEY, PROPERTY_SYSTEM_SEEDS, TRUSTEE_RECEIPT_SEEDS, TRUSTEE_SALARY, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode,  state::{PropertySystemAccount, SalaryPda, TrusteeRecepit, TrusteeRegistry}};
 
+use crate::functions::check_property_system;
 #[derive(Accounts)]
 #[instruction(property_system_id:u64)]
 pub struct ClaimTrusteeSalary<'info>{
@@ -93,7 +94,7 @@ pub system_program:Program<'info,System>,
 
 }
 
-
+#[access_control(check_property_system(&ctx.accounts.property_system))]
 pub fn trustee_salary_claim(
     ctx:Context<ClaimTrusteeSalary>,
     _property_system_id:u64

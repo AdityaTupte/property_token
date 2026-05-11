@@ -20,6 +20,7 @@ pub struct ChallengeNewThreshold<'info>{
     pub property_system:Account<'info,PropertySystemAccount>,
 
     #[account(
+        mut,
         seeds=[
             RT_CHG_PROPOSAL_SEEDS,
             property_system.key().as_ref(),
@@ -52,7 +53,10 @@ pub struct ChallengeNewThreshold<'info>{
 
 } 
 
-pub fn challenge_new_threshold(ctx:Context<ChallengeNewThreshold>)->Result<()>{
+pub fn challenge_new_threshold(
+    ctx:Context<ChallengeNewThreshold>,
+    _property_system_id:u64,_proposal_id:u64,_existing_new_threshold_signer:Pubkey,_challenge_new_threshold_signer:Pubkey,
+)->Result<()>{
 
     let current_time = Clock::get()?.unix_timestamp;
 
@@ -71,11 +75,11 @@ pub fn challenge_new_threshold(ctx:Context<ChallengeNewThreshold>)->Result<()>{
     );
 
 
-    if challenge_threshold.vote_gained > existing_threshold.vote_gained  {
+    require!( challenge_threshold.vote_gained > existing_threshold.vote_gained,ErrorCode::VoteGainedLess );
         
         proposal.new_threshold = challenge_threshold.key();
 
-    }
+    
     
     Ok(())
 

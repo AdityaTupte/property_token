@@ -33,8 +33,8 @@ use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, R
     #[account(
         seeds=[
             RT_CHG_PROPOSAL_SEEDS,
+            property_system.key().as_ref(),
             &proposal_id.to_le_bytes(),
-            property_system.key().as_ref()
         ],
         bump = proposal.bump,
         constraint = proposal.status == ProposalStatus::Passed @ ErrorCode::ProposalNotPassed
@@ -70,6 +70,7 @@ use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, R
 
 pub fn vote_for_new_threshold(
     ctx:Context<VoteForNewThreshold>,
+    _new_threshold_creator:Pubkey,_proposal_id:u64,_property_system_id:u64,
     proof: Vec<[u8; 32]>,
     voting_power : u64,
 )->Result<()>{
@@ -88,7 +89,7 @@ pub fn vote_for_new_threshold(
 
 
     let leaf = keccak::hashv(&[
-        RT_CHG_PROPOSAL_SEEDS,
+        &[ctx.accounts.proposal.proposal_type as u8],
         ctx.accounts.signer.key().as_ref(),
         ctx.accounts.proposal.key().as_ref(),
         ctx.accounts.mint.key().as_ref(),

@@ -1,6 +1,7 @@
 pub mod challenge_authority_proposal;
 pub mod add_trustee_offender;
 pub mod add_arbitrar_offender;
+pub mod ask_snapshot_for_challenge_proposal;
 //ask for snapshot
 pub mod submit_snapshot_for_challenge_proposal;
 pub mod vote_for_challenge_proposal;
@@ -35,6 +36,7 @@ pub mod finalize_new_arbitrar;
 pub use challenge_authority_proposal::*;
 pub use add_trustee_offender::*;
 pub use add_arbitrar_offender::*;
+pub use ask_snapshot_for_challenge_proposal::*;
 pub use submit_snapshot_for_challenge_proposal::*;
 pub use vote_for_challenge_proposal::*; 
 pub use outcome_of_proposal::*;

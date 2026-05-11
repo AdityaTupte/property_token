@@ -3,6 +3,8 @@ use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint, Toke
 
 use crate::{common::{ CHALLENGEAUTHORITY, PROPERTY_SYSTEM_SEEDS, ProposalStatus, ProposalType}, errors::ErrorCode, state::{ChallengeProposal, PropertySystemAccount}};
 
+use crate::functions::check_property_system;
+
 
 
 #[derive(Accounts)]
@@ -56,7 +58,7 @@ pub struct ChallengeAuthorityProposal<'info>{
 
 }
 
-
+#[access_control(check_property_system(&ctx.accounts.property_system))]
 pub fn challenge_authority(
     ctx:Context<ChallengeAuthorityProposal>,
     proposal_id : u64,

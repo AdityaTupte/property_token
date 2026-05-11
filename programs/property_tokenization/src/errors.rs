@@ -342,7 +342,7 @@ pub enum ErrorCode{
     #[msg("the challenge deadline not reached")]
     ChallengeeDeadlineNotExpired,
 
-    #[msg("the challenge deadline not reached yet")]
+    #[msg("the challenge time period not reached yet")]
     ChallegeDeadlineNotStart,
     
     #[msg("the deadline should be less than 30")]

@@ -76,7 +76,7 @@ pub struct ReinvestArbitrarVote<'info>{
 
 }
 
-pub fn arbitrar_vote_for_reivest(
+pub fn arbitrar_vote_for_reinvest(
     ctx:Context<ReinvestArbitrarVote>,
     _proposal_id : u64,_property_system_id:u64
 )->Result<()>{

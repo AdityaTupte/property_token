@@ -4,15 +4,30 @@ use anchor_spl::{associated_token::AssociatedToken,  token_interface::{Mint, Tok
 use crate::{common::{HARDCODED_PUBKEY, LEASE_PROPERTY, LeaseStatus, PROPERTY_SEED, REINVESTMENTPDA}, errors::ErrorCode, instructions::FinalizeLease, state::{LeaseProperty, PropertyAccount, ReinvestmentPda }};
 
 #[derive(Accounts)]
+#[instruction(property_system:Pubkey,lease_id:u64,property_id:u64,state_pubkey:Pubkey,)]
 pub struct TerminateLease<'info>{
 
+    #[account(mut)]
     pub neutral : Signer<'info>,
+    
+    pub lesse : SystemAccount<'info>,
+
+     #[account(
+        init_if_needed,
+        payer = neutral,
+        associated_token::mint = mint,
+        associated_token::authority = lesse,
+        associated_token::token_program = token_program,
+    )]
+    pub lessee_ata : InterfaceAccount<'info,TokenAccount>,
 
     #[account(
+        mut,
         seeds=[
             LEASE_PROPERTY,
-            &lease.lease_id.to_le_bytes(),
-            property.key().as_ref()
+            property_system.as_ref(),
+            property.key().as_ref(),
+            &lease_id.to_le_bytes(),
         ],
         bump = lease.bump,
         constraint = lease.status == LeaseStatus::Active @ ErrorCode::LeaseNotActivated,
@@ -20,28 +35,42 @@ pub struct TerminateLease<'info>{
 
      pub lease: Account<'info,LeaseProperty>,
 
+     #[account(
+        init_if_needed,
+        payer = neutral,
+        associated_token::mint = mint,
+        associated_token::authority = lease,
+        associated_token::token_program = token_program,
+    )]
+    pub lease_ata : InterfaceAccount<'info,TokenAccount>,
+
     #[account(
+        mut,
         seeds = [
                     PROPERTY_SEED,
-                    &property.property_id.to_le_bytes(),
-                    property.state_pubkey.as_ref(),
+                    &property_id.to_le_bytes(),
+                    state_pubkey.as_ref(),
             ],
             bump = property.bump,
-            constraint = property.is_leased @ ErrorCode::LeaseNotActivated
+            constraint = property.is_leased @ ErrorCode::LeaseNotActivated,
+            constraint = property.property_system == property_system @ ErrorCode::PropertySystemInvalid 
            
     )]
     pub property:Account<'info,PropertyAccount>,
 
 
      #[account(
+        mut,
         seeds = [
             REINVESTMENTPDA,
-            property.property_system.key().as_ref()],
+            property_system.as_ref()],
         bump= reinvestment_pda.bump ,
     )]
     pub reinvestment_pda :Account<'info,ReinvestmentPda>,
 
     #[account(
+        init_if_needed,
+        payer = neutral,
         associated_token::mint = mint,
         associated_token::authority = reinvestment_pda,
         associated_token::token_program = token_program,
@@ -51,7 +80,7 @@ pub struct TerminateLease<'info>{
     pub system_program : Program<'info,System>,
     
     #[account(
-        address = HARDCODED_PUBKEY
+        // address = HARDCODED_PUBKEY
     )]
     pub mint : InterfaceAccount<'info,Mint>,
 
@@ -60,11 +89,11 @@ pub struct TerminateLease<'info>{
     pub associated_token_program : Program<'info,AssociatedToken>,
 
 
-
 }
 
 pub fn terminate_lease(
-    ctx:Context<FinalizeLease>,
+    ctx:Context<TerminateLease>,
+    _property_system:Pubkey,_lease_id:u64,_property_id:u64,_state_pubkey:Pubkey,
     send_security_deposit_to_lessee:u64,
 )->Result<()>{
 
@@ -76,7 +105,7 @@ pub fn terminate_lease(
     require!(now < lease.lease_end_time , ErrorCode::LeaseEndTimeReached );
 
     let property_acc_key =  ctx.accounts.property.key();
-    
+    let property = &mut ctx.accounts.property;
     
     let cpi_account = TransferChecked{
         from:ctx.accounts.lease_ata.to_account_info(),
@@ -119,7 +148,8 @@ pub fn terminate_lease(
 
 
     lease.status = LeaseStatus::Terminated;     
-
+    
+    property.is_leased = false;
     
     Ok(())
 

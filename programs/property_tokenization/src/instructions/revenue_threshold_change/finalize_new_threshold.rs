@@ -3,17 +3,18 @@ use anchor_lang::prelude::*;
 use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, RT_CHG_PROPOSAL_SEEDS, THRESHOLD}, errors::ErrorCode, state::{NEWTHRESHOLDPROPOSAL, PropertySystemAccount, RTChgProposal, Threshold}};
 
 #[derive(Accounts)]
-#[instruction(property_system_id:u64,new_threshold_signer:Pubkey)]
+#[instruction(property_system_id:u64,proposal_id:u64,new_threshold_signer:Pubkey)]
 pub struct FinalizeNewThreshold<'info>{
 
     #[account()]
     pub signer : Signer<'info>,
 
      #[account(
+        mut,
         seeds=[
             RT_CHG_PROPOSAL_SEEDS,
             property_system.key().as_ref(),
-            &proposal.proposal_id.to_le_bytes(),
+            &proposal_id.to_le_bytes(),
             
         ],
         bump,
@@ -55,7 +56,8 @@ pub struct FinalizeNewThreshold<'info>{
 
 
 pub fn finalize_new_threshold(
-    ctx:Context<FinalizeNewThreshold>
+    ctx:Context<FinalizeNewThreshold>,
+    _property_system_id:u64,_proposal_id:u64,_new_threshold_signer:Pubkey,
 )->Result<()>{
 
     let current_time = Clock::get()?.unix_timestamp;

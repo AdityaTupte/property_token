@@ -1,13 +1,13 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{CHALLENGEAUTHORITY, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, state::{ChallengeProposal, PropertySystemAccount}};
+use crate::{common::{CHALLENGEAUTHORITY, HARDCODED_PUBKEY, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, state::{ChallengeProposal, PropertySystemAccount}};
 
 #[derive(Accounts)]
 #[instruction(proposal_id : u64,property_system_id : u64)]
 pub struct SubmitSnaphotForChallengeProposal<'info>{
 
     #[account(
-        constraint = proposal.creator == signer.key() @ ErrorCode::UnAuthorized
+        address = HARDCODED_PUBKEY @ ErrorCode::UnAuthorized
     )]
     pub signer : Signer<'info>,
 

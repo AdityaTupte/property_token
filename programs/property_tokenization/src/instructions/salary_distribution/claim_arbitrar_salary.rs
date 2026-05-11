@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint,TransferChecked, transfer_checked, TokenAccount, TokenInterface}};
 
 use crate::{common::{ARBITRAR_RECEIPT_SEEDS, ARBITRAR_REGISTRYSEEDS, ARBITRAR_SALARY, HARDCODED_PUBKEY, PROPERTY_SYSTEM_SEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode,  state::{ArbitratorRecepit, ArbitratorRegistry, PropertySystemAccount, SalaryPda, arbitrator_recepit }};
-
+use crate::functions::check_property_system;
 #[derive(Accounts)]
 #[instruction(property_system_id:u64)]
 pub struct ClaimArbitrarSalary<'info>{
@@ -90,7 +90,7 @@ pub token_program : Interface<'info,TokenInterface>,
 
 
 }
-
+#[access_control(check_property_system(&ctx.accounts.property_system))]
 
 pub fn claim_arbitrar_salary(
     ctx:Context<ClaimArbitrarSalary>,

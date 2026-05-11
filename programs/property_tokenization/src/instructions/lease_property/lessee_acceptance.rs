@@ -67,6 +67,7 @@ pub struct LesseeAcceptance<'info>{
     pub property : Box<Account<'info,PropertyAccount>>,
 
     #[account(
+        mut,
         seeds=[
             PROPERTY_SYSTEM_SEEDS,
             &property_system_id.to_le_bytes(),
@@ -130,11 +131,15 @@ pub fn lessee_acceptance(
 
     let proposal = &mut ctx.accounts.proposal;
 
+    let property = &mut ctx.accounts.property;
+
     require!(proposal.lessee == ctx.accounts.signer.key(),ErrorCode::UnAuthorized);
 
     let lease = &mut ctx.accounts.lease;
 
     require!(now <= proposal.lessee_acceptance_deadline , ErrorCode::DeadlineReached );
+
+    property.is_leased = true;
 
     lease.lessee = proposal.lessee;
 

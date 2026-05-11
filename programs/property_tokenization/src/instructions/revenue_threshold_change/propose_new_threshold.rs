@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::spl_associated_token_account::solana_program::keccak, token_interface::{Mint, }};
 
-use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, RT_CHG_PROPOSAL_SEEDS}, errors::ErrorCode, functions::verify_proof, state::{NEWTHRESHOLDPROPOSAL, PropertySystemAccount, RTChgProposal}};
+use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, RT_CHG_PROPOSAL_SEEDS}, errors::ErrorCode, functions::verify_proof, state::{NEWTHRESHOLDPROPOSAL, PropertySystemAccount, RTChgProposal}, traits::Governance};
 
 
 
@@ -59,7 +59,7 @@ pub struct ProposeNewThreshold<'info>{
 
 pub fn propose_new_threshold(
             ctx:Context<ProposeNewThreshold>,
-            
+            _proposal_id:u64,_property_system_id:u64,
             proof: Vec<[u8; 32]>,
             
             voting_power : u64,
@@ -86,7 +86,7 @@ pub fn propose_new_threshold(
     
 
     let leaf = keccak::hashv(&[
-        RT_CHG_PROPOSAL_SEEDS,
+        &[ctx.accounts.proposal.proposal_type as u8],
         ctx.accounts.signer.key().as_ref(),
         ctx.accounts.proposal.key().as_ref(),
         ctx.accounts.mint.key().as_ref(),

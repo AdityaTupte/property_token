@@ -4056,9 +4056,9 @@ it("submit snapshot for voting",async()=>{
     merkleRoot
   ).accounts(
     {
-      signer:receiver1.publicKey
+      signer:wallet.publicKey
     }
-  ).signers([receiver1]).rpc()
+  ).signers([wallet.payer]).rpc()
 
 })
 
@@ -5526,7 +5526,7 @@ it("create reinvestment proposal",async()=>{
 
 it("arbitrar_vote",async()=>{
 
-await program.methods.tokenTransferArbitrarApprovalReivestProposal(
+await program.methods.tokenTransferArbitrarApprovalReinvestProposal(
 
   id,
   id
@@ -5535,7 +5535,7 @@ await program.methods.tokenTransferArbitrarApprovalReivestProposal(
   {signer:candidate3.publicKey}
 ).signers([candidate3]).rpc()
 
-await program.methods.tokenTransferArbitrarApprovalReivestProposal(
+await program.methods.tokenTransferArbitrarApprovalReinvestProposal(
 
   id,
   id
@@ -5684,7 +5684,7 @@ it("finalize the reivest proposal",async()=>{
 
 
 
-  await program.methods.tokenTransferFinalizeReivestProposal(
+  await program.methods.tokenTransferFinalizeReinvestProposal(
       id,
       propertySystemPda
 
@@ -5959,7 +5959,7 @@ it("skip time to voting end",async() =>{
 
 })
 
-it("hjfdsaf",async()=>{
+it("teasury distribution  2",async()=>{
 
 
   await program.methods.treasuryDistribution(
@@ -6009,8 +6009,329 @@ it("salary claim2",async()=>{
 
 console.log("trustee1",arbitrator_registryata);
 
+})
+
+
+it("revencue chanage prososal",async()=>{
+
+
+  await program.methods.revenueChangeProposal(
+    id,
+    id
+  ).accounts(
+    {
+      trustee:candidate3.publicKey
+    }
+  ).signers([candidate3]).rpc()
 
 })
+
+it("revencue chanage prososal arbitrar vote",async()=>{
+
+
+  await program.methods.revenueProposalArbitrarVote(
+    id,
+    id
+  ).accounts(
+    {
+      arbitrar:candidate3.publicKey
+    }
+  ).signers([candidate3]).rpc()
+
+})
+
+
+const [revenue_proposal] = anchor.web3.PublicKey.findProgramAddressSync(
+  [
+   Buffer.from("rt_change_proposal"),
+   propertySystemPda.toBuffer(),
+   id.toArrayLike(Buffer,"le",8) 
+  ],
+  program.programId
+);
+
+it("revenue change prososal submit snapshot",async()=>{
+
+
+    const merkleRoot = buildMerkleRoot([
+    buildAuthorityLeaf(receiver1.publicKey, revenue_proposal, governanceMint, 100,4),
+    buildAuthorityLeaf(receiver2.publicKey, revenue_proposal, governanceMint, 100,4),
+    buildAuthorityLeaf(receiver3.publicKey, revenue_proposal, governanceMint, 100,4),
+    buildAuthorityLeaf(receiver4.publicKey, revenue_proposal, governanceMint, 100,4),
+    buildAuthorityLeaf(receiver5.publicKey, revenue_proposal, governanceMint, 100,4),
+    buildAuthorityLeaf(receiver6.publicKey, revenue_proposal, governanceMint, 100,4)
+  ]);
+
+
+  await program.methods.revenueProposalSubmitSnapshot(
+    propertySystemPda,
+    id,
+    merkleRoot,
+    2,2,2,2,2,new anchor.BN(10)).accounts(
+      wallet.payer
+    ).rpc()
+
+
+})
+
+it("skip time to voting end",async() =>{
+  advanceClockBy(svm, 2n*24n*60n*60n);
+
+})
+
+const snapshotEntries = [
+    { voter: receiver1.publicKey, votingPower: 100,authoritytype:4 },
+    { voter: receiver2.publicKey, votingPower: 100,authoritytype:4  },
+    { voter: receiver3.publicKey, votingPower: 100,authoritytype:4  },
+     { voter: receiver4.publicKey, votingPower: 100 ,authoritytype:4 },
+      { voter: receiver5.publicKey, votingPower: 100,authoritytype:4  },
+       { voter: receiver6.publicKey, votingPower: 100 ,authoritytype:4 },
+  ];
+
+   const voter1proof = buildAuthorityProof(
+    snapshotEntries,
+    0,
+    revenue_proposal,
+    governanceMint
+  );
+
+
+  
+     const voter2proof = buildAuthorityProof(
+    snapshotEntries,
+    1,
+    revenue_proposal,
+    governanceMint
+  );
+
+    const voter3proof = buildAuthorityProof(
+    snapshotEntries,
+    2,
+    revenue_proposal,
+    governanceMint
+  );
+
+
+
+it("revenue chanage prososal voting",async()=>{
+
+
+  //   const merkleRoot = buildMerkleRoot([
+  //   buildAuthorityLeaf(receiver1.publicKey, revenue_proposal, governanceMint, 100,4),
+  //   buildAuthorityLeaf(receiver2.publicKey, revenue_proposal, governanceMint, 100,4),
+  //   buildAuthorityLeaf(receiver3.publicKey, revenue_proposal, governanceMint, 100,4),
+  //   buildAuthorityLeaf(receiver4.publicKey, revenue_proposal, governanceMint, 100,4),
+  //   buildAuthorityLeaf(receiver5.publicKey, revenue_proposal, governanceMint, 100,4),
+  //   buildAuthorityLeaf(receiver6.publicKey, revenue_proposal, governanceMint, 100,4)
+  // ]);
+
+    
+
+
+  await program.methods.revenueProposalVoting(
+    id,
+    id,
+    voter1proof,
+    new anchor.BN(100),
+    true
+  ).accounts({
+     signer:receiver1.publicKey
+    }).signers([receiver1]).rpc();
+
+
+
+
+    await program.methods.revenueProposalVoting(
+    id,
+    id,
+    voter2proof,
+    new anchor.BN(100),
+    true
+  ).accounts({
+     signer:receiver2.publicKey
+    }).signers([receiver2]).rpc();
+
+
+     await program.methods.revenueProposalVoting(
+    id,
+    id,
+    voter3proof,
+    new anchor.BN(100),
+    true
+  ).accounts({
+     signer:receiver3.publicKey
+    }).signers([receiver3]).rpc();
+
+
+})
+
+it("skip time to voting end",async() =>{
+  advanceClockBy(svm, 2n*24n*60n*60n);
+
+})
+
+
+it("finalize_rtc_proposal",async()=>{
+
+
+     await program.methods.finalizeRtcProposal(
+    id,
+    propertySystemPda
+  ).accounts({
+     signer:receiver2.publicKey
+    }).signers([receiver2]).rpc();
+
+})
+
+it("propose_new_threshold",async()=>{
+
+
+     await program.methods.proposeNewThreshold(
+      id,id,
+      voter1proof,
+      new anchor.BN(100),
+      5,5,5,5,80
+  ).accounts({
+     signer:receiver1.publicKey,
+     mint:governanceMint
+    }).signers([receiver1]).rpc();
+
+    await program.methods.proposeNewThreshold(
+      id,id,
+      voter2proof,
+      new anchor.BN(100),
+      10,3,2,5,80
+  ).accounts({
+     signer:receiver2.publicKey,
+     mint:governanceMint
+    }).signers([receiver2]).rpc();
+
+    
+
+})
+
+it("skip time to voting end",async() =>{
+  advanceClockBy(svm, 2n*24n*60n*60n);
+
+})
+
+it("vote for new threshold",async()=>{
+
+
+  await program.methods.voteForNewThreshold(
+      receiver1.publicKey,
+      id,
+      id,
+      voter1proof,
+      new anchor.BN(100)
+  ).accounts({
+    mint:governanceMint,
+    signer:receiver1.publicKey
+}).signers([receiver1]).rpc()
+
+
+
+await program.methods.voteForNewThreshold(
+      receiver2.publicKey,
+      id,
+      id,
+      voter2proof,
+      new anchor.BN(100)
+  ).accounts({
+    mint:governanceMint,
+    signer:receiver2.publicKey
+}).signers([receiver2]).rpc()
+
+
+await program.methods.voteForNewThreshold(
+      receiver1.publicKey,
+      id,
+      id,
+      voter3proof,
+      new anchor.BN(100)
+  ).accounts({
+    mint:governanceMint,
+    signer:receiver3.publicKey
+}).signers([receiver3]).rpc()
+
+
+
+
+})
+it("skip time to voting end",async() =>{
+  advanceClockBy(svm, 2n*24n*60n*60n);
+
+})
+
+
+it("change_to_the_new_threshold",async()=>{
+
+
+  await program.methods.changeToTheNewThreshold(
+    id,
+    id,
+    receiver2.publicKey
+  ).accounts(
+    {
+     trustee:candidate3.publicKey 
+    }
+  ).signers([candidate3]).rpc()
+
+ 
+
+})
+
+it("skip time to voting end",async() =>{
+  advanceClockBy(svm, 2n*24n*60n*60n);
+
+})
+
+it("challenge_new_threshold",async()=>{
+
+  await program.methods.challengeNewThreshold(
+    id,
+    id,
+    receiver2.publicKey,
+    receiver1.publicKey
+  ).accounts(
+    {signer:wallet.publicKey}
+  ).signers([wallet.payer]).rpc()
+
+})
+
+it("skip time to voting end",async() =>{
+  advanceClockBy(svm, 2n*24n*60n*60n);
+
+})
+
+
+it("finalize_new_threshold",async()=>{
+
+
+  await program.methods.finalizeNewThreshold(
+    id,
+    id,
+    receiver1.publicKey,
+  ).accounts(
+    {
+      signer:receiver1.publicKey
+    }
+  ).signers([receiver1]).rpc()
+
+  // await program.methods.finalizeNewThreshold(
+  //   id,
+  //   id,
+  //   receiver1.publicKey,
+  // ).accounts(
+  //   {
+  //     signer:receiver2.publicKey
+  //   }
+  // ).signers([receiver2]).rpc()
+
+
+})
+
+
 
 
 

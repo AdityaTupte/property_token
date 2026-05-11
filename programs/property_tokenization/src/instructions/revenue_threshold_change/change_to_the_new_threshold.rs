@@ -4,7 +4,7 @@ use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, R
 
 
 #[derive(Accounts)]
-#[instruction(proposal_id:u64,property_system_id:u64)]
+#[instruction(proposal_id:u64,property_system_id:u64,new_threshold_signer:Pubkey)]
 pub struct ChangeToNewThreshold<'info>{
 
     #[account(
@@ -59,7 +59,7 @@ pub struct ChangeToNewThreshold<'info>{
         seeds=[
             PROPOSE_THRESHOLD,
             proposal.key().as_ref(),
-            new_threshold.signer.as_ref()
+            new_threshold_signer.as_ref()
         ],
         bump=new_threshold.bump,
     )]
@@ -68,14 +68,16 @@ pub struct ChangeToNewThreshold<'info>{
 }
 
 
-pub fn change_to_the_new_threshold(ctx:Context<ChangeToNewThreshold>)->Result<()>{
+pub fn change_to_the_new_threshold(ctx:Context<ChangeToNewThreshold>,_proposal_id:u64,_property_system_id:u64,_new_threshold_signer:Pubkey)->Result<()>{
 
     let current_time = Clock::get()?.unix_timestamp;
 
     let  proposal =  &mut ctx.accounts.proposal;
 
+    require!( current_time > proposal.voting_for_threshold_deadline ,ErrorCode::VotingStillActive);
+
     require!(
-        current_time > proposal.voting_for_threshold_deadline &&
+       
         current_time <= proposal.add_new_threshold_deadline,
         ErrorCode::ChangeDeadlineExpire
     );
