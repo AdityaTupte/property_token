@@ -159,7 +159,6 @@ pub struct PropertySystem<'info>{
     )]
     pub governance_mint: Box<InterfaceAccount<'info, Mint>>,
 
-    // later add metadata program
 
     #[account(
         init,
