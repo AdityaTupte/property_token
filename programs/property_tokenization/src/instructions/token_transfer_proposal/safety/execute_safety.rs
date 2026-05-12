@@ -106,6 +106,10 @@ pub fn execute_safety_proposal(
 
     let amount  = ctx.accounts.proposal.amount_required;
 
+    let safety_pda = &mut ctx.accounts.safety_treasury;
+
+  
+
     let proposal = &mut ctx.accounts.proposal;
 
     let current_time = Clock::get()?.unix_timestamp;
@@ -113,6 +117,10 @@ pub fn execute_safety_proposal(
     let property_system =  ctx.accounts.property_system.key();
 
     require!(current_time <= proposal.deadline, ErrorCode::CantTramnsfer );
+
+      safety_pda.safety_fund_used = safety_pda.safety_fund_used
+                                                .checked_add(amount)
+                                                .ok_or(ErrorCode::MathOverflow)?;
 
     let cpi_accounts = TransferChecked{
         from: ctx.accounts.safety_ata.to_account_info(),
@@ -135,6 +143,8 @@ pub fn execute_safety_proposal(
             signer_seeds);
 
     transfer_checked(cpi_context, amount, ctx.accounts.mint.decimals)?;
+
+
     
     proposal.status = ProposalStatus::Executed;
     Ok(())

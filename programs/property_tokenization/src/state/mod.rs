@@ -29,7 +29,8 @@ pub mod trustee_vote_receipts;
 pub mod vote_receipt_for_authority_election;
 pub mod ranking_acc;
 pub mod rank_counter;
-
+pub mod metadata;
+pub use metadata::*;
 pub mod funds;
 pub use funds::*;
 

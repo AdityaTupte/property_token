@@ -21,7 +21,9 @@ pub mod property_tokenization {
 
     pub fn create_property_system (
         ctx:Context<PropertySystem>,
-        system_id : u64,decimal:u8,number_of_tokens:u64,
+        system_id : u64,decimals:u8,
+        name:String,symbol:String,uri:String,
+        number_of_tokens:u64,
         safety_threshold:u8,
         trustee_salary_threshold:u8,
         arbitrator_salary_threshold:u8,
@@ -33,7 +35,7 @@ pub mod property_tokenization {
         arbitrar_vote_threshold:u8,
     )->Result<()>{
 
-        property_system::create(ctx, system_id, decimal, number_of_tokens, safety_threshold, trustee_salary_threshold, arbitrator_salary_threshold, dividend_threshold, reinvestment_threshold, total_trustees, trustee_vote_threshold, total_arbitrar, arbitrar_vote_threshold)?;
+        property_system::create(ctx, system_id, decimals,name,symbol,uri, number_of_tokens, safety_threshold, trustee_salary_threshold, arbitrator_salary_threshold, dividend_threshold, reinvestment_threshold, total_trustees, trustee_vote_threshold, total_arbitrar, arbitrar_vote_threshold)?;
 
 
         Ok(())

@@ -1,8 +1,13 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint, TokenAccount, TokenInterface}};
 
-use crate::{common::{ARBITRAR_REGISTRYSEEDS, DIVIDENDSEEDS, PROPERTY_SYSTEM_SEEDS, REINVESTMENTPDA, SAFETYPDA, THRESHOLD, TREASURYSEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, functions::transfer_fro_treasury, state::{ArbitratorRegistry, DividendPda, PropertySystemAccount, ReinvestmentPda, SafetyPda, Threshold, TreasuryPda, TrusteeRegistry,}};
+use crate::{common::{ARBITRAR_REGISTRYSEEDS, DIVIDENDSEEDS, PROPERTY_SYSTEM_SEEDS, REINVESTMENTPDA, SAFETYPDA, THRESHOLD, TREASURYSEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, functions::transfer_fro_treasury, state::{ArbitratorRegistry, DividendPda, PropertySystemAccount, ReinvestmentPda, SafetyPda, Threshold, TreasuryPda, TrusteeRegistry, }};
 use crate::functions::check_property_system;
+
+
+
+pub const PRECISION: u128 = 1_000_000_000_000; 
+
 #[derive(Accounts)]
 #[instruction(property_system_id:u64)]
 pub struct TreasuryDistribution<'info>{
@@ -179,6 +184,9 @@ pub fn treasury_distribution(
 
     let treasury_fund = ctx.accounts.treasury_ata.amount;
 
+    let dividend_pda = &mut ctx.accounts.dividend_pda;
+    
+
     let property_sys_key =  ctx.accounts.property_system.key();
 
     let signer_seeds: &[&[&[u8]]] = &[&[
@@ -210,6 +218,21 @@ pub fn treasury_distribution(
                                     .checked_div(10_000)
                                     .ok_or(ErrorCode::MathOverflow)?;
     
+    let current_dividend =( (amount_for_dividend as u128).checked_mul(PRECISION)
+                                                        .ok_or(ErrorCode::MathOverflow)?
+                                                        .checked_div(ctx.accounts.mint.supply as u128))
+                                                        .ok_or(ErrorCode::MathOverflow)?;
+   
+    
+    
+    dividend_pda.dividen_per_token =  dividend_pda.dividen_per_token
+                                                .checked_add(
+                                                    current_dividend
+                                                ).ok_or(ErrorCode::MathOverflow)?;
+
+    
+    dividend_pda.last_updated_ts = now;
+
     let bps4 = (threshold.reinvestment_threshold as u64).checked_mul(100).ok_or(ErrorCode::MathOverflow)?;
 
     let amount_for_reinvestment = treasury_fund

@@ -551,7 +551,10 @@ function toFixed32(str: string) {
 // console.log("Expected PDA:", pda.toBase58());
     try{const create_property_system = await program.methods.createPropertySystem(
                                             new anchor.BN(1),   
-                                            1,                  
+                                            1,      
+                                            "token1",
+                                            "token1",
+                                            "token1",            
                                             new anchor.BN(1000),
                                             10,                 
                                             10,                  
@@ -575,11 +578,16 @@ function toFixed32(str: string) {
 
 
 
+
+
 // for second property 
 
   try{const create_property_system = await program.methods.createPropertySystem(
                                             new anchor.BN(2),   
-                                            1,                  
+                                            1,   
+                                            "token2",
+                                            "token2",
+                                            "token2",               
                                             new anchor.BN(1000),
                                             10,                 
                                             10,                  
@@ -6332,7 +6340,24 @@ it("finalize_new_threshold",async()=>{
 })
 
 
+it("dividend per token ",async()=>{
 
+
+const [dividend] = PublicKey.findProgramAddressSync(
+  [
+    Buffer.from("dividend"),
+    propertySystemPda.toBuffer(),
+  ],
+  program.programId
+);
+
+const acc = await program.account.dividendPda.fetch(dividend);
+
+console.log(acc);
+
+
+
+})
 
 
   });

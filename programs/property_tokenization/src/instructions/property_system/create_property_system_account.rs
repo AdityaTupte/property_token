@@ -1,11 +1,35 @@
 use anchor_lang::prelude::*;
-use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint,MintToChecked,mint_to_checked, TokenAccount, TokenInterface}};
-use crate::{common::PROPERTY_SYSTEM_SEEDS, state::{ArbitratorRegistry, DividendPda, PropertySystemAccount, ReinvestmentPda, SafetyPda, Threshold, TreasuryPda, TrusteeRegistry,}};
+use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint, MintToChecked, TokenAccount, TokenInterface, mint_to_checked, spl_pod::optional_keys::OptionalNonZeroPubkey, spl_token_metadata_interface::state::TokenMetadata}};
+use crate::{common::PROPERTY_SYSTEM_SEEDS, state::{ArbitratorRegistry, DividendPda, Metadata, PropertySystemAccount, ReinvestmentPda, SafetyPda, Threshold, TreasuryPda, TrusteeRegistry}};
 use crate::events::*;
 use crate::errors::ErrorCode;
 
+
+
+
+pub fn metadata_space(
+    name: String,
+    mint: Pubkey,
+    symbol: String,
+    uri: String,
+) -> usize {
+
+    
+    let metadata = TokenMetadata{
+        update_authority: OptionalNonZeroPubkey::default(),
+        mint:mint,
+        name:name.clone(),
+        symbol:symbol.clone(),
+        uri:uri.clone(),
+        additional_metadata: Vec::new(),
+    };
+
+    metadata.tlv_size_of().unwrap()
+}
+
+
 #[derive(Accounts)]
-#[instruction(system_id : u64,decimal:u8 , )]
+#[instruction(system_id : u64,decimals:u8 ,name:String,symbol:String,uri:String )]
 pub struct PropertySystem<'info>{
 
 
@@ -127,13 +151,27 @@ pub struct PropertySystem<'info>{
         property_system_acc.key().as_ref()
         ],
         bump,
-        mint::decimals = decimal,
+        mint::decimals = decimals,
         mint::authority = property_system_acc.key(),
         mint::freeze_authority = property_system_acc.key(),
+        extensions::metadata_pointer::authority = property_system_acc,
+        extensions::metadata_pointer::metadata_address = metadata,
     )]
     pub governance_mint: Box<InterfaceAccount<'info, Mint>>,
 
     // later add metadata program
+
+    #[account(
+        init,
+        payer = creator,
+        seeds=[
+            b"metadata",
+            governance_mint.key().as_ref()
+        ],
+        bump,
+        space = 8 + metadata_space(name, governance_mint.key(), symbol, uri) ,
+    )]
+    pub metadata : Account<'info,Metadata>,
 
     #[account(
         init,
@@ -155,7 +193,9 @@ pub struct PropertySystem<'info>{
 
 pub fn create(
         ctx:Context<PropertySystem>,
-        system_id : u64,decimal:u8,number_of_tokens:u64,
+        system_id : u64,decimal:u8,
+        name:String,symbol:String,uri:String,
+        number_of_tokens:u64,
         safety_threshold:u8,
         trustee_salary_threshold:u8,
         arbitrator_salary_threshold:u8,
@@ -198,7 +238,13 @@ pub fn create(
     let threshold=&mut ctx.accounts.threshold;
 
     
-    
+    let metadata = &mut ctx.accounts.metadata;
+
+    metadata.name = name;
+
+    metadata.uri = uri;
+
+    metadata.symbol = symbol;
 
     
     let signer_seeds: &[&[&[u8]]] = &[&[

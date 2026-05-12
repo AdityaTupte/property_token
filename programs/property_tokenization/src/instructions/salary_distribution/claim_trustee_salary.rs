@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint,TransferChecked, transfer_checked, TokenAccount, TokenInterface}};
 
-use crate::{common::{HARDCODED_PUBKEY, PROPERTY_SYSTEM_SEEDS, TRUSTEE_RECEIPT_SEEDS, TRUSTEE_SALARY, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode,  state::{PropertySystemAccount, SalaryPda, TrusteeRecepit, TrusteeRegistry}};
+use crate::{common::{HARDCODED_PUBKEY, PROPERTY_SYSTEM_SEEDS, TRUSTEE_RECEIPT_SEEDS,  TRUSTEEREGISTRYSEEDS}, errors::ErrorCode,  state::{PropertySystemAccount,  TrusteeRecepit, TrusteeRegistry}};
 
 use crate::functions::check_property_system;
 #[derive(Accounts)]

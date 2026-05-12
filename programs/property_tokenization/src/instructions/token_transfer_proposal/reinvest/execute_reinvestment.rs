@@ -3,7 +3,7 @@ use anchor_spl::token_interface::{TokenAccount,Mint,TransferChecked,transfer_che
 use anchor_spl::associated_token::*;
 
 use crate::common::{PROPERTY_SYSTEM_SEEDS, ProposalStatus, REINVESTMENTPDA, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS, USEREINVESTMENTOKEN};
-use crate::state::{ReinvestmentPda, TokenTransferProposal, TrusteeRecepit};
+use crate::state::{ReinvestmentPda, TokenTransferProposal, TrusteeRecepit, };
 use crate::{errors::ErrorCode, state::{PropertySystemAccount, TrusteeRegistry}};
 
 #[derive(Accounts)]
@@ -106,13 +106,20 @@ pub fn execute_reivestment_proposal(
 
     let amount = ctx.accounts.proposal.amount_required;
 
+    let reinvestment_pda = &mut ctx.accounts.reinvestment_treasury;
+
     let proposal = &mut ctx.accounts.proposal;
 
     let current_time = Clock::get()?.unix_timestamp;
 
     let property_system =  ctx.accounts.property_system.key();
 
+    
     require!(current_time <= proposal.deadline, ErrorCode::CantTramnsfer );
+
+     reinvestment_pda.reinvestement_used = reinvestment_pda.reinvestement_used
+                                                .checked_add(amount)
+                                                .ok_or(ErrorCode::MathOverflow)?;
 
     let cpi_accounts = TransferChecked{
         from: ctx.accounts.reinvestment_ata.to_account_info(),

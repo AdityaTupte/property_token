@@ -5,7 +5,7 @@ pub struct SafetyPda{
 
     pub property_system: Pubkey,
 
-    pub reinvestement_used:u64,
+    pub safety_fund_used:u64,
 
     pub bump: u8,
 

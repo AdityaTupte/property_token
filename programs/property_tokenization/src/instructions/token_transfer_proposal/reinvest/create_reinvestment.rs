@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{PROPERTY_SYSTEM_SEEDS, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS, USEREINVESTMENTOKEN}, errors::ErrorCode, state::{PropertySystemAccount, TokenTransferProposal, TrusteeRecepit, TrusteeRegistry,}};
+use crate::{common::{PROPERTY_SYSTEM_SEEDS, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS, USEREINVESTMENTOKEN},  state::{PropertySystemAccount, TokenTransferProposal, TrusteeRecepit, TrusteeRegistry,}};
 
 #[derive(Accounts)]
 #[instruction(proposal_id:u64,property_system_id:u64,)]

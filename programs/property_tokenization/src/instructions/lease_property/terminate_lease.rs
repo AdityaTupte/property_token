@@ -1,11 +1,11 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken,  token_interface::{Mint, TokenAccount,transfer_checked, TokenInterface, TransferChecked}};
 
-use crate::{common::{HARDCODED_PUBKEY, LEASE_PROPERTY, LeaseStatus, PROPERTY_SEED, REINVESTMENTPDA}, errors::ErrorCode, instructions::FinalizeLease, state::{LeaseProperty, PropertyAccount, ReinvestmentPda }};
+use crate::{common::{HARDCODED_PUBKEY, LEASE_PROPERTY, LeaseStatus, PROPERTY_SEED, REINVESTMENTPDA}, errors::ErrorCode, state::{LeaseProperty, PropertyAccount, ReinvestmentPda }};
 
 #[derive(Accounts)]
 #[instruction(property_system:Pubkey,lease_id:u64,property_id:u64,state_pubkey:Pubkey,)]
-pub struct TerminateLease<'info>{
+pub struct TerminateLease<'info>{ 
 
     #[account(mut)]
     pub neutral : Signer<'info>,
@@ -19,7 +19,7 @@ pub struct TerminateLease<'info>{
         associated_token::authority = lesse,
         associated_token::token_program = token_program,
     )]
-    pub lessee_ata : InterfaceAccount<'info,TokenAccount>,
+    pub lessee_ata : Box<InterfaceAccount<'info,TokenAccount>>,
 
     #[account(
         mut,
@@ -33,7 +33,7 @@ pub struct TerminateLease<'info>{
         constraint = lease.status == LeaseStatus::Active @ ErrorCode::LeaseNotActivated,
     )]
 
-     pub lease: Account<'info,LeaseProperty>,
+     pub lease: Box<Account<'info,LeaseProperty>>,
 
      #[account(
         init_if_needed,
@@ -42,7 +42,7 @@ pub struct TerminateLease<'info>{
         associated_token::authority = lease,
         associated_token::token_program = token_program,
     )]
-    pub lease_ata : InterfaceAccount<'info,TokenAccount>,
+    pub lease_ata : Box<InterfaceAccount<'info,TokenAccount>>,
 
     #[account(
         mut,
@@ -56,7 +56,7 @@ pub struct TerminateLease<'info>{
             constraint = property.property_system == property_system @ ErrorCode::PropertySystemInvalid 
            
     )]
-    pub property:Account<'info,PropertyAccount>,
+    pub property:Box<Account<'info,PropertyAccount>>,
 
 
      #[account(
@@ -66,7 +66,7 @@ pub struct TerminateLease<'info>{
             property_system.as_ref()],
         bump= reinvestment_pda.bump ,
     )]
-    pub reinvestment_pda :Account<'info,ReinvestmentPda>,
+    pub reinvestment_pda :Box<Account<'info,ReinvestmentPda>>,
 
     #[account(
         init_if_needed,
@@ -75,7 +75,7 @@ pub struct TerminateLease<'info>{
         associated_token::authority = reinvestment_pda,
         associated_token::token_program = token_program,
     )]
-    pub reinvestment_ata : InterfaceAccount<'info,TokenAccount>,
+    pub reinvestment_ata : Box<InterfaceAccount<'info,TokenAccount>>,
 
     pub system_program : Program<'info,System>,
     
