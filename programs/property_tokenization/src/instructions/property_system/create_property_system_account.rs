@@ -1,8 +1,9 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint, MintToChecked, TokenAccount, TokenInterface, mint_to_checked, spl_pod::optional_keys::OptionalNonZeroPubkey, spl_token_metadata_interface::state::TokenMetadata}};
-use crate::{common::PROPERTY_SYSTEM_SEEDS, state::{ArbitratorRegistry, DividendPda, Metadata, PropertySystemAccount, ReinvestmentPda, SafetyPda, Threshold, TreasuryPda, TrusteeRegistry}};
+use crate:: state::{ArbitratorRegistry, DividendPda, Metadata, PropertySystemAccount, ReinvestmentPda, SafetyPda, Threshold, TreasuryPda, TrusteeRegistry};
 use crate::events::*;
 use crate::errors::ErrorCode;
+use crate::common::*;
 
 
 
@@ -55,7 +56,7 @@ pub struct PropertySystem<'info>{
         init,
         payer = creator,
         seeds = [
-            b"threshold",
+            THRESHOLD,
             property_system_acc.key().as_ref()
         ],
         bump,
@@ -68,7 +69,7 @@ pub struct PropertySystem<'info>{
         init,
         payer = creator,
         seeds = [
-            b"treasury",
+            TREASURYSEEDS,
             property_system_acc.key().as_ref()],
         bump,
         space = 8 + TreasuryPda::SIZE,
@@ -81,7 +82,7 @@ pub struct PropertySystem<'info>{
         init,
         payer = creator,
         seeds = [
-            b"reinvestment",
+            REINVESTMENTPDA,
             property_system_acc.key().as_ref()
         ],
         bump,
@@ -95,7 +96,7 @@ pub struct PropertySystem<'info>{
         init,
         payer = creator,
         seeds = [
-            b"safety",
+            SAFETYPDA,
             property_system_acc.key().as_ref()
         ],
         bump,
@@ -108,8 +109,8 @@ pub struct PropertySystem<'info>{
         init,
         payer = creator,
         seeds = [
-            b"dividend",
-            property_system_acc.key().as_ref()
+            DIVIDENDSEEDS,
+            governance_mint.key().as_ref()
         ],
         bump,
         space = 8 + DividendPda::SIZE,
@@ -122,7 +123,7 @@ pub struct PropertySystem<'info>{
         init,
         payer = creator,
         seeds = [
-            b"trustee_registry",
+            TRUSTEEREGISTRYSEEDS,
             property_system_acc.key().as_ref()
             ],
         bump,
@@ -135,7 +136,7 @@ pub struct PropertySystem<'info>{
     #[account(
         init,
         payer = creator,
-        seeds = [b"arbitrator_registry",property_system_acc.key().as_ref()],
+        seeds = [ARBITRAR_REGISTRYSEEDS,property_system_acc.key().as_ref()],
         bump,
         space = 8 + ArbitratorRegistry::SIZE,
     )]

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{ARBITRAR_BUY_PROPOSAL_VOTE_RECEIPT_SEEDS, ARBITRAR_RECEIPT_SEEDS, ARBITRAR_REGISTRYSEEDS, BUYPROPERTY, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, functions::arbitrar_approval, state::{ArbitratorRecepit, ArbitratorRegistry, ArbitratorVoteReceipts, PropertyBuyProposal, PropertySystemAccount}};
+use crate::{common::{ARBITRAR_BUY_PROPOSAL_VOTE_RECEIPT_SEEDS, ARBITRAR_RECEIPT_SEEDS, ARBITRAR_REGISTRYSEEDS, BUYPROPERTY, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, events::BuyPropertyProposalArbitrarVote, functions::arbitrar_approval, state::{ArbitratorRecepit, ArbitratorRegistry, ArbitratorVoteReceipts, PropertyBuyProposal, PropertySystemAccount}};
 
 
 #[derive(Accounts)]
@@ -94,6 +94,12 @@ pub fn buy_proposal_arbitrar_vote(
 
      
     arbitrar_approval(proposal, proposal_key, &mut  ctx.accounts.arbitrar_registry, &mut ctx.accounts.arbitrar_voter, signer, property_system.governance_mint, property_system.key())?;
+
+    emit!(BuyPropertyProposalArbitrarVote{
+        proposal_key:proposal_key,
+        property_system:property_system.key(),
+        voter:signer
+    });
 
 Ok(())
 

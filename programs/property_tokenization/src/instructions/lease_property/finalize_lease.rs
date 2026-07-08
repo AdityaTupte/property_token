@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken,  token_interface::{Mint, TokenAccount,transfer_checked, TokenInterface, TransferChecked}};
 
-use crate::{common::{HARDCODED_PUBKEY, LEASE_PROPERTY, LeaseStatus, PROPERTY_SEED, REINVESTMENTPDA}, errors::ErrorCode, state::{LeaseProperty, PropertyAccount, ReinvestmentPda }};
+use crate::{common::{ LEASE_PROPERTY, LeaseStatus, PROPERTY_SEED, REINVESTMENTPDA}, errors::ErrorCode, state::{LeaseProperty, PropertyAccount, ReinvestmentPda }};
 
 #[derive(Accounts)]
 #[instruction(property_system:Pubkey,lease_id:u64,property_id:u64,state_pubkey:Pubkey,)]

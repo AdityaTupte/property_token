@@ -27,10 +27,10 @@ pub struct TreasuryDistribution<'info>{
 
     #[account(
         seeds=[
-            THRESHOLD,
-            property_system.key().as_ref(),
+            b"threshold",
+            property_system.key().as_ref()
         ],
-        bump = property_system.bump
+        bump = thershold.bump
     )]
     pub thershold : Box<Account<'info,Threshold>>,
 
@@ -56,8 +56,8 @@ pub struct TreasuryDistribution<'info>{
     #[account(
         mut,
         seeds=[
-            DIVIDENDSEEDS,
-            property_system.key().as_ref(),
+            b"dividend",
+            property_system.governance_mint.as_ref(),
         ],
         bump = dividend_pda.bump)]
     pub dividend_pda : Box<Account<'info,DividendPda>>,
@@ -162,7 +162,7 @@ pub struct TreasuryDistribution<'info>{
 
 pub fn treasury_distribution(
     ctx:Context<TreasuryDistribution>,
-    _property_system_id:u64
+    _property_system_id : u64
 )->Result<()>{
 
 
@@ -225,7 +225,7 @@ pub fn treasury_distribution(
    
     
     
-    dividend_pda.dividen_per_token =  dividend_pda.dividen_per_token
+    dividend_pda.dividend_per_token =  dividend_pda.dividend_per_token
                                                 .checked_add(
                                                     current_dividend
                                                 ).ok_or(ErrorCode::MathOverflow)?;

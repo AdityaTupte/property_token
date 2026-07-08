@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 #[account]
 pub struct DividendPda {
     pub property_system: Pubkey,
-    pub dividen_per_token:u128,
+    pub dividend_per_token:u128,
     pub last_updated_ts: i64,
     pub bump: u8,
 }

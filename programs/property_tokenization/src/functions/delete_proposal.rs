@@ -1,9 +1,11 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::ProposalStatus, traits::Governance, errors::ErrorCode};
+use crate::{common::ProposalStatus, errors::ErrorCode, events::DeleteProposal, traits::Governance};
 
 pub fn delete_proposal<T:Governance>(
-    item:&mut T
+    item:&mut T,
+    proposal_key : &Pubkey,
+    signer:&Pubkey,
 ) ->Result<()>{
 
     // let current_time = Clock::get()?.unix_timestamp;
@@ -22,6 +24,14 @@ pub fn delete_proposal<T:Governance>(
     ,
     ErrorCode::DeleteNotAllowed
 );
+
+    emit!(
+        DeleteProposal{
+            proposal:*proposal_key,
+            deleted_by:*signer
+        }
+    );
+
 
     Ok(())
 }

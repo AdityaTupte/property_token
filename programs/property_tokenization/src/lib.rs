@@ -9,7 +9,7 @@ pub mod functions;
 use crate::instructions::*;
 use crate::common::*;
 
-declare_id!("BD4CURALcvWKHuLrcx74iaJaaUrKbRogXYXcNBPfqFRR");
+declare_id!("BYtpqEouT7FFDUFjFeE2ecSDwf1VHNNHUkc2URswVZ4B");
 
 #[program]
 pub mod property_tokenization {

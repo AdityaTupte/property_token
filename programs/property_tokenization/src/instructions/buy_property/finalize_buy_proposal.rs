@@ -36,9 +36,11 @@ pub fn finalize_buy_proposal(
     _property_system_account:Pubkey
 )->Result<()>{
 
+    let proposal_key = &ctx.accounts.proposal.key();
+
     let proposal = &mut *ctx.accounts.proposal; 
 
-    finalize(proposal)?;
+    finalize(proposal,proposal_key)?;
 
     Ok(())
 }

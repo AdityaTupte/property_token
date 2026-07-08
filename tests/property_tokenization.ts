@@ -572,8 +572,8 @@ function toFixed32(str: string) {
                                           })
                                             .rpc();}
     
-    catch (e) {
-  console.log(e.logs);
+    catch (error: any) {
+  console.log((error as any).logs);
 };
 
 
@@ -605,8 +605,8 @@ function toFixed32(str: string) {
                                           })
                                             .rpc();}
     
-    catch (e) {
-  console.log(e.logs);
+    catch (error) {
+  console.log((error as any).logs);
 };
 
 
@@ -704,7 +704,7 @@ assert.equal(safetypda.propertySystem.toBase58(),propertySystemPda.toBase58());
 const [dividend] = PublicKey.findProgramAddressSync(
   [
     Buffer.from("dividend"),
-    propertySystemPda.toBuffer(),
+    governanceMint.toBuffer(),
   ],
   program.programId
 );
@@ -898,26 +898,25 @@ const arbitrator_registry_pda = await program.account.arbitratorRegistry.fetch(a
 
 it("Create 10 pubkeyt for authority belongs to approve country", async()=>{
 
+    const [approve_country_autority] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        Buffer.from("AuthorityForApprovingCountry"),
+      ],
+      program.programId
+    );
+
     const new_tx = await program.methods.createApproveCountryAuthority(
-          4,
-          vec
-    ).accounts(
-      wallet.payer ,
-    ).rpc();
+      4,
+      vec
+    ).accounts({
+      signer: wallet.publicKey,
+      authority: approve_country_autority,
+      systemProgram: anchor.web3.SystemProgram.programId,
+    }).signers([wallet.payer]).rpc();
 
-//   const [approve_country_autority] = anchor.web3.PublicKey.findProgramAddressSync(
-//   [
-//     Buffer.from("AuthorityForApprovingCountry"),
-//   ],
-//   program.programId
-// );
-// const account = await program.account.approveCountryAuthority.fetch(approve_country_autority);
-
-// console.log(account.authority);
-// console.log(account.threshold.toString());
-
-
-
+    const account = await program.account.approveCountryAuthority.fetch(approve_country_autority);
+    console.log(account.authority);
+    console.log(account.threshold.toString());
 
 })
 
@@ -4955,7 +4954,7 @@ it("create transaction mint mint",async()=>{
     connection,
     wallet.payer,
     wallet.publicKey,
-    undefined,
+    null,
     5,
     mintKeypair,
     undefined,
@@ -5813,7 +5812,7 @@ it("treasury distribution",async()=>{
   const [dividend] = PublicKey.findProgramAddressSync(
   [
     Buffer.from("dividend"),
-    propertySystemPda.toBuffer(),
+    governanceMint.toBuffer(),
   ],
   program.programId
 );
@@ -6346,7 +6345,7 @@ it("dividend per token ",async()=>{
 const [dividend] = PublicKey.findProgramAddressSync(
   [
     Buffer.from("dividend"),
-    propertySystemPda.toBuffer(),
+    governanceMint.toBuffer(),
   ],
   program.programId
 );

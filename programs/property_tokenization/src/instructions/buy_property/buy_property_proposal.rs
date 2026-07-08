@@ -1,6 +1,7 @@
 use anchor_lang::prelude::*;
 
 use crate::common::{BUYPROPERTY, PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, ProposalStatus, ProposalType, REINVESTMENTPDA, SELLPROPERTY, TRUSTEE_RECEIPT_SEEDS};
+use crate::events::CreateBuyPropertyProposal;
 use crate::state::{PropertyAccount, PropertyBuyProposal, PropertySellProposal, PropertySystemAccount, ReinvestmentPda, TrusteeRecepit};
 use crate::errors::ErrorCode;
 
@@ -134,6 +135,16 @@ pub fn createbuyproposal(
         ctx.bumps.proposal,
         buyer.total_token_supply,
     );
+
+    emit!(CreateBuyPropertyProposal{
+        proposal_id: proposal_id,
+        buyer: buyer.key(),
+        buyer_proposal:buy_proposal.key(),
+        seller :seller_proposal.property_system_account,
+        seller_proposal:seller_proposal.key(),
+        property:seller_proposal.property_account,
+        amount:seller_proposal.sale_price
+    });
 
 
     Ok(())

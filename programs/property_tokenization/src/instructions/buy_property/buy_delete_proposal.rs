@@ -51,9 +51,11 @@ pub struct DeleteFailBuyProposal<'info>{
 
 pub fn delete_buy_proposal(ctx:Context<DeleteFailBuyProposal>,_proposal_id:u64,_property_system_id:u64) ->Result<()>{
 
+    let proposal_key = &ctx.accounts.proposal.key();
+
     let proposal = &mut *ctx.accounts.proposal;
 
-    delete_proposal(proposal)?;
+    delete_proposal(proposal,proposal_key,&ctx.accounts.trustee.key())?;
 
     Ok(())
 

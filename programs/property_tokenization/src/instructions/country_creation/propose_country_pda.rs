@@ -2,7 +2,7 @@
 
 use anchor_lang::prelude::*;
 
-use crate::{common::COUNTRY_PROPOSAL_SEEDS, errors::ErrorCode, state::ProposalCountryPda};
+use crate::{common::{COUNTRY_PROPOSAL_SEEDS, HARDCODED_PUBKEY}, errors::ErrorCode, state::ProposalCountryPda};
 
 
 
@@ -10,7 +10,9 @@ use crate::{common::COUNTRY_PROPOSAL_SEEDS, errors::ErrorCode, state::ProposalCo
 #[instruction(country_name:[u8;32])]
 pub struct ProposeCountry<'info>{
 
-    #[account(mut)]
+    #[account(
+        mut,
+        address = HARDCODED_PUBKEY)]
     pub signer: Signer<'info>,
 
     #[account(

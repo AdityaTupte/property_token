@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::common::AuthorityType;
+use crate::common::{AuthorityType, ProposalType};
 
 #[event]
 pub struct SnapshotRequested {
@@ -26,4 +26,17 @@ pub struct SnapshotRequestedForAuthority {
     pub mint: Pubkey,
 
     pub slot: u64,
+}
+
+
+#[event]
+pub struct SnapshotSubmitted{
+
+    pub proposal_id : u64,
+
+    pub proposal_type : ProposalType,
+
+    pub proposal_key : Pubkey,
+
+
 }

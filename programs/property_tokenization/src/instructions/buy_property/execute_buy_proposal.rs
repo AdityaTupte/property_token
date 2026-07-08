@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken,token_interface::{Mint, TokenAccount, TokenInterface,TransferChecked, transfer_checked}};
 
-use crate::{common::{BUYPROPERTY, PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, ProposalStatus, REINVESTMENTPDA, SELLPROPERTY, TREASURYSEEDS, TRUSTEE_RECEIPT_SEEDS},  state::{PropertyAccount, PropertyBuyProposal, PropertySellProposal, PropertySystemAccount, ReinvestmentPda, TreasuryPda, TrusteeRecepit}};
+use crate::{common::{BUYPROPERTY, PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, ProposalStatus, REINVESTMENTPDA, SELLPROPERTY, TREASURYSEEDS, TRUSTEE_RECEIPT_SEEDS}, events::BuyPropertyProposalExecuted, state::{PropertyAccount, PropertyBuyProposal, PropertySellProposal, PropertySystemAccount, ReinvestmentPda, TreasuryPda, TrusteeRecepit}};
 
 //temoray disabled because of the mint address change
 //pub const HARDCODED_MINT: Pubkey = pubkey!("6ecHpBQGJqXRqXCBPXvQyFUqzGWmm2WBEFPFGiRJWMuz");
@@ -244,6 +244,20 @@ pub fn execute_buy_proposal(
    proposal.status = ProposalStatus::Executed;
 
    sell_proposal.status = ProposalStatus::Executed;
+
+
+   emit!(
+    BuyPropertyProposalExecuted{
+        proposal_id:proposal.proposal_id,
+        buyer:buyer.key(),
+        buyer_proposal:proposal.key(),
+        seller:seller.key(),
+        seller_proposal:sell_proposal.key(),
+        seller_ata:ctx.accounts.seller_ata.key(),
+        property:property.key(),
+        amount:amount,   
+    }
+   );
 
     Ok(())
 

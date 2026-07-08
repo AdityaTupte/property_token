@@ -96,6 +96,8 @@ pub struct BuyProposalVoting<'info>{
         
     )?;
 
+    
+
 
     Ok(())
 

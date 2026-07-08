@@ -5,7 +5,7 @@ use anchor_lang::prelude::*;
 
 #[account]
 
-pub struct ProposalCountryPda{
+pub struct  ProposalCountryPda{
 
     pub country_id: u16,
 
@@ -21,7 +21,7 @@ pub struct ProposalCountryPda{
 
     pub total_authority: u8,
 
-    pub initialize_authority_count : u8,  
+    // pub initialize_authority_count : u8,  
 
     pub bump: u8,
 

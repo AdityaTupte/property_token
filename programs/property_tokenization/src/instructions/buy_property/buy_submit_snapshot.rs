@@ -1,6 +1,8 @@
 use anchor_lang::prelude::*;
+use crate::common;
 use crate::common::{BUYPROPERTY, HARDCODED_PUBKEY, ProposalStatus};
 use crate::errors::ErrorCode;
+use crate::events::SnapshotSubmitted;
 use crate::functions::submit;
 use crate::state::PropertyBuyProposal;
 
@@ -46,20 +48,18 @@ pub fn buy_submit_snapshot(
 
     require!(payment_deadline_days > 0, ErrorCode::PaymentDeadline);
 
+    
     let proposal = &mut *ctx.accounts.proposal;
 
     submit(proposal, merkle_root, closing_days_gap,vote_threshold,payment_deadline_days)?;
 
 
-    
+    emit!(SnapshotSubmitted{
+        proposal_id : proposal.proposal_id,
+        proposal_type:common::ProposalType::BUYPROPERTY,
+        proposal_key: ctx.accounts.proposal.key(),
+    });
 
-    
-
-    
-
-    
-
- 
     Ok(())
 
 

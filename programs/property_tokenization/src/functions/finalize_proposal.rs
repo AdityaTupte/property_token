@@ -1,9 +1,10 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::ProposalStatus, traits::Governance, errors::ErrorCode};
+use crate::{common::ProposalStatus, errors::ErrorCode, events::FinalizeProposal, traits::Governance};
 
 pub fn finalize<T:Governance>(
-    item:&mut T
+    item:&mut T,
+    proposal_key  : &Pubkey
 )->Result<()>{
 
     let current_time= Clock::get()?.unix_timestamp;
@@ -34,6 +35,13 @@ pub fn finalize<T:Governance>(
     else {
         *item.proposal_status() = ProposalStatus::Rejected;
     }
+
+    emit!(
+        FinalizeProposal{
+            proposal:*proposal_key,
+            proposal_status:*item.proposal_status()
+        }
+    );
     
     Ok(())
 }

@@ -8,7 +8,7 @@ pub struct PropertyAccount{
     pub property_id: u64,
     pub is_leased : bool,
     pub property_system: Pubkey,
-    pub page_number : u16,
+    // pub page_number : u16,
     pub state_id: u16,
     pub state_pubkey : Pubkey,
     pub country_id : u16,

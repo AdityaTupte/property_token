@@ -46,7 +46,9 @@ pub struct TokenTransferProposal{
 
     pub bump : u8,
 
-}impl TokenTransferProposal {
+}
+
+impl TokenTransferProposal {
     pub const SIZE: usize =
         8 +  // proposal_id
         8 +  // amount_required

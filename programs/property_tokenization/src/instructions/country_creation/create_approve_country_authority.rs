@@ -2,14 +2,13 @@
 use anchor_lang::prelude::*;
 
 use crate::{common::COUNTRY_APPROVE_AUTHORITY_SEEDS, errors::ErrorCode, functions::assert_unique_owners, state::ApproveCountryAuthority};
-const HARDCODED_PUBKEY: Pubkey = pubkey!("EezSke1hYxfEZuCrxDAgGe1nb7i2DoqJnaFJQPBPRpJs");
+
 #[derive(Accounts)]
 
 pub struct CreateApproveCountryAuthority<'info>{
 
     #[account(
         mut,
-        address = HARDCODED_PUBKEY,
     )]
 
     pub signer : Signer<'info>,
@@ -22,7 +21,7 @@ pub struct CreateApproveCountryAuthority<'info>{
         ],
         bump,
         space = 8 + ApproveCountryAuthority::SIZE,
-    )]
+    )] 
 
     pub authority : Account<'info,ApproveCountryAuthority>,
 
