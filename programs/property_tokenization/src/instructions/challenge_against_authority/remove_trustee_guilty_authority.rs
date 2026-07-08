@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint, TokenAccount, TokenInterface}};
 
-use crate::{common::{AuthorityType, CHALLENGEAUTHORITY, PROPERTY_SYSTEM_SEEDS,  ProposalStatus,   REMOVETRUSTEEAUTHORITYPROPOSAL}, errors::ErrorCode, state::{ChallengeProposal, ElectAuthority, PropertySystemAccount, }};
+use crate::{common::{AuthorityType::{self, TRUSTEE}, CHALLENGEAUTHORITY, PROPERTY_SYSTEM_SEEDS, ProposalStatus, REMOVETRUSTEEAUTHORITYPROPOSAL}, errors::ErrorCode, events::RemoveGuiltyAuthority, state::{ChallengeProposal, ElectAuthority, PropertySystemAccount, }};
 
 #[derive(Accounts)]
 #[instruction(proposal_id:u64,property_system_id:u64)]
@@ -126,6 +126,16 @@ pub fn removal_of_trustee_proposal(
     remove_proposal.proposal_id = proposal.proposal_id;
 
     remove_proposal.bump = ctx.bumps.removal_proposal;
+
+
+
+    emit!(
+        RemoveGuiltyAuthority{
+            challenge_proposal_key:proposal.key(),
+            removal_guilty_authority_proposal:remove_proposal.key(),
+           authority_type:TRUSTEE
+        }
+    );
 
 
     Ok(())

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::spl_associated_token_account::solana_program::keccak,};
-use crate::{common::{CHALLENGEAUTHORITY, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, functions::verify_proof, state::{ChallengeProposal, PropertySystemAccount}};
+use crate::{common::{CHALLENGEAUTHORITY, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, events::VoteForProposal, functions::verify_proof, state::{ChallengeProposal, PropertySystemAccount}};
 
 
 #[derive(Accounts)]
@@ -69,6 +69,14 @@ pub fn vote_for_challenge_proposal(
         proposal.status = ProposalStatus::Passed;
 
     }
+
+    emit!(
+        VoteForProposal{
+            proposal:proposal.key(),
+            voter: ctx.accounts.signer.key(),
+            for_against:true          
+        }
+    );
 
     Ok(())
 

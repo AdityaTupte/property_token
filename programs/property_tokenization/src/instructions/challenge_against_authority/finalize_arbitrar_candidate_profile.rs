@@ -1,6 +1,6 @@
 use anchor_lang::prelude::{ *};
 
-use crate::{common::{ARBITRAR_RECEIPT_SEEDS, CANDIDATE_PROFILE, CHALLENGEAUTHORITY, OFFENDERRECEIPT, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, state::{CandidateProfile, ChallengeProposal, OffenderReceipt, PropertySystemAccount}};
+use crate::{common::{ARBITRAR_RECEIPT_SEEDS, CANDIDATE_PROFILE, CHALLENGEAUTHORITY, OFFENDERRECEIPT, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, events::FinalizeAccusedAuthority, state::{CandidateProfile, ChallengeProposal, OffenderReceipt, PropertySystemAccount}};
 
 #[derive(Accounts)]
 #[instruction(proposal_id:u64,property_system_id:u64,candidate_key:Pubkey)]
@@ -87,9 +87,16 @@ pub fn finalize_arbitrar_candidate_profile(
     receipt.is_finalized = true;
 
     
+      emit!(
+        FinalizeAccusedAuthority{
+            proposal_key:proposal.key(),
+            authority:candidate.candidate,
+            authority_type:crate::common::AuthorityType::ARBITRATOR,
+             outcoome:proposal.guilty,
+        }
+    );
 
 
-    ////emit
 
     Ok(())
 }

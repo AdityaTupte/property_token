@@ -1,6 +1,6 @@
 use anchor_lang::prelude::{ *};
 
-use crate::{common::{ CANDIDATE_PROFILE, CHALLENGEAUTHORITY, OFFENDERRECEIPT, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEE_RECEIPT_SEEDS}, errors::ErrorCode, state::{CandidateProfile, ChallengeProposal, OffenderReceipt, PropertySystemAccount,}};
+use crate::{common::{ AuthorityType::TRUSTEE, CANDIDATE_PROFILE, CHALLENGEAUTHORITY, OFFENDERRECEIPT, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEE_RECEIPT_SEEDS}, errors::ErrorCode, events::FinalizeAccusedAuthority, state::{CandidateProfile, ChallengeProposal, OffenderReceipt, PropertySystemAccount,}};
 
 #[derive(Accounts)]
 #[instruction(proposal_id:u64,property_system_id:u64,candidate_key:Pubkey)]
@@ -89,7 +89,14 @@ pub fn finalize_trustee_candidate_profile(
     receipt.is_finalized = true;
 
     
-
+    emit!(
+        FinalizeAccusedAuthority{
+            proposal_key:proposal.key(),
+            authority:candidate.candidate,
+            authority_type:TRUSTEE,
+             outcoome:proposal.guilty,
+        }
+    );
 
     ////emit
 

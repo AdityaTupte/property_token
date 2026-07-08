@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{ AuthorityType, CHALLENGEAUTHORITY, OFFENDERRECEIPT, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEE_RECEIPT_SEEDS}, errors::ErrorCode, state::{ ChallengeProposal, OffenderReceipt, PropertySystemAccount, TrusteeRecepit}};
+use crate::{common::{ AuthorityType::{self, TRUSTEE}, CHALLENGEAUTHORITY, OFFENDERRECEIPT, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEE_RECEIPT_SEEDS}, errors::ErrorCode, events::ChallengeProposalOffenderAuthorityAdded, state::{ ChallengeProposal, OffenderReceipt, PropertySystemAccount, TrusteeRecepit}};
 
 
 
@@ -95,6 +95,15 @@ pub fn add_trustee_offender(
     offender_receipt.authority_type = AuthorityType::TRUSTEE;
 
     offender_receipt.bump = ctx.bumps.offender_receipt;
+
+
+    emit!(
+        ChallengeProposalOffenderAuthorityAdded{
+            proposal_key: proposal.key(),
+            authority: ctx.accounts.trustee_offender.key(),
+            authority_type:TRUSTEE
+        }
+    ); 
 
     Ok(())
 

@@ -6,11 +6,8 @@ use anchor_spl::{
 
 use crate::{
     common::{
-        AuthorityType, ProposalStatus,  CHALLENGEAUTHORITY, PROPERTY_SYSTEM_SEEDS,
-         REMOVEARBITRARAUTHORITYPROPOSAL,
-    },
-    errors::ErrorCode,
-    state::{ChallengeProposal, ElectAuthority, PropertySystemAccount, 
+        AuthorityType::{self, ARBITRATOR}, CHALLENGEAUTHORITY, PROPERTY_SYSTEM_SEEDS, ProposalStatus, REMOVEARBITRARAUTHORITYPROPOSAL,
+    }, errors::ErrorCode, events::RemoveGuiltyAuthority, state::{ChallengeProposal, ElectAuthority, PropertySystemAccount, 
 }};
 
 #[derive(Accounts)]
@@ -130,6 +127,13 @@ pub fn removal_of_arbitrar_proposal(
 
     remove_proposal.bump = ctx.bumps.removal_proposal;
 
+        emit!(
+        RemoveGuiltyAuthority{
+            challenge_proposal_key:proposal.key(),
+            removal_guilty_authority_proposal:remove_proposal.key(),
+           authority_type:ARBITRATOR
+        }
+    );
 
     Ok(())
 }

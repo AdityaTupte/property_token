@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{CHALLENGEAUTHORITY,  HARDCODED_PUBKEY, PROPERTY_SYSTEM_SEEDS, ProposalStatus, ReasonType, },errors::ErrorCode, state::{ChallengeProposal,  PropertySystemAccount,}};
+use crate::{common::{CHALLENGEAUTHORITY,  HARDCODED_PUBKEY, PROPERTY_SYSTEM_SEEDS, ProposalStatus, ReasonType, }, errors::ErrorCode, events::ChallengeProposalExecuted, state::{ChallengeProposal,  PropertySystemAccount,}};
 
 
 
@@ -82,6 +82,13 @@ pub fn outcome_of_proposal(
     proposal.status = ProposalStatus::Executed;
 
     proposal.result_time = Clock::get()?.unix_timestamp;
+
+    emit!(
+        ChallengeProposalExecuted{
+            outcoome:outcome,
+            proposal_key:proposal.key(),
+        }
+    );
 
     Ok(())
 

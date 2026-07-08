@@ -1,6 +1,6 @@
     use anchor_lang::prelude::*;
 
-use crate::{common::{ARBITRAR_RECEIPT_SEEDS, AuthorityType, CHALLENGEAUTHORITY, OFFENDERRECEIPT, PROPERTY_SYSTEM_SEEDS, ProposalStatus, REMOVEARBITRARAUTHORITY, REMOVEARBITRARAUTHORITYPROPOSAL,}, errors::ErrorCode, state::{ArbitratorRecepit, ChallengeProposal, ElectAuthority, OffenderReceipt, PropertySystemAccount, Resignation}};
+use crate::{common::{ARBITRAR_RECEIPT_SEEDS, AuthorityType::{self, ARBITRATOR}, CHALLENGEAUTHORITY, OFFENDERRECEIPT, PROPERTY_SYSTEM_SEEDS, ProposalStatus, REMOVEARBITRARAUTHORITY, REMOVEARBITRARAUTHORITYPROPOSAL,}, errors::ErrorCode, events::ChallengeProposalOffenderAuthorityAdded, state::{ArbitratorRecepit, ChallengeProposal, ElectAuthority, OffenderReceipt, PropertySystemAccount, Resignation}};
 
 #[derive(Accounts)]
 #[instruction(proposal_id:u64,property_system_id:u64,)]
@@ -130,6 +130,16 @@ pub fn add_arbitrar_for_removal_proposal(
     // );
 
     // proposal.authority_to_resign.push(trustee_key);
+
+
+    
+    emit!(
+        ChallengeProposalOffenderAuthorityAdded{
+            proposal_key: proposal.key(),
+            authority: ctx.accounts.arbitrar.key(),
+            authority_type:ARBITRATOR
+        }
+    ); 
 
     
 

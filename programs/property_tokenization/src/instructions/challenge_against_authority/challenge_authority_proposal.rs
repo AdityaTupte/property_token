@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint, TokenAccount, TokenInterface}};
 
-use crate::{common::{ CHALLENGEAUTHORITY, PROPERTY_SYSTEM_SEEDS, ProposalStatus, ProposalType}, errors::ErrorCode, state::{ChallengeProposal, PropertySystemAccount}};
+use crate::{common::{ CHALLENGEAUTHORITY, PROPERTY_SYSTEM_SEEDS, ProposalStatus, ProposalType}, errors::ErrorCode, events::ChallengeProposalCreated, state::{ChallengeProposal, PropertySystemAccount}};
 
 use crate::functions::check_property_system;
 
@@ -99,11 +99,17 @@ pub fn challenge_authority(
 
     proposal.proposal_type = ProposalType::CHALLLENGEAUTHORITY;
 
- 
+    
+    emit!(
+        ChallengeProposalCreated{
+            proposal_id: proposal_id,
+            proposal_key: proposal.key(),
+            property_system:ctx.accounts.property_system.key()
+        }
+    );
 
     
-    ///// emit
-
+   
 
 Ok(())
 

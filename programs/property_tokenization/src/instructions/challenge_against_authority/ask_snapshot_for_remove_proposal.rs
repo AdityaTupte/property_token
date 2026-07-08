@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::ProposalStatus, errors::ErrorCode, state::{ ProposeRemoveProposal}};
+use crate::{common::ProposalStatus, errors::ErrorCode, events::SnapshotRequested, state::ProposeRemoveProposal};
 
 
 #[derive(Accounts)]
@@ -21,7 +21,15 @@ pub fn ask_snapshot_for_remove_proposal(
         ctx:Context<AskForSnapshotOFRemoveProposal>
 )->Result<()>{
 
-    //emit 
+    
+    emit!(
+        SnapshotRequested{
+            proposal_id:00,
+            proposal_key:ctx.accounts.proposed_remove_proposal.key(),
+            mint:ctx.accounts.proposed_remove_proposal.key(),
+            slot:Clock::get()?.slot,
+        }
+    );
 
     Ok(())
 
