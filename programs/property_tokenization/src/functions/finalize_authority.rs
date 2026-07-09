@@ -1,12 +1,13 @@
 
 use anchor_lang::prelude::*;
 
-use crate::{common::ProposalStatus, traits::{AuthorityGovernance,}, errors::ErrorCode, state::Resignation,};
+use crate::{common::ProposalStatus, errors::ErrorCode, events::ResignationOfAuthority, state::Resignation, traits::AuthorityGovernance,};
 
 
 pub fn finalize_authority<U:AuthorityGovernance>(
     proposal: &mut U,
     resignation : &mut Account<Resignation>,
+   
 )->Result<()>{
 
     require!( 
@@ -50,6 +51,13 @@ pub fn finalize_authority<U:AuthorityGovernance>(
      resignation.status = ProposalStatus::Executed;
 
      resignation.time = Clock::get()?.unix_timestamp;
+
+     emit!(
+        ResignationOfAuthority{
+            proposal:resignation.proposal,
+            authority:resignation.authority
+        }
+     );
    
 
 

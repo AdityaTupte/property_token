@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{AuthorityType, CHALLENGEAUTHORITY, OFFENDERRECEIPT, PROPERTY_SYSTEM_SEEDS, ProposalStatus, REMOVETRUSTEEAUTHORITY, REMOVETRUSTEEAUTHORITYPROPOSAL, TRUSTEE_RECEIPT_SEEDS}, errors::ErrorCode, state::{ChallengeProposal, ElectAuthority, OffenderReceipt, PropertySystemAccount, Resignation, TrusteeRecepit}};
+use crate::{common::{AuthorityType::{self, TRUSTEE}, CHALLENGEAUTHORITY, OFFENDERRECEIPT, PROPERTY_SYSTEM_SEEDS, ProposalStatus, REMOVETRUSTEEAUTHORITY, REMOVETRUSTEEAUTHORITYPROPOSAL, TRUSTEE_RECEIPT_SEEDS}, errors::ErrorCode, events::AddedAuthorityForRemoval, state::{ChallengeProposal, ElectAuthority, OffenderReceipt, PropertySystemAccount, Resignation, TrusteeRecepit}};
 
 #[derive(Accounts)]
 #[instruction(proposal_id:u64,property_system_id:u64,)]
@@ -141,7 +141,15 @@ pub fn add_trustee_for_removal_proposal(
     // );
 
     // proposal.authority_to_resign.push(trustee_key);
-
+    
+    emit!(
+        AddedAuthorityForRemoval{
+            proposal_key:proposal.key(),
+            property_system:ctx.accounts.property_system.key(),
+            authority:ctx.accounts.trustee.key(),
+            authority_type:TRUSTEE
+        }
+    );
     
 
     Ok(())

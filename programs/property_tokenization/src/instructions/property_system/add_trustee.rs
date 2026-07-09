@@ -1,6 +1,6 @@
 use anchor_lang::{ prelude::*};
 
-use crate::{common::{PROPERTY_SYSTEM_SEEDS, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, state::{PropertySystemAccount, TrusteeRecepit, TrusteeRegistry}};
+use crate::{common::{AuthorityType::TRUSTEE, PROPERTY_SYSTEM_SEEDS, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, events::AuthorityAddedForPropertySystem, state::{PropertySystemAccount, TrusteeRecepit, TrusteeRegistry}};
 
 
 #[derive(Accounts)]
@@ -71,6 +71,14 @@ pub fn add_trustee(ctx: Context<AddTrustee>, _system_id:u64) -> Result<()> {
     new_trustee_recepit.property_system_account = ctx.accounts.property_system_acc.key();
     new_trustee_recepit.trustee = ctx.accounts.new_trustee.key();
     new_trustee_recepit.bump = ctx.bumps.new_trustee_recepit;
+
+    emit!(
+        AuthorityAddedForPropertySystem{
+            property_system:ctx.accounts.property_system_acc.key(),
+            authority:ctx.accounts.new_trustee.key(),
+            authority_type:TRUSTEE,
+        }
+    );
 
     Ok(())
 }

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{COUNTRY_APPROVE_AUTHORITY_SEEDS, COUNTRY_AUTHORITY, COUNTRY_PROPOSAL_SEEDS, COUNTRY_SEED}, errors::ErrorCode, state::{ApproveCountryAuthority, Country, CountryAuthority, ProposalCountryPda}};
+use crate::{common::{COUNTRY_APPROVE_AUTHORITY_SEEDS, COUNTRY_AUTHORITY, COUNTRY_PROPOSAL_SEEDS, COUNTRY_SEED}, errors::ErrorCode, events::AuthorityOfCountryCreated, state::{ApproveCountryAuthority, Country, CountryAuthority, ProposalCountryPda}};
 
 #[derive(Accounts)]
 #[instruction(country_name: [u8;32])]
@@ -77,6 +77,14 @@ pub fn add_country_authority(ctx:Context<AddCountryAuthority>,_country_name: [u8
     require!(country.total_authority < ctx.accounts.proposal.total_authority,ErrorCode::AuthorityLimitReached);
 
     country.total_authority = country.total_authority + 1; 
+
+    emit!(
+        AuthorityOfCountryCreated{
+            country:country.key(),
+            authority:ctx.accounts.country_authority.key(),
+        }
+    );
+
 
     Ok(())
 

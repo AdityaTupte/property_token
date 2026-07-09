@@ -94,6 +94,7 @@ pub fn remove_old_trustee(
     finalize_authority(
         &mut *ctx.accounts.proposal, 
         &mut ctx.accounts.resignation,
+       
     )?;
     let candidate_profile = &mut ctx.accounts.candidate_profile;
 

@@ -5,7 +5,10 @@ pub mod buy_proposal;
 pub mod voting;
 pub mod common_event;
 pub mod challenge_proposal;
-
+pub mod country;
+pub mod candidate_profile;
+pub mod lease;
+pub mod property;
 
 pub use property_system_created::*;
 pub use land_account_created::*;
@@ -14,3 +17,7 @@ pub use buy_proposal::*;
 pub use voting::*;
 pub use common_event::*;
 pub use challenge_proposal::*;
+pub use country::*;
+pub use candidate_profile::*;
+pub use lease::*;
+pub use property::*;

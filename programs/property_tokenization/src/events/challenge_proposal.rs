@@ -73,3 +73,69 @@ pub struct  RemoveGuiltyAuthority{
 
 
 }
+
+
+#[event]
+
+pub struct  AddedAuthorityForRemoval{
+
+    pub proposal_key : Pubkey,
+
+    pub property_system : Pubkey,
+
+    pub authority : Pubkey,
+
+    pub authority_type : AuthorityType,
+
+
+}
+
+
+#[event]
+
+pub struct  SubmitSnapshotForRemoveAuthority{
+
+    pub proposal_key :Pubkey,
+
+    pub candidate_submision_deadline : i64,
+    
+    pub voting_for_authority_deadline : i64,
+    
+    pub add_new_authority_deadline : i64,
+    
+    pub challenge_new_authority_deadline : i64,
+
+}
+
+#[event]
+
+pub struct AuthorityRevise{
+
+    pub proposal_key :Pubkey,
+
+    pub new_authority :Pubkey,
+
+    pub old_authority :Pubkey
+
+
+}
+
+
+#[event]
+pub struct ResignationOfAuthority{
+
+
+   pub proposal:Pubkey,
+   pub authority:Pubkey,
+
+
+}
+
+
+#[event]
+pub struct FinalizeAuthority{
+    pub proposal:Pubkey,
+    pub property_system:Pubkey,
+     pub authority:Pubkey,
+    pub authority_type:AuthorityType,
+}

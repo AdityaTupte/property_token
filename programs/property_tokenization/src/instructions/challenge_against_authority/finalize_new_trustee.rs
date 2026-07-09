@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{ AUTHORITY_CANDIDATE, CANDIDATE_PROFILE,  PROPERTY_SYSTEM_SEEDS, ProposalStatus,  REMOVETRUSTEEAUTHORITYPROPOSAL, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, functions::{ finalized_candidate_for_remove_proposal}, state::{  AuthorityCandidate, CandidateProfile, ElectAuthority, PropertySystemAccount, TrusteeRecepit, TrusteeRegistry}};
+use crate::{common::{ AUTHORITY_CANDIDATE, AuthorityType::TRUSTEE, CANDIDATE_PROFILE, PROPERTY_SYSTEM_SEEDS, ProposalStatus, REMOVETRUSTEEAUTHORITYPROPOSAL, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, events::FinalizeAuthority, functions::finalized_candidate_for_remove_proposal, state::{  AuthorityCandidate, CandidateProfile, ElectAuthority, PropertySystemAccount, TrusteeRecepit, TrusteeRegistry}};
 
 
 
@@ -118,6 +118,14 @@ pub fn finalize_new_trustee(
 
     trustee_receipt.bump = ctx.bumps.trustee_receipt;
 
+    emit!(
+        FinalizeAuthority{
+            proposal:ctx.accounts.removal_proposal.key(),
+            property_system:trustee_receipt.property_system_account,
+            authority:ctx.accounts.signer.key(),
+            authority_type:TRUSTEE
+        }
+    );
 
     Ok(())
 }

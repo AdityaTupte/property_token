@@ -15,3 +15,20 @@ pub struct VoteForProposal {
 
 
 }
+
+
+
+
+#[event]
+
+pub struct VoteForAuthority {
+
+
+    pub proposal : Pubkey,
+
+    pub voter : Pubkey,
+
+    pub candidate : Pubkey,
+
+
+}

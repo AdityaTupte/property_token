@@ -1,5 +1,7 @@
 use anchor_lang::prelude::*;
 
+use crate::common::AuthorityType;
+
 
 #[event]
 pub struct PropertySystemCreated {
@@ -21,4 +23,12 @@ pub struct PropertySystemCreated {
     pub reinvestment_threshold: u8,
 
     pub created_at: i64,
+}
+
+#[event]
+pub struct AuthorityAddedForPropertySystem{
+    pub property_system:Pubkey,
+    pub authority:Pubkey,
+    pub authority_type:AuthorityType,
+
 }

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{ LEASE_PROPERTY_PROPOSAL, PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, state::{ LeaseProposal, PropertyAccount,  PropertySystemAccount, TrusteeRecepit, TrusteeRegistry}};
+use crate::{common::{ LEASE_PROPERTY_PROPOSAL, PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, events::LeaseProposalCreated, state::{ LeaseProposal, PropertyAccount,  PropertySystemAccount, TrusteeRecepit, TrusteeRegistry}};
 
 use crate::functions::check_property_system;
 
@@ -140,6 +140,15 @@ pub fn initialize_lease_proposal(
     lease_proposal.status = ProposalStatus::Draft;
 
     lease_proposal.bump = ctx.bumps.lease_proposal;
+
+
+    emit!(
+        LeaseProposalCreated{
+            lease_proposal:lease_proposal.key(),
+            creator:ctx.accounts.trustee.key(),
+            lessee:ctx.accounts.lessee.key()
+        }
+    );
 
     Ok(())
 

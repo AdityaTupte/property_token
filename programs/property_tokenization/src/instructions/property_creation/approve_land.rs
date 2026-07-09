@@ -1,6 +1,7 @@
 use anchor_lang::prelude::*;
 
 use crate::common::{PROPERTY_APPROVAL_RECEIPT, PROPERTY_PROPOSAL_SEEDS, STATE_AUTHORITY, STATE_SEEDS};
+use crate::events::VotedForPropertyProposal;
 use crate::state::{PropertyProposal, PropertyProposalReceipt, State, StateAuthority};
 
 use crate::errors::ErrorCode::{self};
@@ -84,6 +85,13 @@ pub struct ApproveLand<'info>{
             proposal.approved = true;
 
         }
+
+        emit!(
+            VotedForPropertyProposal{
+                proposal_key:proposal.key(),
+                authority:ctx.accounts.signer.key(),
+            }
+        );
 
         Ok(())
         

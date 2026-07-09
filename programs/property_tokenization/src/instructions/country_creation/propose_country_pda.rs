@@ -2,7 +2,7 @@
 
 use anchor_lang::prelude::*;
 
-use crate::{common::{COUNTRY_PROPOSAL_SEEDS, HARDCODED_PUBKEY}, errors::ErrorCode, state::ProposalCountryPda};
+use crate::{common::{COUNTRY_PROPOSAL_SEEDS, HARDCODED_PUBKEY}, errors::ErrorCode, events::CountryProposalCreated, state::ProposalCountryPda};
 
 
 
@@ -72,6 +72,12 @@ pub fn create_country_proposal(
         proposalcountry.executed = false;
 
         proposalcountry.bump = ctx.bumps.country_acc;
+
+        emit!(
+            CountryProposalCreated{
+                proposal_key:proposalcountry.key()
+            }
+        );
 
     Ok(())
 }

@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{ associated_token::AssociatedToken, token_interface::{Mint, TokenAccount, TokenInterface, TransferChecked, transfer_checked}};
 
-use crate::{common::{ LEASE_PROPERTY, LeaseStatus, TREASURYSEEDS}, errors::ErrorCode,  state::{LeaseProperty, TreasuryPda}};
+use crate::{common::{ LEASE_PROPERTY, LeaseStatus, TREASURYSEEDS}, errors::ErrorCode, events::RentPaid, state::{LeaseProperty, TreasuryPda}};
 
 
 #[derive(Accounts)]
@@ -120,6 +120,13 @@ pub struct PayRent<'info>{
         cpi_accounts);
 
     transfer_checked(ctx1,  total_amount_to_pay,ctx.accounts.mint.decimals)?;
+
+
+    emit!(
+        RentPaid{
+            lease_proposal:lease.key()
+        }
+    );
     
 
 Ok(())

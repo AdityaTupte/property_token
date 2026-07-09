@@ -101,7 +101,9 @@ pub fn vote_for_new_trustee_authority(
 
     remove_propsal.rm_total_voting_power_gained = remove_propsal.rm_total_voting_power_gained
                                                                 .checked_add(voting_power)
-                                                                .ok_or(ErrorCode::MathOverflow)?;    
+                                                                .ok_or(ErrorCode::MathOverflow)?;   
+                                                            
+                                                             
 
     Ok(())
 

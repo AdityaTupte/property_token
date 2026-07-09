@@ -2,14 +2,13 @@ pub mod challenge_authority_proposal;
 pub mod add_trustee_offender;
 pub mod add_arbitrar_offender;
 pub mod ask_snapshot_for_challenge_proposal;
-//ask for snapshot
 pub mod submit_snapshot_for_challenge_proposal;
 pub mod vote_for_challenge_proposal;
 pub mod outcome_of_proposal;
 pub mod finalize_trustee_candidate_profile;
 pub mod finalize_arbitrar_candidate_profile;
 pub mod remove_trustee_guilty_authority;
-pub mod remove_arbitrar_guilty_authority;
+pub mod remove_arbitrar_guilty_authority; 
 pub mod add_trustee_for_removal;
 pub mod add_arbitrar_for_removal;
 pub mod ask_snapshot_for_remove_proposal;

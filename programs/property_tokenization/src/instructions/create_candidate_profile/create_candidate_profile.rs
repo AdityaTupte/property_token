@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{CANDIDATE_PROFILE, HARDCODED_PUBKEY, ReasonType}, state::CandidateProfile};
+use crate::{common::{CANDIDATE_PROFILE, HARDCODED_PUBKEY, ReasonType}, events::CandidateProfileCreated, state::CandidateProfile};
 
 
 
@@ -61,6 +61,13 @@ pub fn create_candidate_profile(
     candidate_profile.metadata_hash = metadata_hash;
 
     candidate_profile.bump = ctx.bumps.candidate_profile;
+
+
+    emit!(
+        CandidateProfileCreated{
+            candidate_key:candidate_profile.candidate
+        }
+    );
 
     Ok(())
 

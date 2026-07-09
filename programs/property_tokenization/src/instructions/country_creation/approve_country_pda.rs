@@ -1,7 +1,7 @@
 
 use anchor_lang::prelude::*;
 
-use crate::{common::{ COUNTRY_APPROVE_AUTHORITY_SEEDS, COUNTRY_CREATION_AUHTORITY, COUNTRY_PROPOSAL_SEEDS}, errors::ErrorCode, state::*};
+use crate::{common::{ COUNTRY_APPROVE_AUTHORITY_SEEDS, COUNTRY_CREATION_AUHTORITY, COUNTRY_PROPOSAL_SEEDS}, errors::ErrorCode, events::CountryApprovedBySigner, state::*};
 
 
 #[derive(Accounts)]
@@ -80,6 +80,13 @@ pub fn approve_country(
     // if proposal.approvals.len() >= authority.threshold as usize {
     //     proposal.approved = true;
     // }
+
+    emit!(
+        CountryApprovedBySigner{
+            proposal:proposal.key(),
+            authority:ctx.accounts.signer.key()
+        }
+    );
 
     Ok(())
 }

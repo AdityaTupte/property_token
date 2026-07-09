@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint,transfer_checked, TokenAccount, TokenInterface, TransferChecked}};
 
-use crate::{common::{ LEASE_PROPERTY, LEASE_PROPERTY_PROPOSAL, LeaseStatus, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TREASURYSEEDS}, errors::ErrorCode, state::{LeaseProperty, LeaseProposal, PropertyAccount, PropertySystemAccount, TreasuryPda}};
+use crate::{common::{ LEASE_PROPERTY, LEASE_PROPERTY_PROPOSAL, LeaseStatus, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TREASURYSEEDS}, errors::ErrorCode, events::LeaseAcceptedByLesse, state::{LeaseProperty, LeaseProposal, PropertyAccount, PropertySystemAccount, TreasuryPda}};
 
 
 
@@ -223,6 +223,13 @@ pub fn lessee_acceptance(
 
     transfer_checked(ctx2, lease.security_deposit,decimals )?;
   
+
+    emit!(
+        LeaseAcceptedByLesse{
+            lease_proposal:proposal.key(),
+            lesse:ctx.accounts.signer.key()
+        }
+    );
 
 
     Ok(())

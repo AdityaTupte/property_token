@@ -46,6 +46,7 @@ pub fn finalized_candidate_for_remove_proposal<T:AuthorityGovernance,U:Authority
 
     authority_candidate.is_finalized =true ;
     
+    
 
     Ok(())
 }

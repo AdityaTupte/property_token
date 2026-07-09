@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{ PROPERTY_PROPOSAL_SEEDS, PROPERTY_SYSTEM_SEEDS, STATE_AUTHORITY, STATE_SEEDS}, errors::ErrorCode, state::{  PropertyProposal, PropertySystemAccount, State, StateAuthority}};
+use crate::{common::{ PROPERTY_PROPOSAL_SEEDS, PROPERTY_SYSTEM_SEEDS, STATE_AUTHORITY, STATE_SEEDS}, errors::ErrorCode, events::PropertyProposalCreated, state::{  PropertyProposal, PropertySystemAccount, State, StateAuthority}};
 
 use crate::functions::check_property_system;
 
@@ -92,6 +92,15 @@ pub fn create_proposal(
         proposal.issued_by = ctx.accounts.signer.key();
 
         proposal.bump = ctx.bumps.proposal;
+
+
+        emit!(
+            PropertyProposalCreated{
+                proposal_key:proposal.key(),
+                property_system:ctx.accounts.property_system.key(),
+                created_by:ctx.accounts.signer.key()
+            }
+        );
 
     Ok(())
 }

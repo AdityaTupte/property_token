@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{ARBITRAR_RECEIPT_SEEDS, ARBITRAR_REGISTRYSEEDS, AUTHORITY_CANDIDATE, CANDIDATE_PROFILE,  PROPERTY_SYSTEM_SEEDS, ProposalStatus, REMOVEARBITRARAUTHORITYPROPOSAL,   }, errors::ErrorCode, functions::{ finalized_candidate_for_remove_proposal}, state::{ArbitratorRecepit, ArbitratorRegistry, AuthorityCandidate, CandidateProfile, ElectAuthority, PropertySystemAccount, }};
+use crate::{common::{ARBITRAR_RECEIPT_SEEDS, ARBITRAR_REGISTRYSEEDS, AUTHORITY_CANDIDATE, AuthorityType::ARBITRATOR, CANDIDATE_PROFILE, PROPERTY_SYSTEM_SEEDS, ProposalStatus, REMOVEARBITRARAUTHORITYPROPOSAL,   }, errors::ErrorCode, events::FinalizeAuthority, functions::finalized_candidate_for_remove_proposal, state::{ArbitratorRecepit, ArbitratorRegistry, AuthorityCandidate, CandidateProfile, ElectAuthority, PropertySystemAccount, }};
 
 
 
@@ -118,6 +118,15 @@ pub fn finalize_new_arbitrar(
 
     arbitrar_receipt.bump = ctx.bumps.arbitrar_receipt;
 
+
+    emit!(
+        FinalizeAuthority{
+            proposal:ctx.accounts.removal_proposal.key(),
+            property_system:arbitrar_receipt.property_system_account,
+            authority:ctx.accounts.signer.key(),
+            authority_type:ARBITRATOR
+        }
+    );
 
     Ok(())
 }

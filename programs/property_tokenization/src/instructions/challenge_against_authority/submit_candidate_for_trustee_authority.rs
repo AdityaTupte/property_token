@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{AUTHORITY_CANDIDATE, CANDIDATE_PROFILE,  PROPERTY_SYSTEM_SEEDS, ProposalStatus,  REMOVETRUSTEEAUTHORITYPROPOSAL}, errors::ErrorCode, state::{AuthorityCandidate, CandidateProfile,  ElectAuthority, PropertySystemAccount}};
+use crate::{common::{AUTHORITY_CANDIDATE, AuthorityType::TRUSTEE, CANDIDATE_PROFILE, PROPERTY_SYSTEM_SEEDS, ProposalStatus, REMOVETRUSTEEAUTHORITYPROPOSAL}, errors::ErrorCode, events::CandidateSubmitedForProposal, state::{AuthorityCandidate, CandidateProfile,  ElectAuthority, PropertySystemAccount}};
 
 #[derive(Accounts)]
 #[instruction(proposal_key:Pubkey,property_system_id:u64)]
@@ -106,6 +106,16 @@ pub fn submit_candidate_for_trustee_authority(
     new_registration.bump = ctx.bumps.new_registration;
 
     candidate_profile.total_applied += 1;
+
+
+    emit!(
+        CandidateSubmitedForProposal{
+            proposal:removal_proposal.key(),
+            candidate:ctx.accounts.signer.key(),
+            authority_type:TRUSTEE
+        }
+    );
+
 
     Ok(())
 

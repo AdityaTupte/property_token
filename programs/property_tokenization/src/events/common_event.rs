@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::common::ProposalStatus;
+use crate::common::{AuthorityType, ProposalStatus};
 
 #[event]
 
@@ -22,3 +22,32 @@ pub struct DeleteProposal{
     pub deleted_by : Pubkey,
 
 }
+
+
+#[event]
+
+pub struct CandidateSubmitedForProposal{
+
+     pub proposal : Pubkey,
+
+     pub candidate:Pubkey,
+
+     pub authority_type : AuthorityType,
+}
+
+
+
+#[event]
+
+pub struct AddedNewAuthority{
+
+    pub proposal : Pubkey,
+
+     pub candidate:Pubkey,
+
+     pub authority_type : AuthorityType,
+
+     pub rank:u8,
+
+}
+ 

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{ ARBITRAR_RECEIPT_SEEDS, AuthorityType, CHALLENGEAUTHORITY, OFFENDERRECEIPT, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, state::{ArbitratorRecepit, ChallengeProposal, OffenderReceipt, PropertySystemAccount,}};
+use crate::{common::{ ARBITRAR_RECEIPT_SEEDS, AuthorityType::{self, ARBITRATOR}, CHALLENGEAUTHORITY, OFFENDERRECEIPT, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, events::ChallengeProposalOffenderAuthorityAdded, state::{ArbitratorRecepit, ChallengeProposal, OffenderReceipt, PropertySystemAccount,}};
 
 
 
@@ -103,6 +103,15 @@ pub fn add_arbitrar_offender(
     offender_receipt.authority_type = AuthorityType::ARBITRATOR;
 
     offender_receipt.bump = ctx.bumps.offender_receipt;
+
+    emit!(
+        ChallengeProposalOffenderAuthorityAdded{
+            proposal_key: proposal.key(),
+            authority: ctx.accounts.arbitrar_offender.key(),
+            authority_type:ARBITRATOR
+        }
+    ); 
+
 
     Ok(())
 

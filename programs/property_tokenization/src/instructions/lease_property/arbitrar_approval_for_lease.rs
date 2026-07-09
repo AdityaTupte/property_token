@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{ ARBITRAR_LEASE_PROPOSAL_VOTE_RECEIPT_SEEDS, ARBITRAR_RECEIPT_SEEDS, ARBITRAR_REGISTRYSEEDS, LEASE_PROPERTY_PROPOSAL, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, state::{ArbitratorRecepit, ArbitratorRegistry, ArbitratorVoteReceipts, LeaseProposal, PropertySystemAccount}};
+use crate::{common::{ ARBITRAR_LEASE_PROPOSAL_VOTE_RECEIPT_SEEDS, ARBITRAR_RECEIPT_SEEDS, ARBITRAR_REGISTRYSEEDS, LEASE_PROPERTY_PROPOSAL, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, events::ArbitrarVoteForLease, state::{ArbitratorRecepit, ArbitratorRegistry, ArbitratorVoteReceipts, LeaseProposal, PropertySystemAccount}};
 
 
 #[derive(Accounts)]
@@ -106,6 +106,13 @@ pub fn arbitrar_approval_for_lease(
                                                     .checked_add(3*24*60*60)
                                                     .ok_or(ErrorCode::MathOverflow)?;
     }
+
+    emit!(
+        ArbitrarVoteForLease{
+            lease_proposal:proposal.key(),
+            arbitrar:ctx.accounts.arbitrar.key(),
+        }
+    );
 
     Ok(())
 

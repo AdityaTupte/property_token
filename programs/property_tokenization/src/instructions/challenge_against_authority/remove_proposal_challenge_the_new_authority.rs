@@ -76,11 +76,14 @@ pub fn challenge_new_authority(
     _proposal_key:Pubkey,_property_system_id:u64,_challenge_from_key:Pubkey,_challenge_to_key:Pubkey,_ranking:u8
 )->Result<()>{
 
+    let proposal_key =ctx.accounts.removal_proposal.key();
+
    challenge_authority(
         &mut *ctx.accounts.removal_proposal,
         &mut ctx.accounts.challenge_from, 
         &mut ctx.accounts.challenge_to, 
        &mut ctx.accounts.ranking_acc,
+        proposal_key,
     )?;
 
     Ok(())

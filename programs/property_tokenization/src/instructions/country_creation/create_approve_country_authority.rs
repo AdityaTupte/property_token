@@ -1,7 +1,7 @@
 
 use anchor_lang::prelude::*;
 
-use crate::{common::COUNTRY_APPROVE_AUTHORITY_SEEDS, errors::ErrorCode, functions::assert_unique_owners, state::ApproveCountryAuthority};
+use crate::{common::COUNTRY_APPROVE_AUTHORITY_SEEDS, errors::ErrorCode, events::AuthorityToApproveCountryCreated, functions::assert_unique_owners, state::ApproveCountryAuthority};
 
 #[derive(Accounts)]
 
@@ -50,6 +50,13 @@ pub fn create_approve_country_authority(
     approve_authority.authority = authority;
 
     approve_authority.bump = ctx.bumps.authority;
+
+
+    emit!(
+        AuthorityToApproveCountryCreated{
+            authority_account:approve_authority.key()
+        }
+    );
 
     Ok(())
 

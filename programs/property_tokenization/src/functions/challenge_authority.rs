@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{traits::AuthorityGovernance,errors::ErrorCode, state::{AuthorityCandidate, RankingAccount} };
+use crate::{errors::ErrorCode, events::AuthorityRevise, state::{AuthorityCandidate, RankingAccount}, traits::AuthorityGovernance };
 
 
 
@@ -9,7 +9,7 @@ pub fn challenge_authority<T:AuthorityGovernance>(
     challenge_from : &mut Account<AuthorityCandidate>,
     challenge_to : &mut Account<AuthorityCandidate>,
     ranking_acc : &mut Account<RankingAccount>,
-
+    proposal_key: Pubkey
 )->Result<()>{
     
     let current_time  = Clock::get()?.unix_timestamp;
@@ -42,6 +42,13 @@ pub fn challenge_authority<T:AuthorityGovernance>(
     
     ranking_acc.candidate_key = challenge_from.candidate;
 
+   emit!(
+    AuthorityRevise{
+        proposal_key:proposal_key,
+        new_authority:challenge_from.candidate,
+        old_authority:challenge_to.candidate,
+    }
+   );
 Ok(())
 
 }

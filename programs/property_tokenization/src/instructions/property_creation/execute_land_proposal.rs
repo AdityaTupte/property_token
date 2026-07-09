@@ -1,7 +1,8 @@
     use anchor_lang::prelude::*;
 
     use crate::common::{PROPERTY_METADATA_SEEDS, PROPERTY_PROPOSAL_SEEDS, PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, STATE_AUTHORITY, STATE_SEEDS};
-    use crate::state::{ PropertyAccount, PropertyAccountMetadata, PropertyProposal, PropertySystemAccount, State, StateAuthority};
+    use crate::events::PropertyCreated;
+use crate::state::{ PropertyAccount, PropertyAccountMetadata, PropertyProposal, PropertySystemAccount, State, StateAuthority};
 
     use crate::errors::ErrorCode::{self};
 
@@ -163,6 +164,13 @@
         metadata.bump = ctx.bumps.property_metadata;
 
         proposal.executed = true;
-        
+
+        emit!(
+            PropertyCreated{
+                proposal_key:proposal.key(),
+                property_key:property_acc.key(),
+                propoerty_system:ctx.accounts.property_system_account.key()
+            }
+        );
         Ok(())
     }

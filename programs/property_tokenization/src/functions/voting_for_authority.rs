@@ -1,7 +1,7 @@
 use anchor_lang::{ prelude::*};
 use anchor_spl::associated_token::spl_associated_token_account::solana_program::keccak;
 
-use crate::{traits::{AuthorityGovernance, BaseProposal}, errors::ErrorCode, functions::verify_proof, state::{AuthorityCandidate, AuthorityVoteReceipt, }};
+use crate::{errors::ErrorCode, events::VoteForAuthority, functions::verify_proof, state::{AuthorityCandidate, AuthorityVoteReceipt, }, traits::{AuthorityGovernance, BaseProposal}};
 
 
 pub fn voting_for_authority<T:BaseProposal + AuthorityGovernance>(
@@ -70,6 +70,14 @@ pub fn voting_for_authority<T:BaseProposal + AuthorityGovernance>(
     authority_candidate.vote_gained = authority_candidate.vote_gained
                                             .checked_add(voting_power)
                                             .ok_or(ErrorCode::MathOverflow)?;
+
+    emit!(
+        VoteForAuthority{
+            proposal:proposal_key,
+            candidate:authority_candidate.candidate,
+            voter:signer
+        }
+    );
 
 
    Ok(())

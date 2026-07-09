@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::ProposalStatus, errors::ErrorCode, state::ElectAuthority};
+use crate::{common::ProposalStatus, errors::ErrorCode, events::FinalizeProposal, state::ElectAuthority};
 
 
 
@@ -45,6 +45,12 @@ pub fn finalize_remove_proposal(
         proposal.status = ProposalStatus::Rejected;
     }
 
+    emit!(
+        FinalizeProposal{
+            proposal:proposal.key(),
+            proposal_status:proposal.status
+        }
+    );
 
     Ok(())
 }

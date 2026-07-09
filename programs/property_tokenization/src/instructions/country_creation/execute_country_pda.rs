@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{COUNTRY_PROPOSAL_SEEDS, COUNTRY_SEED}, errors::ErrorCode, state::{Country, ProposalCountryPda}};
+use crate::{common::{COUNTRY_PROPOSAL_SEEDS, COUNTRY_SEED}, errors::ErrorCode, events::CountryCreated, state::{Country, ProposalCountryPda}};
 
 #[derive(Accounts)]
 #[instruction(country_name:[u8;32])]
@@ -54,6 +54,14 @@ pub fn execute_country_propsal(
     country.threshold = proposal.country_pda_threshold;
 
     country.bump = ctx.bumps.country_pda;
+
+
+    emit!(
+        CountryCreated{
+            proposal:proposal.key(),
+            country:country.key(),
+        }
+    );
 
     Ok(())
 

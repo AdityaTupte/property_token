@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{traits::AuthorityGovernance, errors::ErrorCode, state::{AuthorityCandidate, RankCounter, RankingAccount}, };
+use crate::{errors::ErrorCode, events::AddedNewAuthority, state::{AuthorityCandidate, RankCounter, RankingAccount}, traits::AuthorityGovernance, };
 
 
 pub fn add_new_authority<T:AuthorityGovernance,>(
@@ -62,6 +62,14 @@ ranking_acc.bump = bump;
 
 // (*item.new_authority()).push(*authority_candidate_key);
  
+ emit!(
+    AddedNewAuthority{
+        proposal:proposal_key,
+        candidate:authority_candidate.candidate,
+        authority_type:authority_candidate.authority_type,
+        rank:ranking,
+    }
+ );
 
 Ok(())
 }
