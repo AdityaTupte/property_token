@@ -90,11 +90,14 @@ pub fn challenge_new_trustee(
 )->Result<()>{
 
     
+    let proposal_key = ctx.accounts.proposal.key();
+
     challenge_authority(
         &mut *ctx.accounts.proposal,
         &mut ctx.accounts.challenge_from, 
         &mut ctx.accounts.challenge_to, 
        &mut ctx.accounts.ranking_acc,
+       proposal_key,
     )?;
 
     Ok(())

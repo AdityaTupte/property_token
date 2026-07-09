@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{ARBITRAR_RECEIPT_SEEDS, ARBITRAR_RESIGNATION, AuthorityType, ELECT_ARBITRAR, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, state::{ArbitratorRecepit, ElectAuthority, PropertySystemAccount, Resignation}};
+use crate::{common::{ARBITRAR_RECEIPT_SEEDS, ARBITRAR_RESIGNATION, AuthorityType::{self, ARBITRATOR}, ELECT_ARBITRAR, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, events::ResignationCreated, state::{ArbitratorRecepit, ElectAuthority, PropertySystemAccount, Resignation}};
 
 #[derive(Accounts)]
 #[instruction(proposal_id:u64,property_system_id:u64)]
@@ -123,6 +123,14 @@ pub fn new_arbitrar_election_proposal(
     resignation.proposal = proposal.key();
 
     proposal.total_authority_to_resign += 1;
+
+    emit!(
+        ResignationCreated{
+             proposal:proposal.key(),
+            authority:ctx.accounts.arbitrar.key(),
+            authority_type:ARBITRATOR
+        }
+    );
 
     Ok(())
 }

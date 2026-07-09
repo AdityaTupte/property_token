@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{ELECT_ARBITRAR, HARDCODED_PUBKEY, ProposalStatus}, errors::ErrorCode, functions::submit_authority, state::ElectAuthority};
+use crate::{common::{ELECT_ARBITRAR, HARDCODED_PUBKEY, ProposalStatus}, errors::ErrorCode, events::SubmitSnapshotForResignAuthority, functions::submit_authority, state::ElectAuthority};
 
 
 #[derive(Accounts)]
@@ -48,6 +48,7 @@ pub fn submit_snapshot_for_arbitrar_authority(
 
 )->Result<()>{
 
+    let proposal_key = ctx.accounts.proposal.key();
 
 let proposal = &mut *ctx.accounts.proposal;
 
@@ -59,6 +60,17 @@ submit_authority(
     add_new_authority_deadline,
     challenge_new_authority_deadline
 )?;
+
+
+emit!(
+    SubmitSnapshotForResignAuthority{
+        proposal_key:proposal_key,
+        candidate_submision_deadline:proposal.candidate_submission_deadline,
+        add_new_authority_deadline:proposal.add_new_authority_deadline,
+        voting_for_authority_deadline:proposal.voting_for_authority_deadline,
+        challenge_new_authority_deadline:proposal.challenge_new_authority_deadline,
+    }
+);
 
 Ok(())
 }

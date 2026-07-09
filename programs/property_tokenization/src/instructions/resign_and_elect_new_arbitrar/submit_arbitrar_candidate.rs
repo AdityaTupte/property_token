@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{AUTHORITY_CANDIDATE, AuthorityType, CANDIDATE_PROFILE, ELECT_ARBITRAR, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, state::{AuthorityCandidate, CandidateProfile, ElectAuthority, PropertySystemAccount}};
+use crate::{common::{AUTHORITY_CANDIDATE, AuthorityType::{self, ARBITRATOR}, CANDIDATE_PROFILE, ELECT_ARBITRAR, PROPERTY_SYSTEM_SEEDS, ProposalStatus}, errors::ErrorCode, events::CandidateSubmitedForProposal, state::{AuthorityCandidate, CandidateProfile, ElectAuthority, PropertySystemAccount}};
 
 #[derive(Accounts)]
 #[instruction(
@@ -96,6 +96,16 @@ pub fn submit_arbitrar_candidate(
     new_registration.bump = ctx.bumps.new_registration;
 
     candidate_profile.total_applied += 1;
+
+    
+     emit!(
+        CandidateSubmitedForProposal{
+            proposal:proposal.key(),
+            candidate:ctx.accounts.signer.key(),
+            authority_type:ARBITRATOR
+        }
+    );
+
 
     Ok(())
 

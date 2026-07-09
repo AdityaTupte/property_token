@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{AuthorityType, ELECT_TRUSTEE, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEE_RECEIPT_SEEDS, TRUSTEE_RESIGNATION}, errors::ErrorCode, state::{ElectAuthority, PropertySystemAccount, Resignation, TrusteeRecepit}};
+use crate::{common::{AuthorityType::{self, TRUSTEE}, ELECT_TRUSTEE, PROPERTY_SYSTEM_SEEDS, ProposalStatus, TRUSTEE_RECEIPT_SEEDS, TRUSTEE_RESIGNATION}, errors::ErrorCode, events::ResignationCreated, state::{ElectAuthority, PropertySystemAccount, Resignation, TrusteeRecepit}};
 use crate::functions::check_property_system;
 
 #[derive(Accounts)]
@@ -141,7 +141,13 @@ pub fn new_trustee_election_proposal(
 
     // proposal.authority_to_resign.push(trustee_key);
 
-    
+    emit!(
+        ResignationCreated{
+            proposal:proposal.key(),
+            authority:ctx.accounts.trustee.key(),
+            authority_type:TRUSTEE
+        }
+    );
 
     Ok(())
 }

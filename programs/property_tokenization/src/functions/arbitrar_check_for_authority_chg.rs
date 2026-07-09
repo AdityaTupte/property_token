@@ -1,4 +1,4 @@
-use crate::{common::ProposalStatus, traits::AuthorityGovernance, events::{ SnapshotRequestedForAuthority}, state::{ VoteReceiptForAuthorityElection}};
+use crate::{common::ProposalStatus, events::{ ApproveByAuthority, SnapshotRequestedForAuthority}, state::VoteReceiptForAuthorityElection, traits::AuthorityGovernance};
 use anchor_lang::prelude::*;
 
 
@@ -70,6 +70,13 @@ pub fn arbitrar_approval_for_authority<T: AuthorityGovernance>(
 
 
     }
+
+    emit!(
+        ApproveByAuthority{
+            proposal:proposal_key,
+            authority:signer,
+        }
+    );
 
 
     Ok(())
