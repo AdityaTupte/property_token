@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::spl_associated_token_account::solana_program::keccak, token_interface::{Mint, }};
 
-use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, RT_CHG_PROPOSAL_SEEDS}, errors::ErrorCode, functions::verify_proof, state::{NEWTHRESHOLDPROPOSAL, PropertySystemAccount, RTChgProposal}, traits::Governance};
+use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, RT_CHG_PROPOSAL_SEEDS}, errors::ErrorCode, events::ProposedNewThreshold, functions::verify_proof, state::{NEWTHRESHOLDPROPOSAL, PropertySystemAccount, RTChgProposal}, traits::Governance};
 
 
 
@@ -124,6 +124,14 @@ pub fn propose_new_threshold(
     new_threshold.new_safety_threshold = new_safety_threshold;
 
     new_threshold.bump = ctx.bumps.new_threshold;
+
+    emit!(
+        ProposedNewThreshold{
+            proposal: ctx.accounts.proposal.key(),
+            proposed_revenue_threshold:new_threshold.key(),
+            proposer:ctx.accounts.signer.key()
+        }
+    );
 
     Ok(())
 }

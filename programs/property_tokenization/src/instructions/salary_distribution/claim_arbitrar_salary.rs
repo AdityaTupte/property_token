@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint,TransferChecked, transfer_checked, TokenAccount, TokenInterface}};
 
-use crate::{common::{ARBITRAR_RECEIPT_SEEDS, ARBITRAR_REGISTRYSEEDS,  HARDCODED_PUBKEY, PROPERTY_SYSTEM_SEEDS, }, errors::ErrorCode,  state::{ArbitratorRecepit, ArbitratorRegistry, PropertySystemAccount,}};
+use crate::{common::{ARBITRAR_RECEIPT_SEEDS, ARBITRAR_REGISTRYSEEDS, AuthorityType::ARBITRATOR, HARDCODED_PUBKEY, PROPERTY_SYSTEM_SEEDS, }, errors::ErrorCode, events::SalaryClaimed, state::{ArbitratorRecepit, ArbitratorRegistry, PropertySystemAccount,}};
 use crate::functions::check_property_system;
 #[derive(Accounts)]
 #[instruction(property_system_id:u64)]
@@ -140,6 +140,16 @@ pub fn claim_arbitrar_salary(
     else {
          arbitrator_recepit.new_transaction_time = arbitrar_registry_pda.claim_deadline_ts;
     }
+
+    emit!(
+        SalaryClaimed{
+            property_system:ctx.accounts.property_system.key(),
+            authority:ctx.accounts.arbitrar.key(),
+            authority_type:ARBITRATOR
+        }
+    );
+
+
     Ok(())
 
 

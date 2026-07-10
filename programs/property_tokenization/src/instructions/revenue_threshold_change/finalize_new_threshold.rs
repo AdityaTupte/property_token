@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, RT_CHG_PROPOSAL_SEEDS, THRESHOLD}, errors::ErrorCode, state::{NEWTHRESHOLDPROPOSAL, PropertySystemAccount, RTChgProposal, Threshold}};
+use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, RT_CHG_PROPOSAL_SEEDS, THRESHOLD}, errors::ErrorCode, events::NewThresholdAdopted, state::{NEWTHRESHOLDPROPOSAL, PropertySystemAccount, RTChgProposal, Threshold}};
 
 #[derive(Accounts)]
 #[instruction(property_system_id:u64,proposal_id:u64,new_threshold_signer:Pubkey)]
@@ -82,7 +82,13 @@ pub fn finalize_new_threshold(
 
     proposal.status = ProposalStatus::Executed;
 
-    
+    emit!(
+        NewThresholdAdopted{
+            proposal:proposal.key(),
+            new_threshold:new_threshold.key(),
+            property_system:proposal.property_system
+        }
+    );
 
     Ok(())
 }

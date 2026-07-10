@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{HARDCODED_PUBKEY, ProposalStatus, USEREINVESTMENTOKEN}, errors::ErrorCode, functions::submit, state::TokenTransferProposal, };
+use crate::{common::{HARDCODED_PUBKEY, ProposalStatus, ProposalType::USEREINVESTMENT, USEREINVESTMENTOKEN}, errors::ErrorCode, events::SubmitForTokenTransfer, functions::submit, state::TokenTransferProposal, };
 
 
 
@@ -41,10 +41,20 @@ pub fn reinvest_submit_snapshot(
 
     require!(closing_days_gap>0,ErrorCode::ClosingDay);
 
+    let proposal_key = ctx.accounts.proposal.key();
+
     let proposal = &mut *ctx.accounts.proposal;
 
     submit(proposal, merkle_root, closing_days_gap,vote_threshold,deadline_days)?;
     
+    emit!(
+        SubmitForTokenTransfer{
+            proposal:proposal_key,
+            end_time:proposal.end_time,
+            proposal_type:USEREINVESTMENT
+        }
+    );
+
     Ok(())
 
 

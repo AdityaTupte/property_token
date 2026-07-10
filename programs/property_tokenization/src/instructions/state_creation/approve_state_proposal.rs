@@ -1,6 +1,6 @@
 use anchor_lang:: prelude::*;
 
-use crate::{common::{COUNTRY_AUTHORITY, COUNTRY_SEED, STATE_APPROVE_RECEIPT, STATE_PROPOSAL_SEEDS}, errors::ErrorCode, state::{Country, CountryAuthority, StateProposalAprroveReceipt, StateProposalPda}};
+use crate::{common::{COUNTRY_AUTHORITY, COUNTRY_SEED, STATE_APPROVE_RECEIPT, STATE_PROPOSAL_SEEDS}, errors::ErrorCode, events::VoteForStateProposal, state::{Country, CountryAuthority, StateProposalAprroveReceipt, StateProposalPda}};
 
 
 #[derive(Accounts)]
@@ -95,7 +95,13 @@ pub fn approve_state(
 
     //     proposal.approved = true;
 
-    
+
+    emit!(
+        VoteForStateProposal{
+            proposal:proposal.key(),
+            authority:ctx.accounts.signer.key()
+        }
+    );
 
     Ok(())
 }

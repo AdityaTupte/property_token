@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, RT_CHG_PROPOSAL_SEEDS, TRUSTEE_RECEIPT_SEEDS}, errors::ErrorCode, state::{NEWTHRESHOLDPROPOSAL, PropertySystemAccount, RTChgProposal, TrusteeRecepit, }};
+use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, RT_CHG_PROPOSAL_SEEDS, TRUSTEE_RECEIPT_SEEDS}, errors::ErrorCode, events::NewThresholdSelected, state::{NEWTHRESHOLDPROPOSAL, PropertySystemAccount, RTChgProposal, TrusteeRecepit, }};
 
 
 #[derive(Accounts)]
@@ -85,6 +85,14 @@ pub fn change_to_the_new_threshold(ctx:Context<ChangeToNewThreshold>,_proposal_i
     let proposal = &mut ctx.accounts.proposal;
 
     proposal.new_threshold = ctx.accounts.new_threshold.key();
+
+
+    emit!(
+        NewThresholdSelected{
+            proposal:proposal.key(),
+            new_threshold:ctx.accounts.new_threshold.key(),
+        }
+    );
 
 
     Ok(())

@@ -51,3 +51,10 @@ pub struct AddedNewAuthority{
 
 }
  
+
+
+ #[event]
+ pub struct TreasuryDistributionEvent{
+  pub  property_system:Pubkey,
+   pub  time:i64
+ }

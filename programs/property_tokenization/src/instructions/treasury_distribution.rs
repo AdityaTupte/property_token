@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint, TokenAccount, TokenInterface}};
 
-use crate::{common::{ARBITRAR_REGISTRYSEEDS, DIVIDENDSEEDS, PROPERTY_SYSTEM_SEEDS, REINVESTMENTPDA, SAFETYPDA, THRESHOLD, TREASURYSEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, functions::transfer_fro_treasury, state::{ArbitratorRegistry, DividendPda, PropertySystemAccount, ReinvestmentPda, SafetyPda, Threshold, TreasuryPda, TrusteeRegistry, }};
+use crate::{common::{ARBITRAR_REGISTRYSEEDS, DIVIDENDSEEDS, PROPERTY_SYSTEM_SEEDS, REINVESTMENTPDA, SAFETYPDA, THRESHOLD, TREASURYSEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, events::TreasuryDistributionEvent, functions::transfer_fro_treasury, state::{ArbitratorRegistry, DividendPda, PropertySystemAccount, ReinvestmentPda, SafetyPda, Threshold, TreasuryPda, TrusteeRegistry, }};
 use crate::functions::check_property_system;
 
 
@@ -318,6 +318,14 @@ pub fn treasury_distribution(
     arbitrator_registry.total_salary_allocated = amount_for_arbitrar
                                                     .checked_add(ctx.accounts.arbitrar_ata.amount)
                                                     .ok_or(ErrorCode::MathOverflow)?;
+
+    
+    emit!(
+        TreasuryDistributionEvent{
+            property_system:property_sys_key,
+            time:Clock::get()?.unix_timestamp
+        }
+    );
 
 
     Ok(())

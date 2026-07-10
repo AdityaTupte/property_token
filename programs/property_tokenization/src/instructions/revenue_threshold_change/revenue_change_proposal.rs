@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{PROPERTY_SYSTEM_SEEDS, RT_CHG_PROPOSAL_SEEDS, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS},  state::{PropertySystemAccount, RTChgProposal,  TrusteeRecepit, TrusteeRegistry}};
+use crate::{common::{PROPERTY_SYSTEM_SEEDS, RT_CHG_PROPOSAL_SEEDS, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS}, events::RevenueChangeProposalCreated, state::{PropertySystemAccount, RTChgProposal,  TrusteeRecepit, TrusteeRegistry}};
 
 #[derive(Accounts)]
 #[instruction(proposal_id:u64,property_system_id:u64)]
@@ -73,6 +73,16 @@ pub fn rt_proposal(
         proposal_id,
         ctx.bumps.proposal, 
        );
+
+       emit!(
+        RevenueChangeProposalCreated{
+            proposal_id:proposal_id,
+            proposal_key:proposal.key(),
+            property_system:property_system.key(),
+            trustee:ctx.accounts.trustee.key(),
+        }
+       );
+    
 
     Ok(())
 

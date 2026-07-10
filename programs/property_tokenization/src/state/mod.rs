@@ -12,7 +12,7 @@ pub mod countrypda;
 pub mod approve_country_authority;
 pub mod state_proposal;
 pub mod property_proposal;
-pub mod property_page_account;
+
 pub mod resignation;
 pub mod offender_receipt;
 //////////////////
@@ -23,7 +23,7 @@ pub mod authority_vote_receipt;
 pub mod challengeproposal;
 pub mod lease_property_proposal;
 pub mod lease_property;
-pub mod salary_pda;
+
 pub mod arbitrator_vote_receipts;
 pub mod trustee_vote_receipts;
 pub mod vote_receipt_for_authority_election;
@@ -42,7 +42,7 @@ pub use trustee_vote_receipts::*;
 pub use arbitrator_vote_receipts::*;
 pub use trustee_recepit::*;
 pub use arbitrator_recepit::*;
-pub use salary_pda::*;
+
 pub use lease_property::*;
 pub use lease_property_proposal::*;
 pub use challengeproposal::*;
@@ -64,4 +64,3 @@ pub use countrypda::*;
 pub use approve_country_authority::*;
 pub use state_proposal::*;
 pub use property_proposal::*;
-pub use property_page_account::*;

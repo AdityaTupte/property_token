@@ -3,6 +3,7 @@
 use anchor_lang::prelude::*;
 
 use crate::common::{COUNTRY_AUTHORITY, COUNTRY_SEED, STATE_PROPOSAL_SEEDS};
+use crate::events::StateCreated;
 use crate::state::{Country, CountryAuthority, StateProposalPda};
 use crate::errors::ErrorCode;
 
@@ -100,6 +101,15 @@ pub fn create_state_proposal(
     proposal.country_pubkey = country.key();
 
     proposal.bump = ctx.bumps.state_proposal;
+
+
+    emit!(
+        StateCreated{
+            proposal:proposal.key(),
+            country:proposal.country_pubkey.key(),
+            creator:ctx.accounts.signer.key()
+        }
+    );
 
     Ok(())
 }

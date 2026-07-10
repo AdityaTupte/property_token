@@ -2,6 +2,7 @@ use anchor_lang::prelude::*;
 use crate::common::{HARDCODED_PUBKEY, ProposalStatus, SELLPROPERTY};
 
 use crate::errors::ErrorCode;
+use crate::events::SubmitSnapshotForSellProposal;
 use crate::functions::submit;
 use crate::state::{PropertySellProposal};
 
@@ -45,10 +46,18 @@ pub fn sell_submit_snapshot(
     require!(closing_days_gap <= 30 && closing_days_gap>0,ErrorCode::ClosingDay);
 
     require!(transfer_deadline_days > 0, ErrorCode::TransferDeadline);
+    let proposal_key  = ctx.accounts.proposal.key();
 
     let proposal = &mut *ctx.accounts.proposal;
 
     submit(proposal, merkle_root, closing_days_gap,vote_threshold,transfer_deadline_days)?;
+
+    emit!(
+        SubmitSnapshotForSellProposal{
+                proposal:proposal_key,
+                transfer_deadline_days:proposal.transfer_deadline
+        }
+    );
     
     Ok(())
 

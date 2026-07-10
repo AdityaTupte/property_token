@@ -1,6 +1,7 @@
 use anchor_lang::prelude::*;
 use crate::common::{ PROPERTY_SEED, PROPERTY_SYSTEM_SEEDS, SELLPROPERTY, TREASURYSEEDS, TRUSTEE_RECEIPT_SEEDS,};
 use crate::errors::ErrorCode;
+use crate::events::CreateSellPropertyProposal;
 use crate::state::{PropertyAccount, PropertySellProposal, PropertySystemAccount, TreasuryPda, TrusteeRecepit,};
 
 use crate::functions::check_property_system;
@@ -102,6 +103,16 @@ pub fn create_sell_proposal(ctx:Context<SellLandProposal>,proposal_id: u64,_prop
     sale_price,
     seller.total_token_supply,
     ctx.bumps.proposal,
+    );
+
+    emit!(
+        CreateSellPropertyProposal{
+            proposal_id:proposal_id,
+            seller_proposal:proposal.key(),
+            seller:seller.key(),
+            property:property_account.key(),
+            amount:sale_price
+        }
     );
     
     Ok(())

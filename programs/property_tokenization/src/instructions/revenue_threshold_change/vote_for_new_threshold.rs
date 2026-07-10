@@ -2,7 +2,7 @@ use anchor_lang::{prelude::*};
 use anchor_spl::{ associated_token::spl_associated_token_account::solana_program::keccak, token_interface::{Mint}};
 
 
-use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, RT_CHG_PROPOSAL_SEEDS, THRESHOLD_VOTE_RECEIPT}, errors::ErrorCode, functions::{verify_proof}, state::{NEWTHRESHOLDPROPOSAL, PropertySystemAccount, RTChgProposal, ThresholdVoteReceipt}};
+use crate::{common::{PROPERTY_SYSTEM_SEEDS, PROPOSE_THRESHOLD, ProposalStatus, RT_CHG_PROPOSAL_SEEDS, THRESHOLD_VOTE_RECEIPT}, errors::ErrorCode, events::VotedForNewThreshold, functions::verify_proof, state::{NEWTHRESHOLDPROPOSAL, PropertySystemAccount, RTChgProposal, ThresholdVoteReceipt}};
 
 
 #[derive(Accounts)]
@@ -76,6 +76,8 @@ pub fn vote_for_new_threshold(
 )->Result<()>{
     let current_time = Clock::get()?.unix_timestamp ;
 
+    let proposal_key = ctx.accounts.proposal.key();
+
     let proposal = &mut ctx.accounts.proposal;
 
     require!( current_time > proposal.threshold_submission_deadline ,ErrorCode::VotingPeriodNotStarted);
@@ -111,6 +113,15 @@ pub fn vote_for_new_threshold(
     receipt.thresholdvoted = new_threshold.key();
 
     receipt.bump = ctx.bumps.new_threshold_vote_receipt;
+
+    emit!(
+        VotedForNewThreshold{
+            proposal:proposal_key,
+            voter:ctx.accounts.signer.key(),
+            new_threshold: receipt.thresholdvoted
+        }
+    );
+
 
     Ok(())
 

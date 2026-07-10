@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
 use crate::common::{COUNTRY_SEED, STATE_PROPOSAL_SEEDS, STATE_SEEDS};
+use crate::events::ExecuteStateProposal;
 use crate::state::{Country, State, StateProposalPda};
 use crate::errors::ErrorCode::{self};
 
@@ -79,6 +80,16 @@ pub fn execute_state_proposal(
     state.bump = ctx.bumps.state;
 
     proposal.executed = true;
+
+
+
+    emit!(
+        ExecuteStateProposal{
+            proposal:proposal.key(),
+            state:state.key()
+        }
+    );
+
 
     Ok(())
 }

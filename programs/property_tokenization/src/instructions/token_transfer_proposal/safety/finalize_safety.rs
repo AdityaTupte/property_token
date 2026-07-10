@@ -29,9 +29,11 @@ pub fn finalize_safety_proposal(
     _proposal_id:u64,_property_system:Pubkey
 )->Result<()>{
 
+    let proposal_key = &ctx.accounts.proposal.key();
+
+
     let proposal = &mut *ctx.accounts.proposal; 
 
-    finalize(proposal)?;
-
+    finalize(proposal,proposal_key)?;
     Ok(())
 }

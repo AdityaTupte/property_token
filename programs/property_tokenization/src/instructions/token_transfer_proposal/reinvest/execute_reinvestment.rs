@@ -2,7 +2,9 @@ use anchor_lang::prelude::*;
 use anchor_spl::token_interface::{TokenAccount,Mint,TransferChecked,transfer_checked, TokenInterface};
 use anchor_spl::associated_token::*;
 
+use crate::common::ProposalType::USEREINVESTMENT;
 use crate::common::{PROPERTY_SYSTEM_SEEDS, ProposalStatus, REINVESTMENTPDA, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS, USEREINVESTMENTOKEN};
+use crate::events::TokenTransferExecuted;
 use crate::state::{ReinvestmentPda, TokenTransferProposal, TrusteeRecepit, };
 use crate::{errors::ErrorCode, state::{PropertySystemAccount, TrusteeRegistry}};
 
@@ -145,6 +147,16 @@ pub fn execute_reivestment_proposal(
     transfer_checked(cpi_context, amount, ctx.accounts.mint.decimals)?;
 
     proposal.status = ProposalStatus::Executed;
+
+    emit!(
+        TokenTransferExecuted{
+            proposal:proposal.key(),
+            property_system:property_system.key(),
+            credited_account:ctx.accounts.recepient_wallet.key(),
+            amount:proposal.amount_required,
+            proposal_type:USEREINVESTMENT
+        }
+    );
     Ok(())
 
 

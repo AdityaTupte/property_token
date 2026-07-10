@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint,TransferChecked, transfer_checked, TokenAccount, TokenInterface}};
 
-use crate::{common::{HARDCODED_PUBKEY, PROPERTY_SYSTEM_SEEDS, TRUSTEE_RECEIPT_SEEDS,  TRUSTEEREGISTRYSEEDS}, errors::ErrorCode,  state::{PropertySystemAccount,  TrusteeRecepit, TrusteeRegistry}};
+use crate::{common::{AuthorityType::TRUSTEE, HARDCODED_PUBKEY, PROPERTY_SYSTEM_SEEDS, TRUSTEE_RECEIPT_SEEDS, TRUSTEEREGISTRYSEEDS}, errors::ErrorCode, events::SalaryClaimed, state::{PropertySystemAccount,  TrusteeRecepit, TrusteeRegistry}};
 
 use crate::functions::check_property_system;
 #[derive(Accounts)]
@@ -147,6 +147,14 @@ pub fn trustee_salary_claim(
     else {
         trustee_receipt.new_transaction_time = trustee_registry_pda.claim_deadline_ts;
     }
+
+    emit!(
+        SalaryClaimed{
+            property_system:ctx.accounts.property_system.key(),
+            authority:ctx.accounts.trustee.key(),
+            authority_type:TRUSTEE
+        }
+    );
 
     Ok(())
 

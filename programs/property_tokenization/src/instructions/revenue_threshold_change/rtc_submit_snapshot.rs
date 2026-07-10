@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{common::{HARDCODED_PUBKEY, ProposalStatus, RT_CHG_PROPOSAL_SEEDS}, errors::ErrorCode, functions::submit, state::RTChgProposal};
+use crate::{common::{HARDCODED_PUBKEY, ProposalStatus, RT_CHG_PROPOSAL_SEEDS}, errors::ErrorCode, events::SubmitSnapshotForRevenueChangeProposal, functions::submit, state::RTChgProposal};
 
 #[derive(Accounts)]
 #[instruction(property_system_account:Pubkey,proposal_id:u64)]
@@ -47,6 +47,9 @@ pub fn rtc_submit_snapshot(
 
     require!(threshold_submission_deadline_days > 0, ErrorCode::TransferDeadline);
 
+    
+    let proposal_key = ctx.accounts.proposal.key();
+
     let proposal = &mut *ctx.accounts.proposal;
 
     submit(proposal, merkle_root, closing_days_gap,vote_threshold,threshold_submission_deadline_days)?;
@@ -63,6 +66,17 @@ pub fn rtc_submit_snapshot(
                                                             .checked_add(24*60*60*(challenge_new_threshold_deadline_days as i64))
                                                             .ok_or(ErrorCode::MathOverflow)?;
 
+
+    
+    emit!(
+        SubmitSnapshotForRevenueChangeProposal{
+            proposal_key:proposal_key,
+            threshold_submission_deadline_days:proposal.threshold_submission_deadline,
+            voting_for_threshold_deadline:proposal.voting_for_threshold_deadline,
+            add_new_threshold_deadline:proposal.add_new_threshold_deadline,
+            challenge_new_threshold_deadline:proposal.challenge_new_threshold_deadline
+        }
+    );                                                        
     Ok(())
 
 
