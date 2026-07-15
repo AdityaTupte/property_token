@@ -4,7 +4,8 @@ use crate:: state::{ArbitratorRegistry, DividendPda, Metadata, PropertySystemAcc
 use crate::events::*;
 use crate::errors::ErrorCode;
 use crate::common::*;
-
+// use crate::transfer_hook::cpi;
+use crate::transfer_hook::cpi::initialize_extra_account_meta_list;
 
 
 
@@ -157,6 +158,7 @@ pub struct PropertySystem<'info>{
         mint::freeze_authority = property_system_acc.key(),
         extensions::metadata_pointer::authority = property_system_acc,
         extensions::metadata_pointer::metadata_address = metadata,
+        extensions::transfer_hook::program_id = transfer_hook_program
     )]
     pub governance_mint: Box<InterfaceAccount<'info, Mint>>,
 
@@ -186,9 +188,16 @@ pub struct PropertySystem<'info>{
     pub token_program: Interface<'info, TokenInterface>,
 
     pub associated_token_program: Program<'info, AssociatedToken>,
+
+    /// CHECK: Pass your main program ID here from the client
+    pub custom_program: AccountInfo<'info>,
     
     pub system_program: Program<'info, System>,
 
+    pub transfer_hook_program: Program<'info, crate::transfer_hook::program::TransferHook>,
+    #[account(mut)]
+/// CHECK: This PDA will be initialized by the Transfer Hook program.
+pub extra_account_meta_list: UncheckedAccount<'info>,
 }
 
 pub fn create(
@@ -246,6 +255,28 @@ pub fn create(
 
     metadata.symbol = symbol;
 
+
+    // let cpi_transfer = transfer_hook::TransferHookInitialize
+
+    let cpi_program = ctx.accounts.transfer_hook_program.to_account_info();
+    
+    
+    
+    let cpi_accounts =
+    crate::transfer_hook::cpi::accounts::InitializeExtraAccountMetaList {
+        payer: ctx.accounts.creator.to_account_info(),
+        mint: governance_mint.to_account_info(),
+        extra_account_meta_list: ctx.accounts.extra_account_meta_list.to_account_info(),
+        custom_program:ctx.accounts.custom_program.to_account_info(),
+        system_program: ctx.accounts.system_program.to_account_info(),
+        associated_token_program:ctx.accounts.associated_token_program.to_account_info(),
+        token_program:ctx.accounts.token_program.to_account_info()
+
+    };
+
+    let cpi_context = CpiContext::new(cpi_program,cpi_accounts);
+
+    initialize_extra_account_meta_list(cpi_context)?;
     
     let signer_seeds: &[&[&[u8]]] = &[&[
         b"property_system_account".as_ref(),
