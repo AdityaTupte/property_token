@@ -96,7 +96,7 @@ pub fn claim_arbitrar_salary(
     ctx:Context<ClaimArbitrarSalary>,
     _property_system_id:u64
 )->Result<()>{
-
+    
     let arbitrar_registry_pda = &mut ctx.accounts.arbitrar_registry;
 
     let arbitrator_recepit = &mut ctx.accounts.arbitirar_receipt;

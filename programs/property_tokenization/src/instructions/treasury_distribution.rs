@@ -6,7 +6,7 @@ use crate::functions::check_property_system;
 
 
 
-pub const PRECISION: u128 = 1_000_000_000_000; 
+pub const PRECISION: u128 = 1; 
 
 #[derive(Accounts)]
 #[instruction(property_system_id:u64)]
@@ -149,6 +149,10 @@ pub struct TreasuryDistribution<'info>{
 
     pub mint : Box<InterfaceAccount<'info,Mint>>,
 
+    #[account(
+        constraint = governance_mint.key() == property_system.governance_mint @ ErrorCode::InvalidMint
+    )]
+    pub governance_mint :  Box<InterfaceAccount<'info,Mint>>,
 
     pub associated_token_program: Program<'info, AssociatedToken>,
 
@@ -186,6 +190,7 @@ pub fn treasury_distribution(
 
     let dividend_pda = &mut ctx.accounts.dividend_pda;
     
+    let governance_mint = & ctx.accounts.governance_mint;
 
     let property_sys_key =  ctx.accounts.property_system.key();
 
@@ -218,13 +223,14 @@ pub fn treasury_distribution(
                                     .checked_div(10_000)
                                     .ok_or(ErrorCode::MathOverflow)?;
     
+ 
     let current_dividend =( (amount_for_dividend as u128).checked_mul(PRECISION)
                                                         .ok_or(ErrorCode::MathOverflow)?
-                                                        .checked_div(ctx.accounts.mint.supply as u128))
+                                                        .checked_div(ctx.accounts.governance_mint.supply as u128))
                                                         .ok_or(ErrorCode::MathOverflow)?;
    
-    
-    
+   
+     
     dividend_pda.dividend_per_token =  dividend_pda.dividend_per_token
                                                 .checked_add(
                                                     current_dividend
