@@ -13,6 +13,7 @@ pub mod challenge_against_authority;
 pub mod lease_property;
 pub mod treasury_distribution;
 pub mod salary_distribution;
+pub mod claim_dividend;
 
 pub use property_system::*;
 pub use country_creation::*;
@@ -29,3 +30,4 @@ pub use challenge_against_authority::*;
 pub use lease_property::*;
 pub use treasury_distribution::*;
 pub use salary_distribution::*;
+pub use claim_dividend::*;

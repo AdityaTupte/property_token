@@ -5332,47 +5332,47 @@ it("pay rent",async()=>{
 
 
 
-it("pay rent2", async () => {
-  advanceClockBy(svm, 20n * 24n * 60n * 60n);
+// it("pay rent2", async () => {
+//   advanceClockBy(svm, 20n * 24n * 60n * 60n);
 
 
    
-  // const leaseAtaAccount = await getAccount(
-  //   connection as any,
-  //   leaseAta,
-  //   undefined,
-  //   TOKEN_2022_PROGRAM_ID
-  // );
-  // console.log("lease ATA account:", leaseAta.toBase58());
-  // console.log("lease ATA data:", leaseAtaAccount);
+//   // const leaseAtaAccount = await getAccount(
+//   //   connection as any,
+//   //   leaseAta,
+//   //   undefined,
+//   //   TOKEN_2022_PROGRAM_ID
+//   // );
+//   // console.log("lease ATA account:", leaseAta.toBase58());
+//   // console.log("lease ATA data:", leaseAtaAccount);
   
 
-  await program.methods.payRent(
-    propertySystemPda,
-    id,
-    property_key,
-  ).accounts(
-    {
-      signer: lease.publicKey,
-      mint: mintKeypair.publicKey,
-      tokenProgram: TOKEN_2022_PROGRAM_ID,
-    }
-  ).signers([lease]).rpc()
+//   await program.methods.payRent(
+//     propertySystemPda,
+//     id,
+//     property_key,
+//   ).accounts(
+//     {
+//       signer: lease.publicKey,
+//       mint: mintKeypair.publicKey,
+//       tokenProgram: TOKEN_2022_PROGRAM_ID,
+//     }
+//   ).signers([lease]).rpc()
 
    
-  const leaseAtaAccount2 = await getAccount(
-    connection as any,
-    leaseAta,
-    undefined,
-    TOKEN_2022_PROGRAM_ID
-  );
-  console.log("lease ATA account:", leaseAta.toBase58());
-  console.log("lease ATA data:", leaseAtaAccount2);
+//   const leaseAtaAccount2 = await getAccount(
+//     connection as any,
+//     leaseAta,
+//     undefined,
+//     TOKEN_2022_PROGRAM_ID
+//   );
+//   console.log("lease ATA account:", leaseAta.toBase58());
+//   console.log("lease ATA data:", leaseAtaAccount2);
   
 
 
 
-})
+// })
 
 
 // it("pay rent3",async()=>{
@@ -6024,38 +6024,6 @@ it("treasury distribution",async()=>{
 
   
 
-  
-  const [dividend] = PublicKey.findProgramAddressSync(
-  [
-    Buffer.from("dividend"),
-    governanceMint.toBuffer(),
-  ],
-  program.programId
-);
-
-  const diviPerToken = await program.account.dividendPda.fetch(dividend);
-
-  console.log("divipertoken",diviPerToken);
-  
-
-  const dividendassociatedTokenAddress = getAssociatedTokenAddressSync(
-    mintKeypair.publicKey,
-    dividend,
-    true,
-    TOKEN_2022_PROGRAM_ID,
-    ASSOCIATED_TOKEN_PROGRAM_ID
-  );
-
-
-     const dividendata = await getAccount(
-    connection,dividendassociatedTokenAddress,undefined,TOKEN_2022_PROGRAM_ID
-  )
-
-  console.log("dividendata",dividendata);
-  
-  
-
-
   const reinvestmentassociatedTokenAddress = getAssociatedTokenAddressSync(
     mintKeypair.publicKey,
     reinvestment,
@@ -6184,6 +6152,148 @@ console.log("trustee1",arbitrator_registryata);
 
 it("skip time to voting end",async() =>{
   advanceClockBy(svm, 32n*24n*60n*60n);
+
+})
+
+
+
+it("dividend per token 1",async()=>{
+
+
+const [dividend] = PublicKey.findProgramAddressSync(
+  [
+    Buffer.from("dividend"),
+    governanceMint.toBuffer(),
+  ],
+  program.programId
+);
+
+const acc = await program.account.dividendPda.fetch(dividend);
+
+console.log(acc);
+
+   const senderAta = getAssociatedTokenAddressSync(
+    governanceMint,
+    receiver1.publicKey,
+    false,
+    TOKEN_2022_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
+  const wal = await getAccount(
+    connection,
+    senderAta,
+    "confirmed",
+    TOKEN_2022_PROGRAM_ID
+  )
+
+  console.log("before",wal);
+  
+
+  const receiverAta = getAssociatedTokenAddressSync(
+    governanceMint,
+    receiver2.publicKey,
+    false,
+    TOKEN_2022_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
+
+
+let tx = new Transaction();
+
+
+  const ix = await createTransferCheckedWithTransferHookInstruction(
+        connection,
+        senderAta,
+        governanceMint,
+        receiverAta,
+        receiver1.publicKey,
+        BigInt(50),
+        1,
+        [],
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+      )
+
+    tx.add(
+      ix
+    );
+
+
+  await provider.sendAndConfirm(tx,[receiver1]);
+
+const after = await getAccount(
+    connection,
+    senderAta,
+    "confirmed",
+    TOKEN_2022_PROGRAM_ID
+  )
+
+  console.log("after",after);
+
+for (const element of receivers) {
+    const senderAta = getAssociatedTokenAddressSync(
+        governanceMint,
+        element.publicKey,
+        false,
+        TOKEN_2022_PROGRAM_ID,
+        ASSOCIATED_TOKEN_PROGRAM_ID
+    );
+
+    const [receiver] = PublicKey.findProgramAddressSync(
+        [Buffer.from("rewardpda"), governanceMint.toBuffer(), senderAta.toBuffer()],
+        program2.programId
+    );
+
+    const acc2 = await program2.account.rewardPda.fetch(receiver);
+    console.log(`Account details for ${element.publicKey.toBase58()}:`, acc2);
+}
+
+
+
+
+})
+
+
+it("pay rent",async()=>{
+  advanceClockBy(svm, 3n * 24n * 60n * 60n);
+
+    const leaseAtaAccount = await getAccount(
+    connection as any,
+    leaseAta,
+    undefined,
+    TOKEN_2022_PROGRAM_ID
+  );
+  console.log("lease ATA account before:", leaseAta.toBase58());
+  console.log("lease ATA data:", leaseAtaAccount);
+
+  await program.methods.payRent(
+    propertySystemPda,
+    id,
+    property_key,
+    
+  ).accounts(
+    {
+      signer:lease.publicKey,
+      mint:mintKeypair.publicKey,
+      tokenProgram:TOKEN_2022_PROGRAM_ID,
+    }
+  ).signers([lease]).rpc()
+
+      const leaseAtaAccount2 = await getAccount(
+    connection as any,
+    leaseAta,
+    undefined,
+    TOKEN_2022_PROGRAM_ID
+  );
+  console.log("lease ATA account after:", leaseAta.toBase58());
+  console.log("lease ATA data:", leaseAtaAccount2);
+
+  
+  // const acc = await program.account.leaseProperty.fetch(lease_key);
+
+  // console.log(acc);
 
 })
 
@@ -6547,6 +6657,18 @@ it("finalize_new_threshold",async()=>{
     }
   ).signers([receiver1]).rpc()
 
+  const [thresholdPda] = PublicKey.findProgramAddressSync(
+  [
+    Buffer.from("threshold"),
+    propertySystemPda.toBuffer(),
+  ],
+  program.programId
+);
+
+    let acc = await program.account.threshold.fetch(thresholdPda);
+
+    console.log(acc);
+    
   // await program.methods.finalizeNewThreshold(
   //   id,
   //   id,
@@ -6613,7 +6735,7 @@ let tx = new Transaction();
         governanceMint,
         receiverAta,
         receiver1.publicKey,
-        BigInt(50),
+        BigInt(25),
         1,
         [],
         undefined,
@@ -6656,7 +6778,52 @@ for (const element of receivers) {
 
 
 
+
 })
+
+
+it("claim_dividend",async()=>{
+
+  let pubkey = getAssociatedTokenAddressSync(
+    mintKeypair.publicKey,
+    receiver1.publicKey,
+    false,
+    TOKEN_2022_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
+  // let acc = await getAccount(
+  //   connection,
+  //   pubkey,
+  //   undefined,
+  //   TOKEN_2022_PROGRAM_ID
+  // );
+
+  // console.log("before ", acc);
+  
+
+  await program.methods.claimDividendToken().accounts(
+    {
+      signer:receiver1.publicKey,
+      mint:mintKeypair.publicKey,
+      governanceMint:governanceMint,
+      tokenProgram:TOKEN_2022_PROGRAM_ID
+    }
+  ).signers([receiver1]).rpc()
+
+  
+  let acc2 = await getAccount(
+    connection,
+    pubkey,
+    undefined,
+    TOKEN_2022_PROGRAM_ID
+  );
+
+  console.log("after ", acc2);
+
+})
+
+
 
 
   });

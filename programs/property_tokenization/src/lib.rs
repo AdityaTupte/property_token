@@ -15,7 +15,7 @@ declare_program!(transfer_hook);
 #[program]
 pub mod property_tokenization {
 
-    use crate::common::ReasonType;
+    use crate::{common::ReasonType, instructions::claim_dividend};
 
     use super::*;
 
@@ -1489,5 +1489,16 @@ pub fn finalize_new_threshold(
 
 }
 
+
+pub fn claim_dividend_token(
+     ctx:Context<ClaimDividend>,
+)->Result<()>{
+
+
+    claim_dividend(ctx)?;
+
+    Ok(())
+
+}
 
 }

@@ -6,7 +6,7 @@ use crate::functions::check_property_system;
 
 
 
-pub const PRECISION: u128 = 1; 
+pub  const PRECISION: u128 = 1_000_000_000_000;  
 
 #[derive(Accounts)]
 #[instruction(property_system_id:u64)]
