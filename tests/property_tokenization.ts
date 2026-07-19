@@ -6821,6 +6821,27 @@ it("claim_dividend",async()=>{
 
   console.log("after ", acc2);
 
+
+
+  for (const element of receivers) {
+    const senderAta = getAssociatedTokenAddressSync(
+        governanceMint,
+        element.publicKey,
+        false,
+        TOKEN_2022_PROGRAM_ID,
+        ASSOCIATED_TOKEN_PROGRAM_ID
+    );
+
+    const [receiver] = PublicKey.findProgramAddressSync(
+        [Buffer.from("rewardpda"), governanceMint.toBuffer(), senderAta.toBuffer()],
+        program2.programId
+    );
+
+    const acc2 = await program2.account.rewardPda.fetch(receiver);
+    console.log(`Account details for ${element.publicKey.toBase58()}:`, acc2);
+}
+
+
 })
 
 

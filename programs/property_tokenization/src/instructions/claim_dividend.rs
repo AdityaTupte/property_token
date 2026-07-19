@@ -13,6 +13,8 @@ pub struct ClaimDividend<'info>{
         mut,
     )]
     pub signer : Signer<'info>,
+
+    
     
      #[account(
         associated_token::mint = governance_mint,
@@ -37,7 +39,8 @@ pub struct ClaimDividend<'info>{
             b"dividend",
             governance_mint.key().as_ref(),
         ],
-        bump = dividend_pda.bump)]
+        bump = dividend_pda.bump,
+    )]
     pub dividend_pda : Account<'info,DividendPda>,
 
     #[account(
@@ -51,6 +54,7 @@ pub struct ClaimDividend<'info>{
 
 
     #[account(
+        mut,
         seeds=[
             b"rewardpda",
             governance_mint.key().as_ref(),
@@ -104,7 +108,29 @@ pub fn claim_dividend(
         signer_seeds
     );
 
+
+    
+
+
     transfer_checked(cpi_ctx, ctx.accounts.reward_pda.pending_reward, ctx.accounts.mint.decimals)?;
+
+ 
+
+     let cpi_program = ctx.accounts.transfer_hook_program.to_account_info();
+    
+    let cpi_accounts = crate::transfer_hook::cpi::accounts::ClaimedPending{
+        dividend_pda:ctx.accounts.dividend_pda.to_account_info(),
+        governance_mint:ctx.accounts.governance_mint.to_account_info(),
+        rewardPda:ctx.accounts.reward_pda.to_account_info(),
+        user:ctx.accounts.signer.to_account_info(),
+        signer_governance_mint_ata:ctx.accounts.signer_governance_mint_ata.to_account_info(),
+        token_program:ctx.accounts.token_program.to_account_info(),
+    };
+
+    let ctx2 = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
+
+    crate::transfer_hook::cpi::claimed_pending(ctx2)?;               
+
 
     Ok(())
 }

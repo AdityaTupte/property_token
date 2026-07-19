@@ -8,6 +8,184 @@
   },
   "instructions": [
     {
+      "name": "claimed_pending",
+      "discriminator": [
+        243,
+        84,
+        166,
+        203,
+        33,
+        245,
+        3,
+        154
+      ],
+      "accounts": [
+        {
+          "name": "dividend_pda",
+          "docs": [
+            "CHECK : check dividendPda"
+          ],
+          "writable": true,
+          "signer": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  105,
+                  118,
+                  105,
+                  100,
+                  101,
+                  110,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "governance_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                156,
+                192,
+                121,
+                3,
+                3,
+                127,
+                101,
+                116,
+                102,
+                18,
+                177,
+                1,
+                194,
+                219,
+                84,
+                87,
+                179,
+                186,
+                128,
+                111,
+                101,
+                35,
+                248,
+                98,
+                215,
+                197,
+                205,
+                116,
+                10,
+                15,
+                0,
+                184
+              ]
+            }
+          }
+        },
+        {
+          "name": "user",
+          "signer": true
+        },
+        {
+          "name": "signer_governance_mint_ata",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "user"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "governance_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "rewardPda",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  119,
+                  97,
+                  114,
+                  100,
+                  112,
+                  100,
+                  97
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "governance_mint"
+              },
+              {
+                "kind": "account",
+                "path": "signer_governance_mint_ata"
+              }
+            ]
+          }
+        },
+        {
+          "name": "governance_mint"
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "initailize",
       "discriminator": [
         159,
@@ -365,19 +543,6 @@
   ],
   "accounts": [
     {
-      "name": "DividendPda",
-      "discriminator": [
-        59,
-        246,
-        152,
-        134,
-        13,
-        216,
-        19,
-        4
-      ]
-    },
-    {
       "name": "RewardPda",
       "discriminator": [
         253,
@@ -419,30 +584,6 @@
     }
   ],
   "types": [
-    {
-      "name": "DividendPda",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "property_system",
-            "type": "pubkey"
-          },
-          {
-            "name": "dividend_per_token",
-            "type": "u128"
-          },
-          {
-            "name": "last_updated_ts",
-            "type": "i64"
-          },
-          {
-            "name": "bump",
-            "type": "u8"
-          }
-        ]
-      }
-    },
     {
       "name": "RewardPda",
       "type": {

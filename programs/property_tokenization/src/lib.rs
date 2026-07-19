@@ -11,7 +11,6 @@ use crate::common::*;
 
 declare_id!("BYtpqEouT7FFDUFjFeE2ecSDwf1VHNNHUkc2URswVZ4B");
 declare_program!(transfer_hook);
-
 #[program]
 pub mod property_tokenization {
 
