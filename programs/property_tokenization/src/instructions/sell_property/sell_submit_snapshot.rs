@@ -42,7 +42,8 @@ pub fn sell_submit_snapshot(
 )->Result<()>{
 
     require!( 0 < vote_threshold  && vote_threshold< ctx.accounts.proposal.total_voting_power, ErrorCode::InvalidVotingThreshold);
-
+    // use now adn check that thestarting time is more than the now and if we mius with end time it should less than  30dyas in second 
+    // and transfer deadline should be more than the endtime 
     require!(closing_days_gap <= 30 && closing_days_gap>0,ErrorCode::ClosingDay);
 
     require!(transfer_deadline_days > 0, ErrorCode::TransferDeadline);
