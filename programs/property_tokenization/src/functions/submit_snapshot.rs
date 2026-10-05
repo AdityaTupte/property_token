@@ -7,6 +7,7 @@ use crate::errors::ErrorCode;
     pub fn submit<T:Governance>(
         item: &mut T,
         merkle_root : [u8;32],
+        // start time in seconds and end time as well instead of closing days  and change the deadline days to seconds
         closing_days : u8,
         vote_threshold :u64,
         deadline_days : u8 ,
